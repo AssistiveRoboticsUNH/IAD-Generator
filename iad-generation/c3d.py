@@ -12,7 +12,7 @@ def get_input_placeholder(batch_size, num_frames=INPUT_DATA_SIZE["t"]):
 
 def get_output_placeholder(batch_size):
   # returns a placeholder for the C3D output (currently unused)
-  return tf.placeholder(tf.float32, 
+  return tf.placeholder(tf.int32, 
       shape=(batch_size),
       name="c3d_label_ph")
 
