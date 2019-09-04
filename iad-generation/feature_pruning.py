@@ -61,6 +61,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 			dy = tf.Print(dy, [dy], message="---->>>>dy")
 			#values = sum( activation * dy , dim=0 ) 
 			return 2.0 * dy
+		x = tf.Print(x, [x], message="---->>>>x")
 		return tf.identity(x), grad
 
 	# Convolution Layer
