@@ -175,7 +175,7 @@ with tf.Session() as sess:
 	
 
 	print("printing gradients:")
-	print(gr)
+	#print(gr)
 	#for g in gr:
 	#	print(g.shape)
 
