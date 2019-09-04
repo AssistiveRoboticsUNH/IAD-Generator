@@ -119,7 +119,7 @@ def normalize_dataset(list_of_files, min_max_vals):
 					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
 			np.savez(filename, data=data, label=label, length=length)
 
-def combine_npy_files(list_of_files, prune_locs = np.array([])):
+def combine_npy_files(list_of_files, prune_locs=None):
 	# combine all of the IADs from a specific depth together
 	for layer in range(len(model.CNN_FEATURE_COUNT)):
 		data_all, label_all, length_all = [],[],[]
@@ -136,9 +136,11 @@ def combine_npy_files(list_of_files, prune_locs = np.array([])):
 			length_all.append(length)
 
 		num_features = np.array(data_all).shape[1]
-		print("keep_locs: ", np.arange(num_features))
-		keep_locs = np.delete(np.arange(num_features), prune_locs[layer])
-		
+		keep_locs = np.arange(num_features)
+		if(prune_locs != None):  
+			keep_locs = np.delete(keep_locs, prune_locs[layer])
+
+		print(np.array(data_all).shape, np.array(label_all).shape, np.array(length_all).shape)
 
 		np.savez(os.path.join(FLAGS.dst_directory, FLAGS.prefix+"_"+str(layer)+".npz"), 
 				data=np.array(data_all)[keep_locs], 
