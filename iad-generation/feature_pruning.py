@@ -32,9 +32,11 @@ conv_variables = tf.trainable_variables()#[v for v in tf.trainable_variables() i
 #https://jacobgil.github.io/deeplearning/pruning-deep-learning
 #https://stackoverflow.com/questions/43839431/tensorflow-how-to-replace-or-modify-gradient/43948872
 
-
-
-
+'''
+class Model:
+	def __init__(self):
+		self.activations = []
+'''
 def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_layers=True):
 	'''Generates the activation map for a given input from a specific depth
 		-input_ph: the input placeholder, should have been defined using the 
@@ -58,9 +60,12 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	@tf.custom_gradient
 	def rank_layer(x):
 		def grad(dy):
-			dy = tf.Print(dy, [tf.shape(dy)], message="---->>>>dy_shape", summarize=10)
+			dy = tf.Print(dy, [tf.shape(dy), tf.shape(x)], message="---->>>>dy_shape", summarize=10)
+			
 			#values = sum( activation * dy , dim=0 ) 
 			return 2.0 * dy
+
+		#self.activations.append(x)
 		return tf.identity(x), grad
 
 	# Convolution Layer
