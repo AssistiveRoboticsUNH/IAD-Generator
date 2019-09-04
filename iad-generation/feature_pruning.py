@@ -60,11 +60,15 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	@tf.custom_gradient
 	def rank_layer(x):
 		def grad(dy):
-			dy = tf.Print(dy, [dy], message="---->>>>dy_shape", summarize=10)
-			dy = tf.Print(dy, [x], message="---->>>>x_shape", summarize=10)
+			#dy = tf.Print(dy, [dy], message="---->>>>dy_shape", summarize=10)
+			#dy = tf.Print(dy, [x], message="---->>>>x_shape", summarize=10)
+			ranks = tf.math.multiply(x, dy)#tf.reduce_sum()
+
+			dy = tf.Print(dy, [tf.shape(ranks)], message="---->>>>dy_shape", summarize=10)
+
 			
 			#values = sum( activation * dy , dim=0 ) 
-			return 2.0 * dy
+			return dy
 
 		#self.activations.append(x)
 		return tf.identity(x), grad
