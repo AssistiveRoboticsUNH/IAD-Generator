@@ -124,7 +124,7 @@ with tf.Session() as sess:
 
 	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
 
-	for i in range(3):#len(list_of_files_and_labels)):
+	for i in range(len(list_of_files_and_labels)):
 		file, label = list_of_files_and_labels[i]
 		print("reading: {0}".format(file))
 		print("file: {:6d}/{:6d}".format(i, len(list_of_files_and_labels)))
@@ -136,12 +136,11 @@ with tf.Session() as sess:
 			total_ranks = r
 		else:
 			total_ranks = np.add(total_ranks, r)
-	
-total_ranks = total_ranks[0]
+
 # store rankings in a npy array
+total_ranks = total_ranks[0]
 depth, index, rank = [],[],[] 
 for i in range(len(total_ranks)):
-	print("here->", i, total_ranks[i])
 	depth.append(np.full(len(total_ranks[i]), i))
 	index.append(np.arange(len(total_ranks[i])))
 	rank.append(total_ranks[i])
@@ -149,9 +148,7 @@ depth = np.concatenate(depth)
 index = np.concatenate(index)
 rank = np.concatenate(rank)
 
-print(depth.shape, index.shape, rank.shape)
-
-np.savez("ranks.npz", depth=depth, index=index, rank=rank)
+np.savez("feature_ranking.npz", depth=depth, index=index, rank=rank)
 
 
 
