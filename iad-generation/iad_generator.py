@@ -203,6 +203,7 @@ if __name__ == '__main__':
 		for i in range(len(model.CNN_FEATURE_COUNT)):
 			layers.append([])
 
+		assert FLAGS.feature_keep_count > 0, "feature_keep_count argument needs to be set"
 		for c in range(FLAGS.feature_keep_count):
 			elem = q.get()
 			layers[elem.depth].append(elem.index)
