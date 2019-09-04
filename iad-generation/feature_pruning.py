@@ -139,11 +139,11 @@ with tf.Session() as sess:
 
 # store rankings in a npy array
 depth, index, rank = [],[],[] 
-for i in range(len(r)):
-	print("here->", i, r[i])
-	depth.append(np.full(len(r[i]), i))
-	index.append(np.arange(len(r[i])))
-	rank.append(r[i])
+for i in range(len(total_ranks)):
+	print("here->", i, total_ranks[i])
+	depth.append(np.full(len(total_ranks[i]), i))
+	index.append(np.arange(len(total_ranks[i])))
+	rank.append(total_ranks[i])
 depth = np.concatenate(depth)
 index = np.concatenate(index)
 rank = np.concatenate(rank)
