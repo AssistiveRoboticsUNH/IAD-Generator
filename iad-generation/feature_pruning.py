@@ -12,11 +12,7 @@ parser.add_argument('dataset_file', help='the *.list file than contains the ')
 
 FLAGS = parser.parse_args()
 
-
-
-
 #update model with ranking 
-
 batch_size=1
 input_placeholder = model.get_input_placeholder(batch_size)
 	
@@ -26,7 +22,6 @@ variable_name_dict = list( set(weights.values() + biases.values()))
 saver = tf.train.Saver(variable_name_dict)
 
 #https://jacobgil.github.io/deeplearning/pruning-deep-learning
-#https://stackoverflow.com/questions/43839431/tensorflow-how-to-replace-or-modify-gradient/43948872
 
 ranks_out = []
 def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_layers=True):
@@ -110,8 +105,9 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	return classifcation, softmax, out
 
 
-
-
+# generate the ranking tensors. These tensors are only generated when the 
+# gradients function is called and they are added in reverse, so I rotate
+# the order that the rankings are presented.
 class_op, softmax_op, pred_op = generate_full_model(input_placeholder, weights, biases)
 gradients = tf.gradients(pred_op, input_placeholder)
 ranks_out = ranks_out[::-1]
