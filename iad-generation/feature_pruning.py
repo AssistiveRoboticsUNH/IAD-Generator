@@ -134,7 +134,7 @@ opt = tf.train.AdamOptimizer()
 for v in tf.all_variables():
 	print(v)#print(v.name, v.shape)
 
-gradients = tf.gradients(loss, tf.all_variables())#opt.compute_gradients(loss, tf.all_variables())#tf.gradients(loss, conv_variables)
+gradients = tf.gradients(pred_op, input_placeholder)#opt.compute_gradients(loss, tf.all_variables())#tf.gradients(loss, conv_variables)
 for g in gradients:
 	print("g:", g)
 '''
