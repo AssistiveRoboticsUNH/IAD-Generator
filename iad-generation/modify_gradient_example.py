@@ -5,7 +5,7 @@ input = tf.Variable([3.0], dtype=tf.float32)
 @tf.custom_gradient
 def clip_grad_layer(x):
   def grad(dy):
-    return tf.clip_by_value(dy, -0.1, 0.1)
+    return dy * 2.0
   return tf.identity(x), grad
 
 output_clip = clip_grad_layer(input)
