@@ -26,16 +26,10 @@ weights, biases = model.get_variables(num_classes=13)
 variable_name_dict = list( set(weights.values() + biases.values()))
 saver = tf.train.Saver(variable_name_dict)
 
-
-conv_variables = tf.trainable_variables()#[v for v in tf.trainable_variables() if len(v.shape) == 5]
-
 #https://jacobgil.github.io/deeplearning/pruning-deep-learning
 #https://stackoverflow.com/questions/43839431/tensorflow-how-to-replace-or-modify-gradient/43948872
 
-
-
 ranks_out = []
-
 def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_layers=True):
 	'''Generates the activation map for a given input from a specific depth
 		-input_ph: the input placeholder, should have been defined using the 
@@ -59,24 +53,17 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	@tf.custom_gradient
 	def rank_layer(x):
 		def grad(dy):
-			#x = tf.Print(x, [x], message="activ:", summarize=10)
-			#dy = tf.Print(dy, [dy], message="grad:", summarize=10)
 
 			#calculate the rank
 			ranks = tf.math.multiply(x, dy)
-			#ranks = tf.Print(ranks, [ranks], message="rank_mul:", summarize=10)
 			ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3)) #combine spatial and temporal points together
-			#ranks = tf.Print(ranks, [ranks], message="rank_sum:", summarize=10)
 
 			#normalize the rank by the input size
-			prod_term = tf.cast(tf.reduce_prod(tf.shape(x)[:-1]), tf.float32)
-			ranks = tf.math.divide(ranks, prod_term) #normalization term
-			dy = tf.Print(dy, [ranks], message="rank_norm:", summarize=10)
+			norm_term = tf.cast(tf.reduce_prod(tf.shape(x)[:-1]), tf.float32)
+			ranks = tf.math.divide(ranks, norm_term) 
+
 			ranks_out.append(ranks)
-
 			return dy
-
-		#self.activations.append(x)
 		return tf.identity(x), grad
 
 	# Convolution Layer
@@ -122,63 +109,12 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 
 	return classifcation, softmax, out
 
+ranks_out = ranks_out[::-1]
 
-
-
-
-
-
-
-
-
-'''
-
-
-activations = model.generate_activation_map(input_placeholder, weights, biases)
-class_op, softmax_op, pred_op = model.generate_full_model(input_placeholder, weights, biases)
-
-
-'''
 
 class_op, softmax_op, pred_op = generate_full_model(input_placeholder, weights, biases)
 
-loss = tf.losses.sparse_softmax_cross_entropy(label_ph, pred_op)
-opt = tf.train.AdamOptimizer()
-
-
-
-
-
-
-
-for v in tf.all_variables():
-	print(v)#print(v.name, v.shape)
-
-gradients = tf.gradients(pred_op, input_placeholder)#opt.compute_gradients(loss, tf.all_variables())#tf.gradients(loss, conv_variables)
-for g in gradients:
-	print("g:", g)
-
-ranks_out = ranks_out[::-1]
-
-'''
-def compute_rank(activation, gradient):
-
-	#point wise multiplication of each activation in the batch and it's gradient
-	#for each actvation (that is an output of a convolution) we sum in all dimensions except the dimension of the outpu
-	values = sum( activation * gradient , dim=0 ) 
-
-	
-	#normalize the rank by filter dimensions
-	values = values / (activation.size(0) * activation.size(2) * activation.size(3))
-
-
-	if activation_index not in filter_ranks?
-		filter_ranks[activation_index] = float(activation.size(1).zero_like)
-
-	filter_ranks[activation_index] += values
-
-	return ranks
-'''
+#gradients = tf.gradients(pred_op, input_placeholder)
 
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
@@ -194,8 +130,9 @@ with tf.Session() as sess:
 	file, label = list_of_files_and_labels[0]
 	raw_data, length_ratio = read_file(file, input_placeholder)
 
-	gr, r = sess.run([gradients, ranks_out], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
+	#gr, r = sess.run([gradients, ranks_out], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
 	#gr = sess.run([gradients], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
+	r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
 	
 
 	print("printing gradients:")
