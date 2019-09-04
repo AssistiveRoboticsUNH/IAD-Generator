@@ -109,11 +109,12 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 
 	return classifcation, softmax, out
 
-ranks_out = ranks_out[::-1]
+
 
 
 class_op, softmax_op, pred_op = generate_full_model(input_placeholder, weights, biases)
 gradients = tf.gradients(pred_op, input_placeholder)
+ranks_out = ranks_out[::-1]
 
 total_ranks = None
 
@@ -136,7 +137,7 @@ with tf.Session() as sess:
 		else:
 			total_ranks = np.add(total_ranks, r)
 	
-
+total_ranks = total_ranks[0]
 # store rankings in a npy array
 depth, index, rank = [],[],[] 
 for i in range(len(total_ranks)):
