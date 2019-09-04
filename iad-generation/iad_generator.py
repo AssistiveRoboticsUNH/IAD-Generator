@@ -140,7 +140,7 @@ def combine_npy_files(list_of_files, prune_locs=None):
 		if(prune_locs != None):  
 			keep_locs = np.delete(keep_locs, prune_locs[layer])
 
-		print(np.array(data_all).shape, np.array(label_all).shape, np.array(length_all).shape)
+		print(np.array(data_all)[:, keep_locs, :].shape)
 
 		np.savez(os.path.join(FLAGS.dst_directory, FLAGS.prefix+"_"+str(layer)+".npz"), 
 				data=np.array(data_all)[:, keep_locs, :], 
@@ -228,6 +228,11 @@ if __name__ == '__main__':
 	print("Removed Features:")
 	for i in range(len(prune_locs)):
 		print("\tremoved {0} features from layer {1}".format(len(prune_locs[i]), i))
+
+	print("IAD shapes:")
+	for i in range(len(prune_locs)):
+		print("\tIADs from layer {0} have the shape: {1}".format(i, ))
+
 
 
 
