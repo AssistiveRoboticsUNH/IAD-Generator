@@ -4,6 +4,7 @@
 
 import c3d as model
 from file_reader import obtain_files, read_file
+from feature_rank_utils import order_feature_ranks
 
 import os
 
@@ -119,6 +120,27 @@ def normalize_dataset(list_of_files, min_max_vals):
 					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
 			np.savez(filename, data=data, label=label, length=length)
 
+def get_features_to_prune(feature_rank_file, num_features_to_remove):
+	#initalize array
+	prune_locs = []
+	for i in range(len(model.CNN_FEATURE_COUNT)):
+		prune_locs.append([])
+	
+	if(feature_rank_file != None):
+	
+		#open file
+		depth, index, rank = order_feature_ranks(feature_rank_file)
+
+		#get the worst N features
+		for c in range(num_features_to_remove):
+			prune_locs[depth[c]].append(index[c])
+
+	#arrays to np arrays
+	for i in range(len(model.CNN_FEATURE_COUNT)):
+		prune_locs[i] = np.array(prune_locs[i])
+
+	return prune_locs
+
 def combine_npy_files(list_of_files, prune_locs=None):
 	# combine all of the IADs from a specific depth together
 	for layer in range(len(model.CNN_FEATURE_COUNT)):
@@ -180,38 +202,7 @@ if __name__ == '__main__':
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
 
-	prune_locs = []
-	for i in range(len(model.CNN_FEATURE_COUNT)):
-		prune_locs.append([])
-	
-	if(FLAGS.feature_rank_file != None):
-		f = np.load(FLAGS.feature_rank_file, allow_pickle=True)
-		depth, index, rank = f["depth"], f["index"], f["rank"]
-
-		# define the min heap (remove variables from the bottom up)
-		from Queue import PriorityQueue
-		q = PriorityQueue()
-
-		class Feature:
-			def __init__(self, depth, index, rank):
-				self.depth = depth
-				self.index = index
-				self.rank = rank
-
-			def __lt__(self, other):
-				return self.rank < other.rank
-
-		# add feature ranks to the heap
-		for i in range(len(depth)):
-			q.put(Feature(depth[i], index[i], rank[i]))
-
-		# remove unwanted features
-		assert FLAGS.feature_remove_count >= 0, "feature_remove_count argument needs to be greater than 0"
-		for c in range(FLAGS.feature_remove_count):
-			elem = q.get()
-			prune_locs[elem.depth].append(elem.index)
-	for i in range(len(model.CNN_FEATURE_COUNT)):
-		prune_locs[i] = np.array(prune_locs[i])
+	prune_locs = get_features_to_prune(FLAGS.feature_rank_file, FLAGS.feature_remove_count)
 
 	combine_npy_files(list_of_files_and_labels, prune_locs)
 	clean_up_npy_files(list_of_files_and_labels)

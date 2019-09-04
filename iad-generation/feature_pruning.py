@@ -10,6 +10,8 @@ parser = argparse.ArgumentParser(description='Generate IADs from input files')
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
 
+parser.add_argument('--output_file', nargs='?', type=str, default="feature_ranks.npz", help='the output file')
+
 FLAGS = parser.parse_args()
 
 #update model with ranking 
@@ -144,7 +146,9 @@ depth = np.concatenate(depth)
 index = np.concatenate(index)
 rank = np.concatenate(rank)
 
-np.savez("feature_ranking.npz", depth=depth, index=index, rank=rank)
+np.savez(FLAGS.output_file, depth=depth, index=index, rank=rank)
 
-# NEED TO VISUALIZE THE RANKINGS IN ORDER TO DETERMINE A REASONABLE CUTOFF POINT
+from feature_rank_utils import view_feature_rankings
+
+view_feature_rankings(FLAGS.output_file)
 
