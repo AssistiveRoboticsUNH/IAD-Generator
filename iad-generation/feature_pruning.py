@@ -113,7 +113,6 @@ ranks_out = ranks_out[::-1]
 
 
 class_op, softmax_op, pred_op = generate_full_model(input_placeholder, weights, biases)
-
 gradients = tf.gradients(pred_op, input_placeholder)
 
 with tf.Session() as sess:
@@ -130,9 +129,7 @@ with tf.Session() as sess:
 	file, label = list_of_files_and_labels[0]
 	raw_data, length_ratio = read_file(file, input_placeholder)
 
-	#gr, r = sess.run([gradients, ranks_out], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
-	#gr = sess.run([gradients], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
-	r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
+	r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})#, label_ph:np.array([label])})
 	
 
 	print("printing gradients:")
