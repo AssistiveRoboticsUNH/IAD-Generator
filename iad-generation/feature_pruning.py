@@ -60,7 +60,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	@tf.custom_gradient
 	def rank_layer(x):
 		def grad(dy):
-			dy = tf.Print(dy, [tf.shape(dy), tf.shape(x)], message="---->>>>dy_shape", summarize=10)
+			dy = tf.Print(dy, [dy, x], message="---->>>>dy_shape", summarize=10)
 			
 			#values = sum( activation * dy , dim=0 ) 
 			return 2.0 * dy
@@ -76,7 +76,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 
 	# Convolution Layer
 	conv2 = conv3d('conv2', pool1, _weights['wc2'], _biases['bc2'])
-	conv2 = rank_layer(conv2)
+	#conv2 = rank_layer(conv2)
 	conv2 = tf.nn.relu(conv2, 'relu2')
 	pool2 = max_pool('pool2', conv2, k=2)
 
