@@ -72,7 +72,7 @@ class Model:
 				#normalize the rank by the input size
 				prod_term = tf.cast(tf.reduce_prod(tf.shape(x)[:-1]), tf.float32)
 				ranks = tf.math.divide(ranks, prod_term) #normalization term
-				ranks = tf.Print(ranks, [ranks], message="rank_norm:", summarize=10)
+				dy = tf.Print(dy, [ranks], message="rank_norm:", summarize=10)
 				self.ranks.append(ranks)
 
 				return dy
