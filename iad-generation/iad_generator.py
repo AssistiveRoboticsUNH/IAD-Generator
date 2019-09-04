@@ -184,7 +184,7 @@ if __name__ == '__main__':
 		f = np.load(FLAGS.feature_rank_file, allow_pickle=True)
 		depth, index, rank = f["depth"], f["index"], f["rank"]
 
-		from queue import PriorityQueue
+		from Queue import PriorityQueue
 		q = PriorityQueue()
 
 		class Feature:
