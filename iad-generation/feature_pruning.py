@@ -189,11 +189,11 @@ with tf.Session() as sess:
 	file, label = list_of_files_and_labels[0]
 	raw_data, length_ratio = read_file(file, input_placeholder)
 
-	gr = sess.run(gradients, feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
+	gr, rank = sess.run([gradients, m.ranks], feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
 	
 
 	print("printing gradients:")
-	print(m.ranks)
+	print(rank)
 	#print(gr)
 	#for g in gr:
 	#	print(g.shape)
