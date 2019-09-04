@@ -19,7 +19,6 @@ FLAGS = parser.parse_args()
 
 batch_size=1
 input_placeholder = model.get_input_placeholder(batch_size)
-label_ph = model.get_output_placeholder(batch_size)
 	
 # define model
 weights, biases = model.get_variables(num_classes=13)
@@ -63,6 +62,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 			ranks = tf.math.divide(ranks, norm_term) 
 
 			ranks_out.append(ranks)
+
 			return dy
 		return tf.identity(x), grad
 
@@ -115,30 +115,29 @@ ranks_out = ranks_out[::-1]
 class_op, softmax_op, pred_op = generate_full_model(input_placeholder, weights, biases)
 gradients = tf.gradients(pred_op, input_placeholder)
 
+total_ranks = None
+
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
-
 	saver.restore(sess, FLAGS.model_file)
-
 
 	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
 
+	for i in range(len(list_of_files_and_labels)):
+		file, label = list_of_files_and_labels[i]
+		print("reading: {0}".format(file))
+		print("file: {:6d}/{:6d}".format(i, len(list_of_files_and_labels)))
 
+		raw_data, length_ratio = read_file(file, input_placeholder)
 
-
-	file, label = list_of_files_and_labels[0]
-	raw_data, length_ratio = read_file(file, input_placeholder)
-
-	r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})#, label_ph:np.array([label])})
+		r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})
+		if(total_ranks == None):
+			total_ranks = r
+		else:
+			total_ranks += r
 	
-
-	print("printing gradients:")
-	print(r)
-	#print(gr)
-	#for g in gr:
-	#	print(g.shape)
-
-
+#print("printing gradients:")
+print(r)
 
 #perform a forward and backward pass on our entire training dataset
 
