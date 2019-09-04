@@ -137,7 +137,20 @@ with tf.Session() as sess:
 			total_ranks += r
 	
 #print("printing gradients:")
-print(r)
+#print(r)
+
+depth, index, rank = [],[],[] 
+for i in range(r):
+	depth.append(np.full(r[i].shape, i))
+	index.append(np.arange(r[i].shape))
+	rank.append(r[i])
+depth = np.concatenate(depth)
+index = np.concatenate(index)
+rank = np.concatenate(rank)
+
+print(depth.shape, index.shape, rank.shape)
+
+np.savez("ranks.npz", depth=depth, index=index, rank=rank)
 
 #perform a forward and backward pass on our entire training dataset
 
