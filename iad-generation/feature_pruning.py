@@ -157,6 +157,9 @@ for v in tf.all_variables():
 gradients = tf.gradients(pred_op, input_placeholder)#opt.compute_gradients(loss, tf.all_variables())#tf.gradients(loss, conv_variables)
 for g in gradients:
 	print("g:", g)
+
+ranks_out = ranks_out[::-1]
+
 '''
 def compute_rank(activation, gradient):
 
