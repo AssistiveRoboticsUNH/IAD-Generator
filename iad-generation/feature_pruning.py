@@ -140,8 +140,8 @@ with tf.Session() as sess:
 # store rankings in a npy array
 depth, index, rank = [],[],[] 
 for i in range(len(r)):
-	depth.append(np.full(r[i].shape, i))
-	index.append(np.arange(r[i].shape))
+	depth.append(np.full(len(r[i]), i))
+	index.append(np.arange(len(r[i])))
 	rank.append(r[i])
 depth = np.concatenate(depth)
 index = np.concatenate(index)
