@@ -140,7 +140,7 @@ with tf.Session() as sess:
 #print(r)
 
 depth, index, rank = [],[],[] 
-for i in range(r):
+for i in range(len(r)):
 	depth.append(np.full(r[i].shape, i))
 	index.append(np.arange(r[i].shape))
 	rank.append(r[i])
