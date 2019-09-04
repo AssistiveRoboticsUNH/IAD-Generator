@@ -64,6 +64,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 			dy = tf.Print(dy, [x], message="---->>>>x_shape", summarize=10)
 
 			ranks = tf.math.multiply(x, dy)#tf.reduce_sum()
+			ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3))
 
 			dy = tf.Print(dy, [ranks], message="---->>>>rank_shape", summarize=10)
 
