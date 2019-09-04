@@ -184,6 +184,30 @@ if __name__ == '__main__':
 		f = np.load(FLAGS.feature_rank_file, allow_pickle=True)
 		depth, index, rank = f["depth"], f["index"], f["rank"]
 
+		from queue import PriorityQueue
+		q = PriorityQueue()
+
+		class Feature:
+			def __init__(self, depth, index, rank):
+				self.depth = depth
+				self.index = index
+				self.rank = rank
+
+			def __lt__(self, other):
+				return self.rank < other.rank
+
+		for i in range(len(depth)):
+			q.put(Feature(depth[i], index[i], rank[i]))
+
+		layers = []
+		for i in range(len(model.CNN_FEATURE_COUNT)):
+			layers.append([])
+
+		for c in range(FLAGS.feature_keep_count):
+			elem = q.get()
+			layers[elem.depth].append(elem.index)
+			print(elem.rank)
+
 	combine_npy_files(list_of_files_and_labels)
 	clean_up_npy_files(list_of_files_and_labels)
 
@@ -195,6 +219,9 @@ if __name__ == '__main__':
 	print("Longest video sequence in file list: {0}".format(max_frame_length))
 	print("Files place in: {0}".format(FLAGS.dst_directory))
 	print("Min/Max File was Saved: {0}".format(update_min_maxes))
+
+	print("IAD feature composition:")
+
 
 
 
