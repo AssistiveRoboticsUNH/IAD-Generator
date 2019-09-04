@@ -87,22 +87,25 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 
 	# Convolution Layer
 	conv2 = conv3d('conv2', pool1, _weights['wc2'], _biases['bc2'])
-	#conv2 = rank_layer(conv2)
+	conv2 = rank_layer(conv2)
 	conv2 = tf.nn.relu(conv2, 'relu2')
 	pool2 = max_pool('pool2', conv2, k=2)
 
 	# Convolution Layer
 	conv3 = conv3d('conv3a', pool2, _weights['wc3a'], _biases['bc3a'])
+	conv3 = rank_layer(conv3)
 	conv3 = tf.nn.relu(conv3, 'relu3a')
 	pool3 = max_pool('pool3', conv3, k=2)
 
 	# Convolution Layer
 	conv4 = conv3d('conv4a', pool3, _weights['wc4a'], _biases['bc4a'])
+	conv4 = rank_layer(conv4)
 	conv4 = tf.nn.relu(conv4, 'relu4a')
 	pool4 = max_pool('pool4', conv4, k=2)
 
 	# Convolution Layer
 	conv5 = conv3d('conv5a', pool4, _weights['wc5a'], _biases['bc5a'])
+	conv5 = rank_layer(conv5)
 	conv5 = tf.nn.relu(conv5, 'relu5a')
 	pool5 = max_pool('pool5', conv5, k=2) 
 
