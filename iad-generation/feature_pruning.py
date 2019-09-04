@@ -60,27 +60,19 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	@tf.custom_gradient
 	def rank_layer(x):
 		def grad(dy):
-			dy = tf.Print(dy, [dy], message="---->>>>dy_shape", summarize=10)
-			dy = tf.Print(dy, [x], message="---->>>>x_shape", summarize=10)
+			x = tf.Print(x, [x], message="activ:", summarize=10)
+			dy = tf.Print(dy, [dy], message="grad:", summarize=10)
 
 			ranks = tf.math.multiply(x, dy)
+			ranks = tf.Print(ranks, [ranks], message="rank_mul:", summarize=10)
+
 			ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3)) #combine spatial and temporal points together
-			
+			ranks = tf.Print(ranks, [ranks], message="rank_sum:", summarize=10)
 
 			prod_term = tf.cast(tf.reduce_prod(tf.shape(x)[:-1]), tf.float32)
 			ranks = tf.math.divide(ranks, prod_term) #normalization term
+			ranks = tf.Print(ranks, [ranks], message="rank_norm:", summarize=10)
 
-			#dy = tf.Print(dy, [tf.reduce_prod(tf.shape(x)[:-1])], message="norm_value", summarize=10)
-			
-
-			#values = \
-			#values / (activation.size(0) * activation.size(2) * activation.size(3))
-
-
-			dy = tf.Print(dy, [ranks], message="---->>>>rank_shape", summarize=10)
-
-			
-			#values = sum( activation * dy , dim=0 ) 
 			return dy
 
 		#self.activations.append(x)
