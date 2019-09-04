@@ -67,7 +67,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 			ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3))
 			#ranks /= (tf.shape(x)[:-1])
 
-			dy = tf.Print(dy, [tf.shape(x)[:-1]], message="norm_value", summarize=10)
+			dy = tf.Print(dy, [tf.reduce_prod(tf.shape(x)[:-1])], message="norm_value", summarize=10)
 			
 
 			#values = \
