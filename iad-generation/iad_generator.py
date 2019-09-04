@@ -136,8 +136,9 @@ def combine_npy_files(list_of_files, prune_locs = np.array([])):
 			length_all.append(length)
 
 		num_features = np.array(data_all).shape[1]
-		#keep_locs = np.delete(np.arange(np.array(label_all).shape), prune_locs[layer])
 		print("keep_locs: ", np.arange(num_features))
+		keep_locs = np.delete(np.arange(num_features), prune_locs[layer])
+		
 
 		np.savez(os.path.join(FLAGS.dst_directory, FLAGS.prefix+"_"+str(layer)+".npz"), 
 				data=np.array(data_all)[keep_locs], 
