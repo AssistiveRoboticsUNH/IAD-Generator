@@ -193,7 +193,7 @@ with tf.Session() as sess:
 	
 
 	print("printing gradients:")
-	m.ranks
+	#m.ranks
 	#print(gr)
 	#for g in gr:
 	#	print(g.shape)
