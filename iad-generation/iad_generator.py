@@ -197,7 +197,7 @@ if __name__ == '__main__':
 				return self.rank < other.rank
 
 		for i in range(len(depth)):
-			q.put(Feature(depth[i], index[i], rank[i]))
+			q.put(Feature(depth[i], index[i], -rank[i]))
 
 		layers = []
 		for i in range(len(model.CNN_FEATURE_COUNT)):
