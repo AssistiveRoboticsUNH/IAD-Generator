@@ -60,7 +60,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 		def grad(dy):
 			dy = tf.Print(dy, [dy], message="---->>>>dy")
 			#values = sum( activation * dy , dim=0 ) 
-			return 5.0 * dy
+			return 2.0 * dy
 		return tf.identity(x), grad
 
 	# Convolution Layer
@@ -134,17 +134,17 @@ opt = tf.train.AdamOptimizer()
 for v in tf.all_variables():
 	print(v)#print(v.name, v.shape)
 
-gradients = opt.compute_gradients(loss, tf.all_variables())#tf.gradients(loss, conv_variables)
+gradients = tf.gradients(loss, tf.all_variables())#opt.compute_gradients(loss, tf.all_variables())#tf.gradients(loss, conv_variables)
 for g in gradients:
 	print("g:", g)
-
+'''
 def compute_rank(activation, gradient):
 
 	#point wise multiplication of each activation in the batch and it's gradient
 	#for each actvation (that is an output of a convolution) we sum in all dimensions except the dimension of the outpu
 	values = sum( activation * gradient , dim=0 ) 
 
-	'''
+	
 	#normalize the rank by filter dimensions
 	values = values / (activation.size(0) * activation.size(2) * activation.size(3))
 
@@ -155,7 +155,7 @@ def compute_rank(activation, gradient):
 	filter_ranks[activation_index] += values
 
 	return ranks
-	'''
+'''
 
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
@@ -174,8 +174,10 @@ with tf.Session() as sess:
 	gr = sess.run(gradients, feed_dict={input_placeholder: raw_data, label_ph:np.array([label])})
 	
 
-	for g in gr:
-		print(g.shape)
+	print("printing gradients:")
+	print(gr)
+	#for g in gr:
+	#	print(g.shape)
 
 
 
