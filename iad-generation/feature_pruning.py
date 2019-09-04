@@ -123,7 +123,7 @@ with tf.Session() as sess:
 
 	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
 
-	for i in range(len(list_of_files_and_labels)):
+	for i in range(3):#len(list_of_files_and_labels)):
 		file, label = list_of_files_and_labels[i]
 		print("reading: {0}".format(file))
 		print("file: {:6d}/{:6d}".format(i, len(list_of_files_and_labels)))
