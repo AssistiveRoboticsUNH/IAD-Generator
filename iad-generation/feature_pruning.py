@@ -114,7 +114,7 @@ ranks_out = ranks_out[::-1]
 
 class_op, softmax_op, pred_op = generate_full_model(input_placeholder, weights, biases)
 
-#gradients = tf.gradients(pred_op, input_placeholder)
+gradients = tf.gradients(pred_op, input_placeholder)
 
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
