@@ -37,7 +37,7 @@ class Model:
 	def __init__(self):
 		self.ranks = []
 
-	def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_layers=True):
+	def generate_full_model(self, input_ph, _weights, _biases, depth=4, separate_conv_layers=True):
 		'''Generates the activation map for a given input from a specific depth
 			-input_ph: the input placeholder, should have been defined using the 
 			  "get_input_placeholder" function
