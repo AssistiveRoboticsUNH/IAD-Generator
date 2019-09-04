@@ -143,9 +143,9 @@ def combine_npy_files(list_of_files, prune_locs=None):
 		print(np.array(data_all).shape, np.array(label_all).shape, np.array(length_all).shape)
 
 		np.savez(os.path.join(FLAGS.dst_directory, FLAGS.prefix+"_"+str(layer)+".npz"), 
-				data=np.array(data_all)[keep_locs], 
-				label=np.array(label_all)[keep_locs], 
-				length=np.array(length_all)[keep_locs])
+				data=np.array(data_all)[:, keep_locs, :], 
+				label=np.array(label_all), 
+				length=np.array(length_all))
 
 def clean_up_npy_files(list_of_files):
 	for i in range(len(list_of_files)):
