@@ -24,7 +24,7 @@ parser.add_argument('--min_max_file', nargs='?', type=str, default=None, help='m
 parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 #feature pruning command line args
 parser.add_argument('--feature_rank_file', nargs='?', type=str, default=None, help='a file containing the rankings of the features')
-parser.add_argument('--feature_keep_count', nargs='?', type=int, default=-1, help='the threshold of features to keep')
+parser.add_argument('--feature_remove_count', nargs='?', type=int, default=0, help='the number of features to remove')
 
 FLAGS = parser.parse_args()
 
@@ -179,11 +179,16 @@ if __name__ == '__main__':
 
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
+
+	prune_locs = []
+	for i in range(len(model.CNN_FEATURE_COUNT)):
+		prune_locs.append([])
 	
 	if(FLAGS.feature_rank_file != None):
 		f = np.load(FLAGS.feature_rank_file, allow_pickle=True)
 		depth, index, rank = f["depth"], f["index"], f["rank"]
 
+		# define the min heap (remove variables from the bottom up)
 		from Queue import PriorityQueue
 		q = PriorityQueue()
 
@@ -196,20 +201,19 @@ if __name__ == '__main__':
 			def __lt__(self, other):
 				return self.rank < other.rank
 
+		# add feature ranks to the heap
 		for i in range(len(depth)):
-			q.put(Feature(depth[i], index[i], -rank[i]))
+			q.put(Feature(depth[i], index[i], rank[i]))
 
-		layers = []
-		for i in range(len(model.CNN_FEATURE_COUNT)):
-			layers.append([])
-
-		assert FLAGS.feature_keep_count > 0, "feature_keep_count argument needs to be set"
-		for c in range(FLAGS.feature_keep_count):
+		# remove unwanted features
+		assert FLAGS.feature_remove_count >= 0, "feature_remove_count argument needs to be greater than 0"
+		for c in range(FLAGS.feature_remove_count):
 			elem = q.get()
-			layers[elem.depth].append(elem.index)
-			print(elem.rank)
+			prune_locs[elem.depth].append(elem.index)
+	for i in range(len(model.CNN_FEATURE_COUNT)):
+		prune_locs[i] = np.array(prune_locs[i])
 
-	combine_npy_files(list_of_files_and_labels)
+	combine_npy_files(list_of_files_and_labels, prune_locs)
 	clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
