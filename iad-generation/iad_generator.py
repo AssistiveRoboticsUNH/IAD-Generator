@@ -217,6 +217,7 @@ if __name__ == '__main__':
 	clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
+	print("--------------")
 	print("Summary")
 	print("--------------")
 	print("Number of videos into IADs: {0}".format(len(list_of_files_and_labels)))
