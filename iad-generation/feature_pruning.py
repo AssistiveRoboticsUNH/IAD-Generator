@@ -134,7 +134,7 @@ with tf.Session() as sess:
 		if(total_ranks == None):
 			total_ranks = r
 		else:
-			total_ranks += r
+			total_ranks = np.add(total_ranks, r)
 	
 
 # store rankings in a npy array
