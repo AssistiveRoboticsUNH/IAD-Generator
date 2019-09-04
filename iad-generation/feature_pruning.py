@@ -63,11 +63,11 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 			dy = tf.Print(dy, [dy], message="---->>>>dy_shape", summarize=10)
 			dy = tf.Print(dy, [x], message="---->>>>x_shape", summarize=10)
 
-			ranks = tf.math.multiply(x, dy)#tf.reduce_sum()
-			ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3))
-			#ranks /= (tf.shape(x)[:-1])
+			ranks = tf.math.multiply(x, dy)
+			ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3)) #combine spatial and temporal points together
+			ranks /= tf.reduce_prod(tf.shape(x)[:-1]) #normalization term
 
-			dy = tf.Print(dy, [tf.reduce_prod(tf.shape(x)[:-1])], message="norm_value", summarize=10)
+			#dy = tf.Print(dy, [tf.reduce_prod(tf.shape(x)[:-1])], message="norm_value", summarize=10)
 			
 
 			#values = \
