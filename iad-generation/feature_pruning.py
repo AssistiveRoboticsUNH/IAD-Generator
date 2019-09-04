@@ -175,7 +175,7 @@ with tf.Session() as sess:
 	
 
 	for g in gr:
-		print(g)
+		print(g.shape)
 
 
 
