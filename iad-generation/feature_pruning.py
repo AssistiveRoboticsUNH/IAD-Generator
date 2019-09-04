@@ -121,9 +121,9 @@ with tf.Session() as sess:
 	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
 
 	for i in range(len(list_of_files_and_labels)):
-		file, label = list_of_files_and_labels[i]
-		print("reading: {0}".format(file))
 		print("file: {:6d}/{:6d}".format(i, len(list_of_files_and_labels)))
+
+		file, label = list_of_files_and_labels[i]
 
 		raw_data, length_ratio = read_file(file, input_placeholder)
 
@@ -146,5 +146,5 @@ rank = np.concatenate(rank)
 
 np.savez("feature_ranking.npz", depth=depth, index=index, rank=rank)
 
-
+# NEED TO VISUALIZE THE RANKINGS IN ORDER TO DETERMINE A REASONABLE CUTOFF POINT
 

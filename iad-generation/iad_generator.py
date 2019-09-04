@@ -15,12 +15,17 @@ parser = argparse.ArgumentParser(description='Generate IADs from input files')
 #required command line args
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
+
 #optional command line args
-parser.add_argument('--prefix', nargs='?', default="complete", help='the prefix to place infront of finished files <prefix>_<layer>.npz')
-parser.add_argument('--min_max_file', nargs='?', default=None, help='max and minimum values')
-parser.add_argument('--features_file', nargs='?', default=None, help='which features to keep')
-parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
-parser.add_argument('--pad_length', nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+parser.add_argument('--prefix', nargs='?', type=str, default="complete", help='the prefix to place infront of finished files <prefix>_<layer>.npz')
+parser.add_argument('--dst_directory', nargs='?', type=str, default='generated_iads/', help='where the IADs should be stored')
+#test dataset command line args
+parser.add_argument('--min_max_file', nargs='?', type=str, default=None, help='max and minimum values')
+parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+#feature pruning command line args
+parser.add_argument('--feature_rank_file', nargs='?', type=str, default=None, help='a file containing the rankings of the features')
+parser.add_argument('--feature_keep_count', nargs='?', type=int, default=-1, help='the threshold of features to keep')
+
 FLAGS = parser.parse_args()
 
 batch_size = 1
@@ -114,7 +119,7 @@ def normalize_dataset(list_of_files, min_max_vals):
 					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
 			np.savez(filename, data=data, label=label, length=length)
 
-def combine_npy_files(list_of_files):
+def combine_npy_files(list_of_files, prune_locs = np.array([])):
 	# combine all of the IADs from a specific depth together
 	for layer in range(len(model.CNN_FEATURE_COUNT)):
 		data_all, label_all, length_all = [],[],[]
@@ -130,10 +135,12 @@ def combine_npy_files(list_of_files):
 			label_all.append(label)
 			length_all.append(length)
 
+		keep_locs = np.delete(np.arange(np.array(label_all).shape), prune_locs[layer])
+
 		np.savez(os.path.join(FLAGS.dst_directory, FLAGS.prefix+"_"+str(layer)+".npz"), 
-				data=np.array(data_all), 
-				label=np.array(label_all), 
-				length=np.array(length_all))
+				data=np.array(data_all)[keep_locs], 
+				label=np.array(label_all)[keep_locs], 
+				length=np.array(length_all)[keep_locs])
 
 def clean_up_npy_files(list_of_files):
 	for i in range(len(list_of_files)):
@@ -166,6 +173,11 @@ if __name__ == '__main__':
 
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
+	
+	if(FLAGS.feature_rank_file != None):
+		f = np.load(FLAGS.feature_rank_file, allow_pickle=True)
+		depth, index, rank = f["depth"], f["index"], f["rank"]
+
 	combine_npy_files(list_of_files_and_labels)
 	clean_up_npy_files(list_of_files_and_labels)
 
