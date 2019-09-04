@@ -66,13 +66,13 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 
 	# Convolution Layer
 	conv1 = conv3d('conv1', input_ph, _weights['wc1'], _biases['bc1'])
-	rank1 = rank_layer(conv1)
+	conv1 = rank_layer(conv1)
 	conv1 = tf.nn.relu(conv1, 'relu1')
 	pool1 = max_pool('pool1', conv1, k=1)
 
 	# Convolution Layer
 	conv2 = conv3d('conv2', pool1, _weights['wc2'], _biases['bc2'])
-	rank2 = rank_layer(conv2)
+	conv2 = rank_layer(conv2)
 	conv2 = tf.nn.relu(conv2, 'relu2')
 	pool2 = max_pool('pool2', conv2, k=2)
 
