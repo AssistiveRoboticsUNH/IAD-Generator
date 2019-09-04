@@ -136,9 +136,8 @@ with tf.Session() as sess:
 		else:
 			total_ranks += r
 	
-#print("printing gradients:")
-#print(r)
 
+# store rankings in a npy array
 depth, index, rank = [],[],[] 
 for i in range(len(r)):
 	depth.append(np.full(r[i].shape, i))
@@ -152,6 +151,5 @@ print(depth.shape, index.shape, rank.shape)
 
 np.savez("ranks.npz", depth=depth, index=index, rank=rank)
 
-#perform a forward and backward pass on our entire training dataset
 
 
