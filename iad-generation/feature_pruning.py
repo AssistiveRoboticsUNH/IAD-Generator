@@ -88,7 +88,7 @@ def generate_full_model(input_ph, _weights, _biases, depth=4, separate_conv_laye
 	# Convolution Layer
 	conv5 = conv3d('conv5a', pool4, _weights['wc5a'], _biases['bc5a'])
 	conv5 = tf.nn.relu(conv5, 'relu5a')
-	pool5 = max_pool('pool5', conv5, k=2)
+	pool5 = max_pool('pool5', conv5, k=2) 
 
 	#flatten actviation map
 	flat_am = tf.layers.flatten(pool5)
