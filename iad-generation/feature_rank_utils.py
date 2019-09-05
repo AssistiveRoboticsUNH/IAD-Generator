@@ -2,7 +2,7 @@ import numpy as np
 
 def order_feature_ranks(file):
 	# open file
-	f = np.load(FLAGS.input_file, allow_pickle=True)
+	f = np.load(file, allow_pickle=True)
 	depth, index, rank = f["depth"], f["index"], f["rank"]
 
 	#sort data by rank

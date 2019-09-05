@@ -58,7 +58,7 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
-	input_placeholder = model.get_input_placeholder(batch_size)
+	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
 	
 	# define model
 	weights, biases = model.get_variables()
@@ -179,7 +179,6 @@ def clean_up_npy_files(list_of_files):
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
-	list_of_files_and_labels = list_of_files_and_labels[:3]
 
 	if(not os.path.exists(FLAGS.dst_directory)):
 		os.makedirs(FLAGS.dst_directory)
