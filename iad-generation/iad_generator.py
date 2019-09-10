@@ -3,7 +3,6 @@
 # 8/29/2019
 
 import c3d as model
-from file_reader import obtain_files, read_file
 from feature_rank_utils import order_feature_ranks
 
 import os
@@ -89,7 +88,7 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 			print("converting video to IAD: {:6d}/{:6d}".format(i, len(list_of_files)))
 
 			# read data into placeholders
-			raw_data, length_ratio = read_file(file, input_placeholder)
+			raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 			# generate activation map from model
 			iad_data = sess.run(activation_map, feed_dict={input_placeholder: raw_data})
@@ -178,7 +177,7 @@ def clean_up_npy_files(list_of_files):
 
 if __name__ == '__main__':
 	
-	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
+	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
 
 	if(not os.path.exists(FLAGS.dst_directory)):
 		os.makedirs(FLAGS.dst_directory)
