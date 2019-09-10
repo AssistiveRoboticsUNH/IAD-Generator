@@ -3,7 +3,6 @@
 # 8/29/2019
 
 import c3d as model
-from file_reader import obtain_files, read_file
 
 import os
 
