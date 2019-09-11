@@ -154,9 +154,10 @@ def generate_activation_map(input_ph):
           int between 0 and 4)
   '''
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
-  logits, end_points = i3d.InceptionI3d( num_classes=101,
-                                spatial_squeeze=True,
-                                final_endpoint='Logits')(input_ph, is_training)
+  with tf.variable_scope('RGB'):
+    logits, end_points = i3d.InceptionI3d( num_classes=101,
+                                  spatial_squeeze=True,
+                                  final_endpoint='Logits')(input_ph, is_training)
 
   target_layers = ['Conv3d_1a_7x7', 'Conv3d_2c_3x3', 'Mixed_3c', 'Mixed_4f', 'Mixed_5c']
 
