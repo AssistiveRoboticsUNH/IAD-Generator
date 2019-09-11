@@ -153,7 +153,7 @@ def generate_activation_map(input_ph):
         -depth: the depth at which the activation map should be extracted (an 
           int between 0 and 4)
   '''
-  is_training = tf.placeholder_with_default(False)
+  is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
   logits, end_points = i3d.InceptionI3d( num_classes=101,
                                 spatial_squeeze=True,
                                 final_endpoint='Logits')(input_ph, is_training)
