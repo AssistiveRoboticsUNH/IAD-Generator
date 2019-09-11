@@ -160,13 +160,17 @@ def generate_activation_map(input_ph):
                                   spatial_squeeze=True,
                                   final_endpoint='Logits')(input_ph, is_training)
 
-    target_layers = ['Conv3d_1a_7x7', 'Conv3d_2c_3x3', 'Mixed_3c', 'Mixed_4f', 'Mixed_5c']
 
-    print(">>>TARGET_LAYERS")
-    for layer in target_layers:
-      print(layer, len(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=rgb_scope+'/'+layer)))
-      for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=rgb_scope+'/'+layer):
-        print("var:", var.name)
+  for var in tf.global_variables():
+    print(var.name)
+
+  target_layers = ['Conv3d_1a_7x7', 'Conv3d_2c_3x3', 'Mixed_3c', 'Mixed_4f', 'Mixed_5c']
+
+  print(">>>TARGET_LAYERS")
+  for layer in target_layers:
+    print(layer, len(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer)))
+    for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer):
+      print("var:", var.name)
 
   return []
 
