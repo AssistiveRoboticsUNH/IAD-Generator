@@ -221,9 +221,7 @@ def read_file(filename_list):
         grouped_data = np.concatenate((grouped_data, flat_data), axis=1)
     all_data.append(grouped_data)
 
-    print(all_labels)
     all_labels = all_labels.astype(np.uint8)
-    print(all_labels)
 
     return all_data, all_labels
 
