@@ -159,6 +159,9 @@ def generate_activation_map(input_ph):
                                   spatial_squeeze=True,
                                   final_endpoint='Logits')(input_ph, is_training)
 
+  print(model.summary())
+
+
   master_scope = 'RGB/inception_i3d/'
   target_layers = ['Conv3d_1a_7x7', 'Conv3d_2c_3x3', 'Mixed_3c', 'Mixed_4f', 'Mixed_5c']
 
