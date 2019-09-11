@@ -153,28 +153,30 @@ def generate_activation_map(input_ph):
         -depth: the depth at which the activation map should be extracted (an 
           int between 0 and 4)
   '''
+
+  # build I3D model
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
   with tf.variable_scope('RGB'):
     logits, end_points = i3d.InceptionI3d( num_classes=101,
                                   spatial_squeeze=True,
                                   final_endpoint='Logits')(input_ph, is_training)
 
-  for op in tf.get_default_graph().get_operations():
-    print(op.name)
-
-
   master_scope = 'RGB/inception_i3d/'
   target_layers = ['Conv3d_1a_7x7/Relu', 'Conv3d_2c_3x3/Relu', 'Mixed_3c/concat', 'Mixed_4f/concat', 'Mixed_5c/concat']
 
-  print(">>>TARGET_LAYERS")
+  #extract target operations
+  target_ops = []
   for layer in target_layers:
-    print(tf.get_default_graph().get_operation_by_name(master_scope+layer))
+    target_ops.append(tf.get_default_graph().get_operation_by_name(master_scope+layer))
 
-  return []
+  return target_ops
 
 
 def load_model(input_ph):
   activation_maps = generate_activation_map(input_ph)
+
+  for a in activation_maps:
+    print(a.get_shape())
 
   variable_name_list = get_variables()
   saver = tf.train.Saver(variable_name_list.values())
