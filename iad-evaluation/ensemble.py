@@ -405,7 +405,7 @@ def test_model(model, test, num_classes):
     correct, total = 0, 0
     model_correct = [0, 0, 0, 0, 0, 0]
     num_iter = int(len(eval_labels) / test_batch_size)
-    model_data_fd = open("model_%s_test_data.csv" % model, 'wb')
+    model_data_fd = open("%s_test_data.csv" % model, 'wb')
     model_csv = csv.writer(model_data_fd, dialect='excel')
     model_csv.writerow(["true_class", "model", "place", "class", "confidence"])
     confidences = [0.] * 6
