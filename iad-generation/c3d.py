@@ -184,7 +184,7 @@ def generate_activation_map(input_ph, _weights, _biases, depth=4, separate_conv_
   return pool5
 
 def load_model(input_ph):
-  weights, biases = model.get_variables()
+  weights, biases = get_variables()
   variable_name_list = list( set(weights.values() + biases.values()))
   saver = tf.train.Saver(variable_name_list)
 
