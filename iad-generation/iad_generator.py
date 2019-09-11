@@ -2,7 +2,7 @@
 # iad_generator.py
 # 8/29/2019
 
-import c3d as model
+import i3d as model
 
 import os
 
