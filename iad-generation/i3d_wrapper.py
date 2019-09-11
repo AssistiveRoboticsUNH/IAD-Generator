@@ -168,9 +168,7 @@ def generate_activation_map(input_ph):
 
   print(">>>TARGET_LAYERS")
   for layer in target_layers:
-    print(layer, len(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=master_scope+layer)))
-    for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=master_scope+layer):
-      print("var:", var.name)
+    print(tf.get_default_graph().get_operation_by_name(master_scope+layer+'/concat'))
 
   return []
 
