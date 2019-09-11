@@ -12,6 +12,6 @@ do
 	CMD_TRAIN="python iad_generator.py "$MODEL" "$LIST_DIR"/trainlist0"$SPLIT"_"$SIZE".list --prefix "$OUT_DIR"/ucf_"$SIZE"_train"
 	eval $CMD_TRAIN
 
-	CMD_TEST"python iad_generator.py "$MODEL" "$LIST_DIR"/testlist0"$SPLIT".list --prefix "$OUT_DIR"/ucf_"$SIZE"_test --min_max_file "$OUT_DIR"/min_maxes.npz"
+	CMD_TEST="python iad_generator.py "$MODEL" "$LIST_DIR"/testlist0"$SPLIT".list --prefix "$OUT_DIR"/ucf_"$SIZE"_test --min_max_file "$OUT_DIR"/min_maxes.npz"
 	eval $CMD_TEST
 done
