@@ -109,39 +109,6 @@ def get_variables(num_classes=-1):
 
   return variable_map
 
-  weights, biases = {}, {}
-  for v in rgb_variable_map.keys():
-    print(rgb_variable_map[v].name)
-
-
-  '''
-  with tf.variable_scope('var_name') as var_scope:
-    weights = {
-              'wc1': gen_var('wc1', [3, 3, 3, 3, 64]),
-              'wc2': gen_var('wc2', [3, 3, 3, 64, 128]),
-              'wc3a': gen_var('wc3a', [3, 3, 3, 128, 256]),
-              'wc4a': gen_var('wc4a', [3, 3, 3, 256, 256]),
-              'wc5a': gen_var('wc5a', [3, 3, 3, 256, 256])
-              }
-    biases = {
-              'bc1': gen_var('bc1', [64]),
-              'bc2': gen_var('bc2', [128]),
-              'bc3a': gen_var('bc3a', [256]),
-              'bc4a': gen_var('bc4a', [256]),
-              'bc5a': gen_var('bc5a', [256])
-              }
-
-    if(num_classes > 0):
-      weights['wd1'] = gen_var('wd1', [4096, 2048])
-      weights['wd2'] = gen_var('wd2', [2048, 2048])
-      weights['out'] = gen_var('wout', [2048, num_classes])
-
-      biases['bd1'] = gen_var('bd1', [2048])
-      biases['bd2'] = gen_var('bd2', [2048])
-      biases['out'] = gen_var('bout', [num_classes])
-  '''
-  return weights, biases
-
 def generate_activation_map(input_ph):
   '''Generates the activation map for a given input from a specific depth
         -input_ph: the input placeholder, should have been defined using the 
@@ -157,19 +124,11 @@ def generate_activation_map(input_ph):
   # build I3D model
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
   with tf.variable_scope('RGB'):
-    logits, end_points = i3d.InceptionI3d( num_classes=101,
+    _, _, target_layers = i3d.InceptionI3d( num_classes=101,
                                   spatial_squeeze=True,
                                   final_endpoint='Logits')(input_ph, is_training)
 
-  master_scope = 'RGB/inception_i3d/'
-  target_layers = ['Conv3d_1a_7x7/Relu', 'Conv3d_2c_3x3/Relu', 'Mixed_3c/concat', 'Mixed_4f/concat', 'Mixed_5c/concat']
-
-  #extract target operations
-  target_ops = []
-  for layer in target_layers:
-    target_ops.append(tf.get_default_graph().get_operation_by_name(master_scope+layer))
-
-  return target_ops
+  return target_layers
 
 
 def load_model(input_ph):
