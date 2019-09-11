@@ -340,9 +340,9 @@ def train_model(model, train, test, num_classes):
 
             # combine training operations into one variable
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
-            start = time.perf_counter()
+            start = time.time()
             out = sess.run(training_operations, feed_dict=batch_data)
-            print("execution time: {:6.3f}".format(time.perf_counter() - start))
+            print("execution time: {:6.3f}".format(time.time() - start))
 
             # print out every 2K iterations
             if i % 2000 == 0:
