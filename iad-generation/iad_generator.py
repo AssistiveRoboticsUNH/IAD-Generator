@@ -146,6 +146,8 @@ def clean_up_npy_files(list_of_files):
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
+	print("list_of_files_and_labels:", len(list_of_files_and_labels))
+	print("max_frame_length:", max_frame_length)
 
 	if(not os.path.exists(FLAGS.dst_directory)):
 		os.makedirs(FLAGS.dst_directory)
