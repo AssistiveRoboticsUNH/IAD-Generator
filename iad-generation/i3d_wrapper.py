@@ -159,7 +159,8 @@ def generate_activation_map(input_ph):
                                   spatial_squeeze=True,
                                   final_endpoint='Logits')(input_ph, is_training)
 
-  print(model.summary())
+  for op in tf.get_default_graph().get_operations():
+    print(op.name)
 
 
   master_scope = 'RGB/inception_i3d/'
