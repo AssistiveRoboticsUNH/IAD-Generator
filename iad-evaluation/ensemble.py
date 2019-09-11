@@ -434,6 +434,8 @@ def test_model(model, test, num_classes):
 
             ensemble_prediction = model_consensus(result, model_csv, batch_data[ops['ph']["y"]])
 
+            print("result:", result)
+            print("ensemble_prediction:", ensemble_prediction)
             # check if model output is correct
             for j, m in enumerate(result[3][0]):
                 if m == batch_data[ops['ph']["y"]]:
