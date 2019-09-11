@@ -177,7 +177,7 @@ def load_model(input_ph):
 
   saver = tf.train.Saver(variable_name_list.values())
 
-  return activation_maps
+  return activation_maps, saver
 
 
 

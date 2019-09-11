@@ -188,7 +188,9 @@ def load_model(input_ph):
   variable_name_list = list( set(weights.values() + biases.values()))
   saver = tf.train.Saver(variable_name_list)
 
-  return model.generate_activation_map(input_ph, weights, biases)
+  activation_maps = model.generate_activation_map(input_ph, weights, biases)
+
+  return activation_maps, saver
 
 
 def generate_full_model(input_ph, _weights, _biases):
