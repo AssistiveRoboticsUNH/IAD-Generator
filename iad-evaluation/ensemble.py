@@ -226,7 +226,7 @@ def read_file(filename_list):
     return all_data, all_labels
 
 
-def tensor_operations(num_classes):
+def tensor_operations(num_classes, data_shapes):
     """Create the tensor operations to be used in training and testing, stored in a dictionary."""
     # Placeholders
     ph = {
@@ -235,6 +235,8 @@ def tensor_operations(num_classes):
     }
 
     for c3d_depth in range(6):
+        print("train_data_shapes[c3d_depth]:", data_shapes[c3d_depth])
+
         ph["x_" + str(c3d_depth)] = tf.placeholder(
             tf.float32, shape=(None, num_features[c3d_depth], window_size[c3d_depth])
         )
@@ -325,12 +327,25 @@ def tensor_operations(num_classes):
 
 def train_model(model, train, test, num_classes):
     """Train a model given the dataset, dataset parameters, and a model name."""
-    ops = tensor_operations(num_classes)
-    saver = tf.train.Saver()
-
     # load data
     train_data, train_labels = read_file(train)
     eval_data, eval_labels = read_file(test)
+
+
+    #Get Data Shape
+    data_shape = []
+    for i in range(len(eval_data)):
+        data_shape.append(eval_data[i].shape)
+    data_shape.append(('?', '?'))
+
+    for ds in data_shape:
+        print("data_shape:", ds)
+
+    num_features = [64, 128, 256, 256, 256, 6656]  # last element is for the combined model
+    window_size = [16, 16, 8, 4, 2, 1]
+
+    ops = tensor_operations(num_classes, data_shape)
+    saver = tf.train.Saver()
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -381,10 +396,10 @@ def train_model(model, train, test, num_classes):
 
 def test_model(model, test, num_classes):
     """Test the model."""
+    eval_data, eval_labels = read_file(test)
+
     ops = tensor_operations(num_classes)
     saver = tf.train.Saver()
-
-    eval_data, eval_labels = read_file(test)
 
     test_batch_size = 1
     correct, total = 0, 0
