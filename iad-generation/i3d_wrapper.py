@@ -103,7 +103,7 @@ def get_variables(num_classes=-1):
   not contain feature information '''
 
   rgb_variable_map = {}
-  print("here")
+  print(">>>>here ", len(tf.global_variables()))
   for variable in tf.global_variables():
     print("variable:", variable.name)
     if variable.name.split('/')[0] == 'RGB' and 'Adam' not in variable.name.split('/')[-1] and variable.name.split('/')[2] != 'Logits':
