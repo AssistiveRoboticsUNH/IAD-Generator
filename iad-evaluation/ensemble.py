@@ -16,6 +16,22 @@ import tensorflow as tf
 
 import time
 
+
+parser = argparse.ArgumentParser(description="Ensemble model processor")
+parser.add_argument('action', help='action to perform, either train or test')
+parser.add_argument('model', help='model to save (when training) or to load (when testing)')
+parser.add_argument('dataset', help='dataset name on which to train/test')
+parser.add_argument('num_classes', help='the number of classes in the dataset')
+parser.add_argument('dataset_size', help='the size of the training dataset to load, choices: 100, 75, 50, 25')
+
+parser.add_argument('-v', default=False, help='verbose')
+
+
+args = parser.parse_args()
+
+
+
+
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -455,17 +471,7 @@ def test_model(model, test, num_classes):
 def main():
     """Determine if the user has specified training or testing and run the appropriate function."""
     # parse command line arguments
-    parser = argparse.ArgumentParser(description="Ensemble model processor")
-    parser.add_argument('action', help='action to perform, either train or test')
-    parser.add_argument('model', help='model to save (when training) or to load (when testing)')
-    parser.add_argument('dataset', help='dataset name on which to train/test')
-    parser.add_argument('num_classes', help='the number of classes in the dataset')
-    parser.add_argument('dataset_size', help='the size of the training dataset to load, choices: 100, 75, 50, 25')
 
-    parser.add_argument('-v', default=False, help='verbose')
-
-
-    args = parser.parse_args()
     action = args.action
     model = args.model
     dataset = args.dataset
