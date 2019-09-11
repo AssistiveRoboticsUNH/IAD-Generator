@@ -14,6 +14,8 @@ import os
 import sys
 import tensorflow as tf
 
+import time
+
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -338,10 +340,12 @@ def train_model(model, train, test, num_classes):
 
             # combine training operations into one variable
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
+            start = time.perf_counter()
             out = sess.run(training_operations, feed_dict=batch_data)
+            print("execution time: {:6.3f}".format(time.perf_counter() - start))
 
             # print out every 2K iterations
-            if i % 1 == 0:
+            if i % 2000 == 0:
                 print("step: ", str(i) + '/' + str(num_iter))
                 for x in range(6):
                     print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
@@ -426,7 +430,7 @@ def test_model(model, test, num_classes):
 
             total += len(result[0])
 
-            if(i % 1 == 0):
+            if(i % 1000 == 0):
                 print("step: ", str(i) + '/' + str(num_iter), "cummulative_accuracy:", correct / float(total))
                 # per_layer accuracy
                 # print("ap [%s]= %s" % (result[2].shape, result[2]))
