@@ -164,11 +164,11 @@ def generate_activation_map(input_ph):
 
 
   master_scope = 'RGB/inception_i3d/'
-  target_layers = ['Conv3d_1a_7x7', 'Conv3d_2c_3x3', 'Mixed_3c', 'Mixed_4f', 'Mixed_5c']
+  target_layers = ['Conv3d_1a_7x7/Relu', 'Conv3d_2c_3x3/Relu', 'Mixed_3c/concat', 'Mixed_4f/concat', 'Mixed_5c/concat']
 
   print(">>>TARGET_LAYERS")
   for layer in target_layers:
-    print(tf.get_default_graph().get_operation_by_name(master_scope+layer+'/concat'))
+    print(tf.get_default_graph().get_operation_by_name(master_scope+layer))
 
   return []
 
