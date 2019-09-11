@@ -53,33 +53,13 @@ AGGREGATE_METHOD = "average"
 # TODO
 CONSENSUS_HEURISTIC = "top_5_confidence_discounted"
 
-# C3D Specific parameters
-num_features = [64, 128, 256, 256, 256, 6656]  # last element is for the combined model
-window_size = [16, 16, 8, 4, 2, 1]
-
-
-def layered_model(features, c3d_depth, num_classes):
-    """Return a layered model."""
-    # input layers
-    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, num_features[c3d_depth], window_size[c3d_depth], 1])  # batch_size, h, w, num_channels
-
-    # hidden layers
-    flatten = tf.reshape(input_layer, [-1, num_features[c3d_depth]*window_size[c3d_depth]])
-    dense = tf.layers.dense(inputs=flatten, units=2048, activation=tf.nn.leaky_relu)
-    dense2 = tf.layers.dense(inputs=dense, units=1024, activation=tf.nn.leaky_relu)
-    dropout = tf.layers.dropout(dense2, rate=0.5, training=features["train"])
-
-    # output layers
-    return tf.layers.dense(inputs=dropout, units=num_classes)
-
-
-def model(features, c3d_depth, num_classes):
+def model(features, c3d_depth, num_classes, data_shapes):
     """Return a single layer softmax model."""
     # input layers
-    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, num_features[c3d_depth], window_size[c3d_depth], 1])  # batch_size, h, w, num_channels
+    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1], 1])  # batch_size, h, w, num_channels
 
     # hidden layers
-    flatten = tf.reshape(input_layer, [-1, num_features[c3d_depth]*window_size[c3d_depth]])
+    flatten = tf.reshape(input_layer, [-1, data_shapes[c3d_depth][0]* data_shapes[c3d_depth][1]])
     dense = tf.layers.dense(inputs=flatten, units=2048, activation=tf.nn.leaky_relu)
     dropout = tf.layers.dropout(dense, rate=0.5, training=features["train"])
 
@@ -87,10 +67,10 @@ def model(features, c3d_depth, num_classes):
     return tf.layers.dense(inputs=dropout, units=num_classes)
 
 
-def conv_model(features, c3d_depth, num_classes):
+def conv_model(features, c3d_depth, num_classes, data_shapes):
     """Return a convolutional model."""
     # input layers
-    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, num_features[c3d_depth], window_size[c3d_depth], 1])  # batch_size, h, w, num_channels
+    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1], 1])  # batch_size, h, w, num_channels
 
     # hidden layers
     num_filters = 32
@@ -101,7 +81,7 @@ def conv_model(features, c3d_depth, num_classes):
         kernel_size=[1, filter_width],
         padding="valid",  # don't want to add padding because that changes the IAD
         activation=tf.nn.leaky_relu)
-    flatten = tf.reshape(input_layer, [-1, num_features[c3d_depth] * window_size[c3d_depth]])
+    flatten = tf.reshape(input_layer, [-1, data_shapes[c3d_depth][0]* data_shapes[c3d_depth][1]])
     dense = tf.layers.dense(inputs=flatten, units=2048, activation=tf.nn.leaky_relu)
     dropout = tf.layers.dropout(dense, rate=0.5, training=features["train"])
 
@@ -238,7 +218,7 @@ def tensor_operations(num_classes, data_shapes):
         print("train_data_shapes[c3d_depth]:", data_shapes[c3d_depth])
 
         ph["x_" + str(c3d_depth)] = tf.placeholder(
-            tf.float32, shape=(None, num_features[c3d_depth], window_size[c3d_depth])
+            tf.float32, shape=(None, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1])
         )
 
     # Tensor operations
@@ -252,9 +232,9 @@ def tensor_operations(num_classes, data_shapes):
     for c3d_depth in range(6):
         # logits
         if(c3d_depth < 3):
-            logits = conv_model(ph, c3d_depth, num_classes)
+            logits = conv_model(ph, c3d_depth, num_classes, data_shapes)
         else:
-            logits = model(ph, c3d_depth, num_classes)
+            logits = model(ph, c3d_depth, num_classes, data_shapes)
 
         # probabilities and associated weights
         probabilities = tf.nn.softmax(logits, name="softmax_tensor")
@@ -336,13 +316,6 @@ def train_model(model, train, test, num_classes):
     for i in range(len(eval_data)):
         data_shape.append(eval_data[i].shape[1:])
 
-    print("------->>>  DATA_SHAPE")
-    for ds in data_shape:
-        print("data_shape:", ds)
-
-    num_features = [64, 128, 256, 256, 256, 6656]  # last element is for the combined model
-    window_size = [16, 16, 8, 4, 2, 1]
-
     #define network
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
@@ -398,7 +371,13 @@ def test_model(model, test, num_classes):
     """Test the model."""
     eval_data, eval_labels = read_file(test)
 
-    ops = tensor_operations(num_classes)
+    #Get Data Shape
+    data_shape = []
+    for i in range(len(eval_data)):
+        data_shape.append(eval_data[i].shape[1:])
+
+    #define network
+    ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
 
     test_batch_size = 1
