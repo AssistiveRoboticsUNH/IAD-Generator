@@ -154,7 +154,8 @@ def generate_activation_map(input_ph):
           int between 0 and 4)
   '''
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
-  with tf.variable_scope('RGB'):
+  rgb_scope = 'RGB'
+  with tf.variable_scope(rgb_scope):
     logits, end_points = i3d.InceptionI3d( num_classes=101,
                                   spatial_squeeze=True,
                                   final_endpoint='Logits')(input_ph, is_training)
@@ -163,8 +164,8 @@ def generate_activation_map(input_ph):
 
     print(">>>TARGET_LAYERS")
     for layer in target_layers:
-      print(layer, len(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer)))
-      for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer):
+      print(layer, len(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=rgb_scope+'/'+layer)))
+      for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=rgb_scope+'/'+layer):
         print("var:", var.name)
 
   return []
