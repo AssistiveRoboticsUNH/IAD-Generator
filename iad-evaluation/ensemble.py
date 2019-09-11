@@ -334,8 +334,7 @@ def train_model(model, train, test, num_classes):
     #Get Data Shape
     data_shape = []
     for i in range(len(eval_data)):
-        data_shape.append(eval_data[i].shape)
-    data_shape.append(('?', '?'))
+        data_shape.append(eval_data[i].shape[1:])
 
     print("------->>>  DATA_SHAPE")
     for ds in data_shape:
