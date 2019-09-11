@@ -342,7 +342,8 @@ def train_model(model, train, test, num_classes):
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
             start = time.time()
             out = sess.run(training_operations, feed_dict=batch_data)
-            print("execution time: {:6.3f}".format(time.time() - start))
+            if(args.verbose):
+                print("execution time: {:6.3f}".format(time.time() - start))
 
             # print out every 2K iterations
             if i % 2000 == 0:
@@ -460,6 +461,9 @@ def main():
     parser.add_argument('dataset', help='dataset name on which to train/test')
     parser.add_argument('num_classes', help='the number of classes in the dataset')
     parser.add_argument('dataset_size', help='the size of the training dataset to load, choices: 100, 75, 50, 25')
+
+    parser.add_argument('-v', default=False, help='verbose')
+
 
     args = parser.parse_args()
     action = args.action
