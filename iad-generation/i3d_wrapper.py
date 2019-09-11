@@ -20,6 +20,8 @@ def obtain_files(directory_file):
     line = line.split()
 
     filename, label = line
+    filenames.append(filename)
+    labels.append(label)
     file_length = len(os.listdir(filename))-1
 
     if(file_length > max_length):
