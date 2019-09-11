@@ -331,19 +331,20 @@ def train_model(model, train, test, num_classes):
     train_data, train_labels = read_file(train)
     eval_data, eval_labels = read_file(test)
 
-
     #Get Data Shape
     data_shape = []
     for i in range(len(eval_data)):
         data_shape.append(eval_data[i].shape)
     data_shape.append(('?', '?'))
 
+    print("------->>>  DATA_SHAPE")
     for ds in data_shape:
         print("data_shape:", ds)
 
     num_features = [64, 128, 256, 256, 256, 6656]  # last element is for the combined model
     window_size = [16, 16, 8, 4, 2, 1]
 
+    #define network
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
 
