@@ -163,6 +163,7 @@ def generate_activation_map(input_ph):
 
   print(">>>TARGET_LAYERS")
   for layer in target_layers:
+    print(layer, len(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer)))
     for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer):
       print("var:", var.name)
 
