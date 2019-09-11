@@ -162,8 +162,8 @@ def generate_activation_map(input_ph):
   target_layers = ['Conv3d_1a_7x7', 'Conv3d_2c_3x3', 'Mixed_3c', 'Mixed_4f', 'Mixed_5c']
 
   for layer in target_layers:
-    for i in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer):
-      print(end_points[k])
+    for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=layer):
+      print("var:", var.name)
 
   return []
 
