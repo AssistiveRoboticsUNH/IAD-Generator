@@ -358,7 +358,7 @@ def train_model(model, train, test, num_classes):
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
             start = time.time()
             out = sess.run(training_operations, feed_dict=batch_data)
-            if(args.verbose):
+            if(args.v):
                 print("execution time: {:6.3f}".format(time.time() - start))
 
             # print out every 2K iterations
