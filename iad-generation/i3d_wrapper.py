@@ -102,12 +102,12 @@ def get_variables(num_classes=-1):
   We ommit the FC layers as these layers are used to perform reasoning and do 
   not contain feature information '''
 
-  rgb_variable_map = {}
-  print(">>>>here ", len(tf.global_variables()))
+  variable_map = {}
   for variable in tf.global_variables():
-    print("variable:", variable.name)
     if variable.name.split('/')[0] == 'RGB' and 'Adam' not in variable.name.split('/')[-1] and variable.name.split('/')[2] != 'Logits':
-      rgb_variable_map[variable.name.replace(':0', '')] = variable
+      variable_map[variable.name.replace(':0', '')] = variable
+
+  return variable_map
 
   weights, biases = {}, {}
   for v in rgb_variable_map.keys():
