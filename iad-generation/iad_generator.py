@@ -54,7 +54,7 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	input_placeholder = model.get_input_placeholder(batch_size)
 	
 	# define model
-	activation_map = model.load_model(input_placeholder)
+	activation_map, saver = model.load_model(input_placeholder)
 	
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):
