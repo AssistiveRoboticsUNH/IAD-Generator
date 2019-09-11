@@ -68,7 +68,11 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
 		# initialize model variables to those in the described checkpoint file
-		saver.restore(sess, FLAGS.model_file)
+		ckpt = tf.train.get_checkpoint_state(FLAGS.model_file)
+		if ckpt and ckpt.model_checkpoint_path:
+			print("loading checkpoint %s,waiting......" % ckpt.model_checkpoint_path)
+			saver.restore(sess, ckpt.model_checkpoint_path)
+			print("load complete!")
 
 		# prevent further modification to the graph
 		sess.graph.finalize()
