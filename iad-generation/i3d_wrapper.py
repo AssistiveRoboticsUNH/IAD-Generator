@@ -81,7 +81,7 @@ def read_file(file, input_placeholder):
 import i3d
 
 INPUT_DATA_SIZE = {"t": 64, "h":224, "w":224, "c":3}
-CNN_FEATURE_COUNT = [64, 128, 256, 256, 256]
+CNN_FEATURE_COUNT = [64, 192, 480, 832, 1024]
 
 def get_input_placeholder(batch_size, num_frames=INPUT_DATA_SIZE["t"]):
   # returns a placeholder for the C3D input
@@ -141,67 +141,3 @@ def load_model(input_ph):
   saver = tf.train.Saver(variable_name_list.values())
 
   return activation_maps, saver
-
-
-
-
-
-  '''
-  def conv3d(name, l_input, w, b):
-    # performs a 3d convolution
-    return tf.nn.bias_add(tf.nn.conv3d(l_input, w, strides=[1, 1, 1, 1, 1], padding='SAME'),b)
-
-  def max_pool(name, l_input, k):
-    # performs a 2x2 max pool operation in 3 dimensions
-    return tf.nn.max_pool3d(l_input, ksize=[1, k, 2, 2, 1], strides=[1, k, 2, 2, 1], padding='SAME', name=name)
-
-  # Convolution Layer
-  conv1 = conv3d('conv1', input_ph, _weights['wc1'], _biases['bc1'])
-  conv1 = tf.nn.relu(conv1, 'relu1')
-  pool1 = max_pool('pool1', conv1, k=1)
-
-  # Convolution Layer
-  conv2 = conv3d('conv2', pool1, _weights['wc2'], _biases['bc2'])
-  conv2 = tf.nn.relu(conv2, 'relu2')
-  pool2 = max_pool('pool2', conv2, k=2)
-
-  # Convolution Layer
-  conv3 = conv3d('conv3a', pool2, _weights['wc3a'], _biases['bc3a'])
-  conv3 = tf.nn.relu(conv3, 'relu3a')
-  pool3 = max_pool('pool3', conv3, k=2)
-
-  # Convolution Layer
-  conv4 = conv3d('conv4a', pool3, _weights['wc4a'], _biases['bc4a'])
-  conv4 = tf.nn.relu(conv4, 'relu4a')
-  pool4 = max_pool('pool4', conv4, k=2)
-
-  # Convolution Layer
-  conv5 = conv3d('conv5a', pool4, _weights['wc5a'], _biases['bc5a'])
-  conv5 = tf.nn.relu(conv5, 'relu5a')
-  pool5 = max_pool('pool5', conv5, k=2)
-
-  if(separate_conv_layers):
-
-    # an array of convolution layers to select from
-    layers = [conv1, conv2, conv3, conv4, conv5]
-
-    return layers
-  return pool5
- 
-
-def generate_full_model(input_ph, _weights, _biases):
-
-  pool5 = generate_activation_map(input_ph, _weights, _biases, separate_conv_layers=False)[-1]
-
-  #flatten actviation map
-  flat_am = tf.layers.flatten(pool5)
-
-  #dense layers
-  dense1 = tf.nn.bias_add(tf.matmul(flat_am, _weights['wd1']), _biases['bd1'])
-  dense2 = tf.nn.bias_add(tf.matmul(dense1, _weights['wd2']), _biases['bd2'])
-  out = tf.nn.bias_add(tf.matmul(dense2, _weights['out']), _biases['out'])
-
-  softmax = tf.nn.softmax(out)
-  classifcation = tf.argmax(softmax, axis = 1)
-
-  return classifcation, softmax, out '''
