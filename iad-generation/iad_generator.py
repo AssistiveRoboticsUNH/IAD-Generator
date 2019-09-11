@@ -54,11 +54,7 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	input_placeholder = model.get_input_placeholder(batch_size)
 	
 	# define model
-	weights, biases = model.get_variables()
-	variable_name_dict = list( set(weights.values() + biases.values()))
-	saver = tf.train.Saver(variable_name_dict)
-
-	activation_map = model.generate_activation_map(input_placeholder, weights, biases)
+	activation_map = model.load_model(input_placeholder)
 	
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):

@@ -142,7 +142,7 @@ def get_variables(num_classes=-1):
   '''
   return weights, biases
 
-def generate_activation_map(input_ph, _weights, _biases, depth=4, separate_conv_layers=True):
+def generate_activation_map(input_ph):
   '''Generates the activation map for a given input from a specific depth
         -input_ph: the input placeholder, should have been defined using the 
           "get_input_placeholder" function
@@ -167,7 +167,13 @@ def generate_activation_map(input_ph, _weights, _biases, depth=4, separate_conv_
   return []
 
 
+def load_model(input_ph):
+  activation_maps = model.generate_activation_map(input_ph)
 
+  variable_name_list = model.get_variables()
+  saver = tf.train.Saver(variable_name_list)
+
+  return activation_maps
 
 
 
