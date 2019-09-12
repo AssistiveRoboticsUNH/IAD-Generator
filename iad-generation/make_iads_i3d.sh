@@ -1,6 +1,5 @@
 #!/bin/bash
 
-SPLIT=1
 for SPLIT in 1 2 3
 do
 	for SIZE in 100 75 
