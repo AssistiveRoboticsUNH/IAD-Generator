@@ -472,25 +472,21 @@ def locate_iads(file, iad_dir):
 
     iad_filenames = os.listdir(iad_dir)
 
+    for f in iad_filenames:
+        print(f)
+
     while len(line) != 0:
 
         filename = line.split()[0].split('/')[-1]
 
-        if(iad_filenames.index(filename) < 0):
-            print("Cannot find: {0}".format(filename))
+        #if(iad_filenames.index(filename) < 0):
+        #    print("Cannot find: {0}".format(filename))
         '''
         iad_group = []
         for layer_depth in range(5):
             iad_group.append(file + layer_depth)
         '''
-        
-
-
-
-
-
-
-
+    
         line = ifile.readline()
 
     return iads
