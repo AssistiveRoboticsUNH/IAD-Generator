@@ -51,7 +51,7 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
-	input_placeholder = model.get_input_placeholder(batch_size, num_frames=1024)
+	input_placeholder = model.get_input_placeholder(batch_size, num_frames=512 )
 	
 	# define model
 	activation_map, saver = model.load_model(input_placeholder)
