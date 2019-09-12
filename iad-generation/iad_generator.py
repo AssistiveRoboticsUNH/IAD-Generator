@@ -171,8 +171,8 @@ if __name__ == '__main__':
 
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
-	combine_npy_files(list_of_files_and_labels)
-	clean_up_npy_files(list_of_files_and_labels)
+	#combine_npy_files(list_of_files_and_labels)
+	#clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")
