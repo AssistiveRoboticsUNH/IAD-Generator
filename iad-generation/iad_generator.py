@@ -59,6 +59,8 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):
 		activation_map[layer] = tf.reduce_max(activation_map[layer], axis = (2,3))
+
+		print("activation_map[layer]:", activation_map[layer].get_shape())
 		activation_map[layer] = tf.squeeze(activation_map[layer])
 		activation_map[layer] = tf.transpose(activation_map[layer])
 
