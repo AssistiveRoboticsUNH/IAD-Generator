@@ -476,7 +476,7 @@ def locate_iads(file, iad_dir):
 
         filename = line.split()[0].split('/')[-1]
 
-        if(iad_filenames.find(filename) < 0):
+        if(iad_filenames.index(filename) < 0):
             print("Cannot find: {0}".format(filename))
         '''
         iad_group = []
