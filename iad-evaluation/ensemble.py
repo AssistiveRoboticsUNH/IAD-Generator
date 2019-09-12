@@ -478,7 +478,7 @@ def locate_iads(file, iad_dir):
 
         if(f_filename not in iad_dict):
             iad_dict[f_filename] = []
-        iad_dict.append(f)
+        iad_dict[f_filename].append(f)
 
     for k in iad_dict:
         print(k, iad_dict[k])
