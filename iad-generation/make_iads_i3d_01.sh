@@ -2,7 +2,7 @@
 
 SPLIT=1
 
-for SIZE in 100 75 50 25
+for SIZE in 100 75 
 do
 
 	MODEL="~/i3d/train_i3d/experiments/ucf-101/models/ucf_i3d_pretrained_0"$SPLIT"_"$SIZE
