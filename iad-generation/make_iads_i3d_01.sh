@@ -9,9 +9,11 @@ do
 	LIST_DIR="~/datasets/UCF-101/listFiles"
 	OUT_DIR="ucf_0"$SPLIT"/ucf_"$SIZE
 
-	CMD_TRAIN="python iad_generator.py "$MODEL" "$LIST_DIR"/trainlist0"$SPLIT"_"$SIZE".list --dst_directory "$OUT_DIR" --prefix ucf_"$SIZE"_train"
+	CMD_TRAIN="python iad_generator.py "$MODEL" "$LIST_DIR"/trainlist0"$SPLIT"_"$SIZE".list --dst_directory "$OUT_DIR" --prefix ucf_"$SIZE"_train" 
+	echo $CMD_TRAIN
 	eval $CMD_TRAIN
 
 	CMD_TEST="python iad_generator.py "$MODEL" "$LIST_DIR"/testlist0"$SPLIT".list --dst_directory "$OUT_DIR" --prefix ucf_"$SIZE"_test --min_max_file "$OUT_DIR"/min_maxes.npz"
+	echo $CMD_TEST
 	eval $CMD_TEST
 done
