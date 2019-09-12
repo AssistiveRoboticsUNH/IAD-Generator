@@ -20,6 +20,8 @@ import time
 parser = argparse.ArgumentParser(description="Ensemble model processor")
 parser.add_argument('action', help='action to perform, either train or test')
 parser.add_argument('model', help='model to save (when training) or to load (when testing)')
+
+parser.add_argument('iad_directory', help='location of files')
 parser.add_argument('dataset', help='dataset name on which to train/test')
 parser.add_argument('num_classes', help='the number of classes in the dataset')
 parser.add_argument('dataset_size', help='the size of the training dataset to load, choices: 100, 75, 50, 25')
@@ -484,16 +486,16 @@ def main():
     action = args.action
     model = args.model
     dataset = args.dataset
+    iad_directory = args.iad_directory
     num_classes = args.num_classes
     dataset_size = args.dataset_size
 
     # define the dataset file names
-    dataset_directory = "%s_%s/" % (dataset, dataset_size)
     train_dataset = []
     test_dataset = []
     for c3d_depth in range(5):
-        train_dataset.append("%s/%s_%s_train_%d.npz" % (dataset_directory, dataset, dataset_size, c3d_depth))
-        test_dataset.append("%s/%s_%s_test_%d.npz" % (dataset_directory, dataset, dataset_size, c3d_depth))
+        train_dataset.append("%s/%s_%s_train_%d.npz" % (iad_directory, dataset, dataset_size, c3d_depth))
+        test_dataset.append("%s/%s_%s_test_%d.npz" % (iad_directory, dataset, dataset_size, c3d_depth))
 
     if action == 'train':
         train_model(model, train_dataset, test_dataset, num_classes)
