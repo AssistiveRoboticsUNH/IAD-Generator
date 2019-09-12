@@ -18,16 +18,16 @@ import time
 
 
 parser = argparse.ArgumentParser(description="Ensemble model processor")
+parser.add_argument('action', help='action to perform, either train or test')
 parser.add_argument('model', help='model to save (when training) or to load (when testing)')
+
+parser.add_argument('iad_directory', help='location of files')
+parser.add_argument('dataset', help='dataset name on which to train/test')
 parser.add_argument('num_classes', help='the number of classes in the dataset')
+parser.add_argument('dataset_size', help='the size of the training dataset to load, choices: 100, 75, 50, 25')
 
-parser.add_argument('iad_dir', help='location of IADs')
-parser.add_argument('--train', default='', help='.list file')
-parser.add_argument('--test', default='', help='.list file')
-
-parser.add_argument('--window_size', default=64, help='size of the sliding window')
 parser.add_argument('-v', default=False, help='verbose')
-parser.add_argument('--gpu', default="0", help='verbose')
+
 
 args = parser.parse_args()
 
@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
-os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 ##############################################
 # Parameters
@@ -438,6 +438,13 @@ def test_model(model, test, num_classes):
 
             ensemble_prediction = model_consensus(result, model_csv, batch_data[ops['ph']["y"]])
 
+            '''
+            print("result:", result[3][0], batch_data[ops['ph']["y"]],\
+                result[3][0] == batch_data[ops['ph']["y"]])
+            print("ensemble_prediction:", ensemble_prediction, batch_data[ops['ph']["y"]][0],\
+                ensemble_prediction == batch_data[ops['ph']["y"]][0])
+            print('')
+            '''
             # check if model output is correct
             for j, m in enumerate(result[3][0]):
                 if m == batch_data[ops['ph']["y"]]:
@@ -453,6 +460,13 @@ def test_model(model, test, num_classes):
 
             if(i % 1000 == 0):
                 print("step: ", str(i) + '/' + str(num_iter), "cummulative_accuracy:", correct / float(total))
+                # per_layer accuracy
+                # print("ap [%s]= %s" % (result[2].shape, result[2]))
+                # print("tp [%s]= %s" % (result[1].shape, result[1]))
+                # print("mp [%s] = %s" % (result[3].shape, result[3]))
+                # print("true class = %s" % batch_data[ph["y"]])
+                # print("top 5 values [%s] = %s" % (result[4].shape, result[4]))
+                # print("top 5 indices [%s] = %s" % (result[5].shape, result[5]))
 
     model_data_fd.close()
     print("FINAL - accuracy:", correct / float(total))
@@ -464,37 +478,33 @@ def test_model(model, test, num_classes):
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
 
-def locate_iads(file, iad_dir):
-    iads = []
-
-    for line in list(open(file, 'r').read()):
-        '''
-        iad_group = []
-        for layer_depth in range(5):
-            iad_group.append(file + layer_depth)
-        '''
-        print(line)
-
-
-    return iads
 
 def main():
     """Determine if the user has specified training or testing and run the appropriate function."""
-    
-    # define the dataset file names
-    train_dataset = locate_iads(args.train, args.iad_dir)
-    eval_dataset = locate_iads(args.test, args.iad_dir)
+    # parse command line arguments
 
-    '''
-    with tf.device('/gpu:'+FLAGS.gpu):
-        if args.train != '':
-            train_model(args.model, train_dataset, eval_dataset, args.num_classes)
-        elif args.action != '':
-            test_model(args.model, eval_dataset, args.num_classes)
-        else:
-            print("Must provide either train or test file")
-            sys.exit(1)
-    '''
+    action = args.action
+    model = args.model
+    dataset = args.dataset
+    iad_directory = args.iad_directory
+    num_classes = args.num_classes
+    dataset_size = args.dataset_size
+
+    # define the dataset file names
+    train_dataset = []
+    test_dataset = []
+    for c3d_depth in range(5):
+        train_dataset.append("%s/%s_%s_train_%d.npz" % (iad_directory, dataset, dataset_size, c3d_depth))
+        test_dataset.append("%s/%s_%s_test_%d.npz" % (iad_directory, dataset, dataset_size, c3d_depth))
+
+    if action == 'train':
+        train_model(model, train_dataset, test_dataset, num_classes)
+    elif action == 'test':
+        test_model(model, test_dataset, num_classes)
+    else:
+        print("Unsupported action: %s, exiting" % action)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
