@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SPLIT=2
+SPLIT=1
 
 for SIZE in 100 75 50 25
 do
