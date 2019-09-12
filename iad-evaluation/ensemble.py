@@ -467,14 +467,16 @@ def test_model(model, test, num_classes):
 def locate_iads(file, iad_dir):
     iads = []
 
-    for line in list(open(file, 'r').read()):
+    ifile = open(file, 'r')
+    line = ifile.readline()
+    while len(line) != 0:
         '''
         iad_group = []
         for layer_depth in range(5):
             iad_group.append(file + layer_depth)
         '''
         print(line)
-
+        line = ifile.readline()
 
     return iads
 
