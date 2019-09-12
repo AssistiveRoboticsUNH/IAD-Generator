@@ -469,14 +469,28 @@ def locate_iads(file, iad_dir):
 
     ifile = open(file, 'r')
     line = ifile.readline()
+
+    iad_filenames = os.listdir(iad_dir)
+
     while len(line) != 0:
+
+        filename = line.split()[0].split('/')[-1]
+
+        if(iad_filenames.find(filename) < 0):
+            print("Cannot find: {0}".format(filename))
         '''
         iad_group = []
         for layer_depth in range(5):
             iad_group.append(file + layer_depth)
         '''
-        filename = line.split()[0].split('/')[-1]
-        print(filename)
+        
+
+
+
+
+
+
+
         line = ifile.readline()
 
     return iads
@@ -486,7 +500,7 @@ def main():
     
     # define the dataset file names
     train_dataset = locate_iads(args.train, args.iad_dir)
-    eval_dataset = locate_iads(args.test, args.iad_dir)
+    #eval_dataset = locate_iads(args.test, args.iad_dir)
 
     '''
     with tf.device('/gpu:'+FLAGS.gpu):
