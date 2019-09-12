@@ -474,7 +474,7 @@ def locate_iads(file, iad_dir):
 
     iad_dict = {}
     for f in iad_filenames:
-        f_filename = f[:-4]
+        f_filename = f[:-6]
 
         if(f_filename not in iad_dict):
             iad_dict[f_filename] = []
