@@ -62,7 +62,6 @@ def read_file(file, input_placeholder):
       img_data.append(np.array(img))
 
   img_data = np.array(img_data).astype(np.float32)
-  length_ratio = float(limit) / len(img_data)
 
   # pad file to appropriate length
   buffer_len = int(num_frames) - len(img_data)
@@ -71,6 +70,7 @@ def read_file(file, input_placeholder):
         'constant', 
         constant_values=(0,0))
   img_data = np.expand_dims(img_data, axis=0)
+  length_ratio = float(limit) / len(img_data)
 
 
 
