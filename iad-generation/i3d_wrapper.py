@@ -44,7 +44,7 @@ def read_file(file, input_placeholder):
   img_data = []
   for r, d, f in os.walk(file):
     f.sort()
-    limit = min(num_frames, len(f))
+    limit = min(int(num_frames), len(f))
     print("limit:", limit)
     
     for i in range(limit):
@@ -62,7 +62,7 @@ def read_file(file, input_placeholder):
       img_data.append(np.array(img))
 
   img_data = np.array(img_data).astype(np.float32)
-  length_ratio = len(img_data) / float(int(limit))
+  length_ratio = float(limit) / len(img_data)
 
   # pad file to appropriate length
   buffer_len = int(num_frames) - len(img_data)
