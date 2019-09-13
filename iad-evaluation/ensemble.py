@@ -31,6 +31,7 @@ parser.add_argument('--gpu', default="0", help='verbose')
 
 args = parser.parse_args()
 
+window_size = 64
 data_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
 data_shape = data_shape_i3d
 
@@ -237,24 +238,24 @@ def get_data_train(iad_list):
     #select files randomly
     batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
     batch_files = iad_list[batch_indexs]
-    print("batch_files:", batch_files)
 
-    for i in batch_files:
-        start_index, original_length = -1, -1
+    for file_group in batch_files:
+        scaled_window_index = -1
 
         #open the files for the given file name
         file_data = []
-        for npz_file in range(5):
-            filename = batch_files[i]+"_"+str(npz_file)+".npz"
+        for layer_index in range(5):
+            filename = file_group[layer_index]
             d, l, z = np.load(filename)
 
-            if(start_index < 0):
-                start_index = random.randint(0, z-data_shape[0][1])
-                original_length = z
+            if(scaled_window_index < 0):
+                scaled_window_index = random.randint(0, (z* window_siz)-window_size)
+
+            d = d[start_index*ratio : start_index*ratio + data_shape[layer_index][1]]
 
             #get the data chunk 
             ratio = z/original_length
-            file_data.append(d[start_index*ratio : start_index*ratio + data_shape[npz_file][1]])
+            file_data.append(d)
 
         #add flattened data segment
         flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
