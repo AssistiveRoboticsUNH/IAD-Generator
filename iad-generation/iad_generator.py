@@ -59,7 +59,8 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=1024 )
 	
 	# define model
-	activation_map, saver = model.load_model(input_placeholder)
+	with tf.device('/gpu:'+FLAGS.gpu):
+		activation_map, saver = model.load_model(input_placeholder)
 	
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):
@@ -174,11 +175,11 @@ if __name__ == '__main__':
 		f = np.load(FLAGS.min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	with tf.device('/gpu:'+FLAGS.gpu):
-		convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
-		normalize_dataset(list_of_files_and_labels, min_max_vals)
-		#combine_npy_files(list_of_files_and_labels)
-		#clean_up_npy_files(list_of_files_and_labels)
+	
+	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
+	normalize_dataset(list_of_files_and_labels, min_max_vals)
+	#combine_npy_files(list_of_files_and_labels)
+	#clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")
