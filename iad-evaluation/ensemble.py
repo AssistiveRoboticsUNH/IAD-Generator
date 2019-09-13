@@ -580,7 +580,7 @@ def main():
     train_dataset = locate_iads(args.train, iad_dict)
     eval_dataset = locate_iads(args.test, iad_dict)
 
-    '''
+    
     with tf.device('/gpu:'+FLAGS.gpu):
         if args.train != '':
             BATCH_SIZE = 15
@@ -591,7 +591,7 @@ def main():
         else:
             print("Must provide either train or test file")
             sys.exit(1)
-    '''
+    
 
 if __name__ == "__main__":
     main()
