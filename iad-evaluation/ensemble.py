@@ -434,6 +434,9 @@ def train_model(model, train, test, num_classes):
             # setup training batch
 
             data, label = get_data(train)
+            for entry in data:
+                print("entry: ", entry.shape)
+            print("label:", label)
 
     '''
             batch_data = {}
