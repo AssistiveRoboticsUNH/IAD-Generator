@@ -417,21 +417,22 @@ def train_model(model, train, test, num_classes):
     '''
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
-    '''
+    
 
     with tf.Session() as sess:
         #sess.run(tf.global_variables_initializer())
         #sess.run(tf.local_variables_initializer())
 
         # train the network
-        num_iter = EPOCHS * len(train_labels) / BATCH_SIZE
-        for i in range(num_iter):
-            # setup training batch
+    '''
+    num_iter = EPOCHS * len(train_labels) / BATCH_SIZE
+    for i in range(num_iter):
+        # setup training batch
 
-            data, label = get_data(train)
-            for entry in data:
-                print("entry: ", entry.shape)
-            print("label:", label)
+        data, label = get_data_train(train)
+        for entry in data:
+            print("entry: ", entry.shape)
+        print("label:", label)
 
     '''
             batch_data = {}
