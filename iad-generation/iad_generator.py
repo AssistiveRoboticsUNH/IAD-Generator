@@ -21,7 +21,7 @@ parser.add_argument('--features_file', nargs='?', default=None, help='which feat
 parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
 parser.add_argument('--pad_length', nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 
-parser.add_argument('--gpu', "0", 'gpu to run on')
+parser.add_argument('--gpu', default="0", help='gpu to run on')
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
