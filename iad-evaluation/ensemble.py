@@ -276,7 +276,6 @@ def get_data_test(iad_list, tracker):
     for i in range(6):
         batch_data.append
 
-
     file_data = []
     for npz_file in range(5):
         filename = batch_files[tracker]+"_"+str(npz_file)+".npz"
@@ -290,7 +289,7 @@ def get_data_test(iad_list, tracker):
 
         if(npz_file == 0):
             # is end should be 0s until the last frame
-            is_end = 
+            is_end = False
 
     #add flattened data segment
     flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
