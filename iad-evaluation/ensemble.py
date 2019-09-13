@@ -236,9 +236,8 @@ def get_data_train(iad_list):
 
     #select files randomly
     batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
-    print("batch_indexs:", batch_indexs)
     batch_files = iad_list[batch_indexs]
-
+    print("batch_files:", batch_files)
 
     for i in batch_files:
         start_index, original_length = -1, -1
