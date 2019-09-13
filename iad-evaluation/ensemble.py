@@ -577,6 +577,8 @@ def main():
             iad_dict[iad_filename] = []
         iad_dict[iad_filename].append(iad)
 
+    print("iad_dict:", iad_dict.keys())
+
     print("args.train", args.train)
     print("args.test", args.test)
 
