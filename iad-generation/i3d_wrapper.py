@@ -45,7 +45,6 @@ def read_file(file, input_placeholder):
   for r, d, f in os.walk(file):
     f.sort()
     limit = min(int(num_frames), len(f))
-    print("limit:", limit)
     
     for i in range(limit):
       filename = os.path.join(r, f[i])
