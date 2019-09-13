@@ -46,7 +46,7 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 	#save to disk
 	for i in range(len(data)):
 		filename = output_filename(file, i)
-		print(data[i].shape, int(data[i].shape[1]*length_ratio))
+		print(data[i].shape, int(data[i].shape[1]*length_ratio), length_ratio)
 		data[i] = data[i][:int(data[i].shape[1]*length_ratio)]
 		print(data[i].shape)
 		np.savez(filename, data=data[i], label=label, length=len(data[i]))
