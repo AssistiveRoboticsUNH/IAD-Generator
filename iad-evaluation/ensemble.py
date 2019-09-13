@@ -577,6 +577,9 @@ def main():
             iad_dict[iad_filename] = []
         iad_dict[iad_filename].append(iad)
 
+    print("args.train", args.train)
+    print("args.test", args.test)
+
 
     # define the dataset file names
     train_dataset = locate_iads(args.train, iad_dict)
