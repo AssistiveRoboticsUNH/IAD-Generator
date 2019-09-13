@@ -560,7 +560,7 @@ def locate_iads(file, iad_dict):
 
         line = ifile.readline()
 
-    return iads
+    return np.array(iads)
 
 def main():
     """Determine if the user has specified training or testing and run the appropriate function."""
