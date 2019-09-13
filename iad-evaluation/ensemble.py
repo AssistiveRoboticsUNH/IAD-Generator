@@ -31,8 +31,8 @@ parser.add_argument('--gpu', default="0", help='verbose')
 
 args = parser.parse_args()
 
-
-window_size = [32, 32, 32, 16, 8]
+data_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
+data_shape = data_shape_i3d
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -249,12 +249,12 @@ def get_data_train(iad_list):
             d, l, z = np.load(filename)
 
             if(start_index < 0):
-                start_index = random.randint(0, z-window_size[0])
+                start_index = random.randint(0, z-data_shape[0][1])
                 original_length = z
 
             #get the data chunk 
             ratio = z/original_length
-            file_data.append(d[start_index*ratio : start_index*ratio + args.window_size[npz_file]])
+            file_data.append(d[start_index*ratio : start_index*ratio + data_shape[npz_file][1]])
 
         #add flattened data segment
         flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
@@ -412,11 +412,6 @@ def train_model(model, train, test, num_classes):
     # load data
     #train_data, train_labels = read_file(train)
     #eval_data, eval_labels = read_file(test)
-
-    #Get Data Shape
-    data_shape = []
-    for i in range(len(eval_data)):
-        data_shape.append(eval_data[i].shape[1:])
 
     #define network
     '''
