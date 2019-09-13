@@ -21,7 +21,7 @@ parser.add_argument('--features_file', nargs='?', default=None, help='which feat
 parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
 parser.add_argument('--pad_length', nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 
-parser.add_argument('--gpu', default="0", help='gpu to run on')
+parser.add_argument('--gpu', default="1", help='gpu to run on')
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
@@ -59,8 +59,7 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=1024 )
 	
 	# define model
-	with tf.device('/gpu:'+FLAGS.gpu):
-		activation_map, saver = model.load_model(input_placeholder)
+	activation_map, saver = model.load_model(input_placeholder)
 	
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):
