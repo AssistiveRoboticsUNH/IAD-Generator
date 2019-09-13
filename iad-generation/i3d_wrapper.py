@@ -69,8 +69,9 @@ def read_file(file, input_placeholder):
         ((0,buffer_len), (0,0), (0,0),(0,0)), 
         'constant', 
         constant_values=(0,0))
-  img_data = np.expand_dims(img_data, axis=0)
   length_ratio = float(limit) / len(img_data)
+  img_data = np.expand_dims(img_data, axis=0)
+  
 
 
 
