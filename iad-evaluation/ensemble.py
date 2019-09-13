@@ -425,7 +425,7 @@ def train_model(model, train, test, num_classes):
 
         # train the network
     '''
-    num_iter = EPOCHS * len(train_labels) / BATCH_SIZE
+    num_iter = EPOCHS * len(train) / BATCH_SIZE
     for i in range(num_iter):
         # setup training batch
 
