@@ -272,14 +272,12 @@ def get_data_train(iad_list):
 
     return batch_data, batch_label
 
-def get_data_test(iad_list, tracker):
-    batch_data = []
-    for i in range(6):
-        batch_data.append
+def get_data_test(iad_list, index):
+   
 
     file_data = []
     for npz_file in range(5):
-        filename = batch_files[tracker]+"_"+str(npz_file)+".npz"
+        filename = batch_files[index]+"_"+str(npz_file)+".npz"
         d, l, z = np.load(filename)
 
         print(d.shape)
@@ -288,10 +286,9 @@ def get_data_test(iad_list, tracker):
         d = np.split(d, 64, axis=1)
         file_data.append(np.stack(d))
 
-        if(npz_file == 0):
-            # is end should be 0s until the last frame
-            is_end = False
 
+
+    '''
     #add flattened data segment
     flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
 
@@ -306,7 +303,8 @@ def get_data_test(iad_list, tracker):
     batch_label = np.array(batch_label)
 
     return batch_data, batch_label
-    
+    '''
+    return file_data, 0
 
 
 def tensor_operations(num_classes, data_shapes):
@@ -480,6 +478,11 @@ def train_model(model, train, test, num_classes):
 
 def test_model(model, test, num_classes):
     """Test the model."""
+
+    for i in range(5):
+        data, label = get_data_test(test, i)
+
+    '''
     eval_data, eval_labels = read_file(test)
 
     #Get Data Shape
@@ -549,6 +552,7 @@ def test_model(model, test, num_classes):
     print("Model accuracy: ")
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
+    '''
 
 def locate_iads(file, iad_dict):
     iads = []
