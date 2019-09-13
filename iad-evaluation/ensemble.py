@@ -582,13 +582,14 @@ def main():
 
 
     # define the dataset file names
-    train_dataset = locate_iads(args.train, iad_dict)
+    
     eval_dataset = locate_iads(args.test, iad_dict)
 
     
     with tf.device('/gpu:'+args.gpu):
         if args.train != '':
             BATCH_SIZE = 15
+            train_dataset = locate_iads(args.train, iad_dict)
             train_model(args.model, train_dataset, eval_dataset, args.num_classes)
         elif args.action != '':
             BATCH_SIZE = 1
