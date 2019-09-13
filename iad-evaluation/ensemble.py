@@ -25,14 +25,14 @@ parser.add_argument('iad_dir', help='location of IADs')
 parser.add_argument('--train', default='', help='.list file')
 parser.add_argument('--test', default='', help='.list file')
 
-parser.add_argument('--window_size', default=64, help='size of the sliding window')
+
 parser.add_argument('-v', default=False, help='verbose')
 parser.add_argument('--gpu', default="0", help='verbose')
 
 args = parser.parse_args()
 
 
-
+window_size = [32, 32, 32, 16, 8]
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -227,6 +227,87 @@ def read_file(filename_list):
 
     return all_data, all_labels
 
+def get_data_train(iad_list):
+    
+    batch_data = []
+    for i in range(6):
+        batch_data.append([])
+    batch_label = []
+
+    #select files randomly
+    batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
+    batch_files = iad_list[batch_indexs]
+
+
+    for i in batch_files:
+        start_index, original_length = -1, -1
+
+        #open the files for the given file name
+        file_data = []
+        for npz_file in range(5):
+            filename = batch_files[i]+"_"+str(npz_file)+".npz"
+            d, l, z = np.load(filename)
+
+            if(start_index < 0):
+                start_index = random.randint(0, z-window_size[0])
+                original_length = z
+
+            #get the data chunk 
+            ratio = z/original_length
+            file_data.append(d[start_index*ratio : start_index*ratio + args.window_size[npz_file]])
+
+        #add flattened data segment
+        flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
+
+        for i in range(5):
+            batch_data[i].append(file_data[i])
+        batch_data[5].append(flat_data)
+
+        batch_label.append(l)
+
+    for i in range(6):
+        batch_data[i] = np.array(batch_data[i])
+    batch_label = np.array(batch_label)
+
+    return batch_data, batch_label
+
+def get_data_test(iad_list, tracker):
+    batch_data = []
+    for i in range(6):
+        batch_data.append
+
+
+    file_data = []
+    for npz_file in range(5):
+        filename = batch_files[tracker]+"_"+str(npz_file)+".npz"
+        d, l, z = np.load(filename)
+
+        print(d.shape)
+
+        #break d in to chuncks of window size
+        d = np.split(d, 64, axis=1)
+        file_data.append(np.stack(d))
+
+        if(npz_file == 0):
+            # is end should be 0s until the last frame
+            is_end = 
+
+    #add flattened data segment
+    flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
+
+    for i in range(5):
+        batch_data[i].append(file_data[i])
+    batch_data[5].append(flat_data)
+
+    batch_label = l
+
+    for i in range(6):
+        batch_data[i] = np.array(batch_data[i])
+    batch_label = np.array(batch_label)
+
+    return batch_data, batch_label
+    
+
 
 def tensor_operations(num_classes, data_shapes):
     """Create the tensor operations to be used in training and testing, stored in a dictionary."""
@@ -330,8 +411,8 @@ def tensor_operations(num_classes, data_shapes):
 def train_model(model, train, test, num_classes):
     """Train a model given the dataset, dataset parameters, and a model name."""
     # load data
-    train_data, train_labels = read_file(train)
-    eval_data, eval_labels = read_file(test)
+    #train_data, train_labels = read_file(train)
+    #eval_data, eval_labels = read_file(test)
 
     #Get Data Shape
     data_shape = []
@@ -339,27 +420,33 @@ def train_model(model, train, test, num_classes):
         data_shape.append(eval_data[i].shape[1:])
 
     #define network
+    '''
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
+    '''
 
     with tf.Session() as sess:
-        sess.run(tf.global_variables_initializer())
-        sess.run(tf.local_variables_initializer())
+        #sess.run(tf.global_variables_initializer())
+        #sess.run(tf.local_variables_initializer())
 
         # train the network
         num_iter = EPOCHS * len(train_labels) / BATCH_SIZE
         for i in range(num_iter):
             # setup training batch
-            batch = np.random.randint(0, len(train_data[0]), size=BATCH_SIZE)
+
+            data, label = get_data(train)
+
+    '''
             batch_data = {}
             for d in range(6):
-                batch_data[ops['ph']["x_" + str(d)]] = train_data[d][batch]
-            batch_data[ops['ph']["y"]] = train_labels[batch]
+                batch_data[ops['ph']["x_" + str(d)]] = data[d]
+            batch_data[ops['ph']["y"]] = label
 
             batch_data[ops['ph']["train"]] = True
 
             # combine training operations into one variable
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
+            
             start = time.time()
             out = sess.run(training_operations, feed_dict=batch_data)
             if(args.v):
@@ -390,7 +477,7 @@ def train_model(model, train, test, num_classes):
         # save the model
         save_path = saver.save(sess, model)
         print("Final model saved in %s" % save_path)
-
+    '''
 
 def test_model(model, test, num_classes):
     """Test the model."""
@@ -464,53 +551,40 @@ def test_model(model, test, num_classes):
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
 
-def locate_iads(file, iad_dir):
+def locate_iads(file, iad_dict):
     iads = []
-
     ifile = open(file, 'r')
+
     line = ifile.readline()
-
-    iad_filenames = os.listdir(iad_dir)
-
-    iad_dict = {}
-    for f in iad_filenames:
-        f_filename = f[:-6]
-
-        if(f_filename not in iad_dict):
-            iad_dict[f_filename] = []
-        iad_dict[f_filename].append(f)
-
-    for k in iad_dict:
-        print(k, iad_dict[k])
-
     while len(line) != 0:
-
         filename = line.split()[0].split('/')[-1]
+        iads.append(iad_dict[filename])
 
-        #if(iad_filenames.index(filename) < 0):
-        #    print("Cannot find: {0}".format(filename))
-        '''
-        iad_group = []
-        for layer_depth in range(5):
-            iad_group.append(file + layer_depth)
-        '''
-    
         line = ifile.readline()
 
     return iads
 
 def main():
     """Determine if the user has specified training or testing and run the appropriate function."""
-    
+    iad_dict = {}
+    for iad in os.listdir(args.iad_dir):
+        iad_filename = iad[:-6]
+        if(iad_filename not in iad_dict):
+            iad_dict[iad_filename] = []
+        iad_dict[iad_filename].append(iad)
+
+
     # define the dataset file names
-    train_dataset = locate_iads(args.train, args.iad_dir)
-    #eval_dataset = locate_iads(args.test, args.iad_dir)
+    train_dataset = locate_iads(args.train, iad_dict)
+    eval_dataset = locate_iads(args.test, iad_dict)
 
     '''
     with tf.device('/gpu:'+FLAGS.gpu):
         if args.train != '':
+            BATCH_SIZE = 15
             train_model(args.model, train_dataset, eval_dataset, args.num_classes)
         elif args.action != '':
+            BATCH_SIZE = 1
             test_model(args.model, eval_dataset, args.num_classes)
         else:
             print("Must provide either train or test file")
