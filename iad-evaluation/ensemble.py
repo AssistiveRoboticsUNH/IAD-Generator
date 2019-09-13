@@ -581,7 +581,7 @@ def main():
     eval_dataset = locate_iads(args.test, iad_dict)
 
     
-    with tf.device('/gpu:'+FLAGS.gpu):
+    with tf.device('/gpu:'+args.gpu):
         if args.train != '':
             BATCH_SIZE = 15
             train_model(args.model, train_dataset, eval_dataset, args.num_classes)
