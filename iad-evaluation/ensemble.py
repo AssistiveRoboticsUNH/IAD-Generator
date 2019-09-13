@@ -277,7 +277,7 @@ def get_data_test(iad_list, index):
 
     file_data = []
     for npz_file in range(5):
-        filename = batch_files[index]+"_"+str(npz_file)+".npz"
+        filename = iad_list[index][npz_file]
         d, l, z = np.load(filename)
 
         print(d.shape)
