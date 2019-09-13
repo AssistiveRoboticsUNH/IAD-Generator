@@ -20,7 +20,11 @@ parser.add_argument('--min_max_file', nargs='?', default=None, help='max and min
 parser.add_argument('--features_file', nargs='?', default=None, help='which features to keep')
 parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
 parser.add_argument('--pad_length', nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+
+parser.add_argument('--gpu', "0", 'gpu to run on')
 FLAGS = parser.parse_args()
+
+os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
 batch_size = 1
 
@@ -170,10 +174,11 @@ if __name__ == '__main__':
 		f = np.load(FLAGS.min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
-	normalize_dataset(list_of_files_and_labels, min_max_vals)
-	#combine_npy_files(list_of_files_and_labels)
-	#clean_up_npy_files(list_of_files_and_labels)
+	with tf.device('/gpu:'+FLAGS.gpu):
+		convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
+		normalize_dataset(list_of_files_and_labels, min_max_vals)
+		#combine_npy_files(list_of_files_and_labels)
+		#clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")

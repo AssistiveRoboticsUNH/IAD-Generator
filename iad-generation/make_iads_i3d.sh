@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for SPLIT in 1 2 3
+for SPLIT in 1 
 do
-	for SIZE in 100 75 
+	for SIZE in 50 25 #100 75 
 	do
 
 		MODEL="~/i3d/train_i3d/experiments/ucf-101/models/ucf_i3d_pretrained_0"$SPLIT"_"$SIZE
