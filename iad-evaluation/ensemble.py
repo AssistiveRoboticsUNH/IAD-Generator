@@ -194,7 +194,6 @@ def get_data_train(iad_list):
         file_data = []
         for layer in range(5):
             filename = iad_list[index][layer]
-            print("filename:"), filename
             f = np.load(filename)
             d, l, z = f["data"], f["label"], f["length"]
 
