@@ -293,7 +293,7 @@ def get_data_test(iad_list, index):
     #add flattened data segment
     flat_data = [x.flatten() for x in file_data]
     for f in file_data:
-        print("flat:", x.shape, x.flatten(axis = 1).shape)
+        print("flat:", x.shape, x.reshape(x.shape[0], -1).shape)
     '''
     flat_data = np.concatenate([x.flatten(axis=1) for x in file_data], axis = 0)
 
