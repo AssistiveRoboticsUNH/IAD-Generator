@@ -245,7 +245,7 @@ def get_data_test(iad_list, index):
     flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
     file_data.append(flat_data)
 
-    return file_data, l
+    return file_data, np.array([l])
 
 
 def tensor_operations(num_classes, data_shapes):
@@ -445,7 +445,7 @@ def test_model(model, test, num_classes):
             data, label = get_data_test(test, i)
 
             batch_data = {}
-            batch_data[ops['ph']["y"]] = np.array([label])
+            batch_data[ops['ph']["y"]] = label
             batch_data[ops['ph']["train"]] = False
 
             aggregated_results = []
