@@ -47,13 +47,11 @@ def read_file(file, input_placeholder):
 
     f.sort()
     limit = min(int(num_frames), len(f))
-    print("limit:", limit, int(num_frames), len(f))
     
     for i in range(limit):
       filename = os.path.join(r, f[i])
       img = Image.open(filename)
 
-      print(" before resize", np.array(img).shape)
       # resize and crop to fit input size
       #print(img.height, img.width)
 
@@ -61,15 +59,9 @@ def read_file(file, input_placeholder):
         img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
       else:
         img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
-      
-      print(" after resize", img.shape)
-      print("shape:", img.shape[0], img.shape[1])
-      print("h,w:", h, w)
-
-
+  
       crop_x = int((img.shape[0] - h)/2)
       crop_y = int((img.shape[1] - w)/2)
-      print("crop:", crop_x, crop_y)
       img = img[crop_x:crop_x+w, crop_y:crop_y+h,:] 
 
       img_data.append(np.array(img))
