@@ -452,7 +452,7 @@ def test_model(model, test, num_classes):
                     input_data = data[d][j]
                     print("input_data.shape:", input_data.shape)
 
-                    batch_data[ops['ph']["x_" + str(d)]] = 
+                    batch_data[ops['ph']["x_" + str(d)]] = input_data
                 
                 result = sess.run([
                     ops['test_correct_pred'],
