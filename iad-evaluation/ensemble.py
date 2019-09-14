@@ -289,7 +289,7 @@ def get_data_test(iad_list, index):
         pad_length = window_size - (z%window_size)
         d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
         print("padded:", d.shape)
-        d = np.split(d, window_size, axis=1)
+        d = np.split(d, data.shape[2]/window_size, axis=1)
         d = np.stack(d)
         print("after:", d.shape)
         file_data.append(d)
