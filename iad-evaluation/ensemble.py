@@ -352,12 +352,11 @@ def train_model(model, train, test, num_classes):
 
     #define network
     ops = tensor_operations(num_classes, data_shape)
+    saver = tf.train.Saver()
     
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
-
-        saver = tf.train.Saver()
 
         # train the network
     
@@ -529,17 +528,17 @@ def main():
     # define the dataset file names    
     eval_dataset = locate_iads(args.test, iad_dict)
     
-    with tf.device('/gpu:'+args.gpu):
-        if args.train != '':
-            BATCH_SIZE = 15
-            train_dataset = locate_iads(args.train, iad_dict)
-            train_model(args.model, train_dataset, eval_dataset, args.num_classes)
-        elif args.test != '':
-            BATCH_SIZE = 1
-            test_model(args.model, eval_dataset, args.num_classes)
-        else:
-            print("Must provide either train or test file")
-            sys.exit(1)
+    
+    if args.train != '':
+        BATCH_SIZE = 15
+        train_dataset = locate_iads(args.train, iad_dict)
+        train_model(args.model, train_dataset, eval_dataset, args.num_classes)
+    elif args.test != '':
+        BATCH_SIZE = 1
+        test_model(args.model, eval_dataset, args.num_classes)
+    else:
+        print("Must provide either train or test file")
+        sys.exit(1)
     
 
 if __name__ == "__main__":
