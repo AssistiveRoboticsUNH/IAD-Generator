@@ -56,7 +56,12 @@ def read_file(file, input_placeholder):
       print(" before resize", np.array(img).shape)
       # resize and crop to fit input size
       #print(img.height, img.width)
-      img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
+
+      if(img.width > img.height):
+        img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
+      else:
+        img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
+      
       print(" after resize", img.shape)
       print("shape:", img.shape[0], img.shape[1])
       print("h,w:", h, w)
