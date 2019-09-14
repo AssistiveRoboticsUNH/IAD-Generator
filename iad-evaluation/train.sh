@@ -7,5 +7,5 @@ do
 
 	CMD="python ensemble.py model/ucf_"$SIZE" 101 "$IAD_DIR" --gpu 0--test "$LIST_DIR"testlist01.list --train "$LIST_DIR"trainlist01_"$SIZE".list"
 	echo $CMD
-	#eval $CMD
+	eval $CMD
 done
