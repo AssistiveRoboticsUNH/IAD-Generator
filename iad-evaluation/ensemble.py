@@ -449,7 +449,7 @@ def test_model(model, test, num_classes):
 
             for j in range(len(data)):
                 for d in range(6):
-                    print(d, j)
+                    print(d, j, len(data))
                     input_data = data[d][j]
                     #print("------>input_data.shape:", np.expand_dims(input_data, axis = 0).shape)
 
