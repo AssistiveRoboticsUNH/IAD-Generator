@@ -584,6 +584,9 @@ def main():
             iad_dict[iad_filename] = []
         iad_dict[iad_filename].append(os.path.join(args.iad_dir, iad) )
 
+    for k in iad_dict.keys():
+        iad_dict[k].sort()
+
     print("iad_dict:", iad_dict.keys())
 
     print("args.train", args.train)
