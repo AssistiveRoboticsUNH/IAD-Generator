@@ -291,12 +291,10 @@ def get_data_test(iad_list, index):
         file_data.append(d)
 
     #add flattened data segment
-    flat_data = [x.reshape(x.shape[0], -1) for x in file_data]
-    for f in file_data:
-        print("flat:", f.shape, f.reshape(f.shape[0], -1).shape)
-    '''
-    flat_data = np.concatenate([x.flatten(axis=1) for x in file_data], axis = 0)
+    flat_data = np.concatenate([x.reshape(x.shape[0], -1) for x in file_data], axis = 1)
+    file_data.append(flat_data)
 
+    '''
     for i in range(5):
         batch_data[i].append(file_data[i])
     batch_data[5].append(flat_data)
@@ -309,7 +307,10 @@ def get_data_test(iad_list, index):
 
     return batch_data, batch_label
     '''
-    return file_data, 0
+    for i in range(len(file_data)):
+        print(i, file_data[i].shape)
+
+    return file_data, l
 
 
 def tensor_operations(num_classes, data_shapes):
