@@ -393,11 +393,12 @@ def train_model(model, train, test, num_classes):
                     print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
 
                 # evaluate test network
-                batch = np.random.randint(0, len(eval_data[0]), size=BATCH_SIZE)
+                data, label = get_data_train(test)
+            
                 batch_data = {}
                 for d in range(6):
-                    batch_data[ops['ph']["x_" + str(d)]] = eval_data[d][batch]
-                batch_data[ops['ph']["y"]] = eval_labels[batch]
+                    batch_data[ops['ph']["x_" + str(d)]] = data[d]
+                batch_data[ops['ph']["y"]] = label
 
                 batch_data[ops['ph']["train"]] = False
 
