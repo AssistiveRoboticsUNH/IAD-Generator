@@ -575,7 +575,7 @@ def main():
         iad_filename = iad[:-6]
         if(iad_filename not in iad_dict):
             iad_dict[iad_filename] = []
-        iad_dict[iad_filename].append(iad)
+        iad_dict[iad_filename].append(os.path.join(args.iad_dir, iad) )
 
     print("iad_dict:", iad_dict.keys())
 
