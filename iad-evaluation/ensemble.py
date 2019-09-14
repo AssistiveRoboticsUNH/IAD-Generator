@@ -448,12 +448,14 @@ def test_model(model, test, num_classes):
                 aggregated_results.append([])
 
             for j in range(len(data)):
+                print("t0-0")
                 for d in range(6):
                     input_data = data[d][j]
                     print("------>input_data.shape:", np.expand_dims(input_data, axis = 0).shape)
 
                     batch_data[ops['ph']["x_" + str(d)]] = input_data
 
+                print("t0-1")
                 result = sess.run([
                     ops['test_correct_pred'],
                     ops['test_prob'],
