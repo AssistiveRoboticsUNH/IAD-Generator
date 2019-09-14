@@ -135,33 +135,8 @@ def model_consensus(result, csv_writer, true_class):
             csv_writer.writerow(row)
 
     # consensus heuristics
-    if CONSENSUS_HEURISTIC == 'top_5_count':
-        counts = np.bincount(top_5_indices)
-        consensus = np.argmax(counts)
-
-    elif CONSENSUS_HEURISTIC == 'top_10_confidence':
-        confidence = [0.] * 101
-        for i, m in enumerate(confidences[0]):
-            # i is the model
-            for j, p in enumerate(m):
-                # j is the place
-                if j in range(10):
-                    label = classes[0][i][j]
-                    confidence[label] += p
-        consensus = np.argmax(confidence)
-
-    elif CONSENSUS_HEURISTIC == 'top_5_confidence':
-        confidence = [0.] * 101
-        for i, m in enumerate(confidences[0]):
-            # i is the model
-            for j, p in enumerate(m):
-                # j is the place
-                if j in range(5):
-                    label = classes[0][i][j]
-                    confidence[label] += p
-        consensus = np.argmax(confidence)
-
-    elif CONSENSUS_HEURISTIC == 'top_5_confidence_discounted':
+    
+    if CONSENSUS_HEURISTIC == 'top_5_confidence_discounted':
         confidence = [0.] * 101
 
         for i, m in enumerate(confidences[0]):
@@ -172,30 +147,6 @@ def model_consensus(result, csv_writer, true_class):
                     label = classes[0][i][j]
                     confidence[label] += p * confidence_discount_layer[i]
 
-        consensus = np.argmax(confidence)
-
-    elif CONSENSUS_HEURISTIC == 'top_3_confidence_floored':
-        confidence = [0.] * 101
-        for i, m in enumerate(confidences[0]):
-            # i is the model
-            for j, p in enumerate(m):
-                # j is the place
-                if j in range(3):
-                    # drop confidence if less than half average
-                    if p < avg_confidences[i] / 2:
-                        label = classes[0][i][j]
-                        confidence[label] += p
-        consensus = np.argmax(confidence)
-
-    elif CONSENSUS_HEURISTIC == 'top_2_confidence':
-        confidence = [0.] * 101
-        for i, m in enumerate(confidences[0]):
-            # i is the model
-            for j, p in enumerate(m):
-                # j is the place
-                if j in range(2):
-                    label = classes[0][i][j]
-                    confidence[label] += p
         consensus = np.argmax(confidence)
 
     # write csv record
@@ -468,19 +419,16 @@ def train_model(model, train, test, num_classes):
 def test_model(model, test, num_classes):
     """Test the model."""
 
-    num_iter = 5#len(test)
-    for i in range(num_iter):
-        data, label = get_data_test(test, i)
-
     #Get Data Shape
-    data_shape = []
-    for i in range(len(eval_data)):
-        data_shape.append(eval_data[i].shape[1:])
+    unified_shape = 0
+    for shape in input_shape:
+        unified_shape += shape[0]*shape[1]
+    data_shape = input_shape + [(unified_shape, 1)]
 
     #define network
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
-    '''
+
     test_batch_size = 1
     correct, total = 0, 0
     model_correct = [0, 0, 0, 0, 0, 0]
@@ -495,22 +443,38 @@ def test_model(model, test, num_classes):
         saver.restore(sess, model)
         print("Model restored from %s" % model)
 
+        num_iter = 5#len(test)
         for i in range(num_iter):
-            batch = range(i * test_batch_size, min(i * test_batch_size + test_batch_size, len(eval_labels)))
-            batch_data = {}
-            for d in range(6):
-                batch_data[ops['ph']["x_" + str(d)]] = eval_data[d][batch]
-            batch_data[ops['ph']["y"]] = eval_labels[batch]
+            data, label = get_data_test(test, i)
 
+            batch_data = {}
+            batch_data[ops['ph']["y"]] = label
             batch_data[ops['ph']["train"]] = False
-            result = sess.run([
-                ops['test_correct_pred'],
-                ops['test_prob'],
-                ops['all_preds'],
-                ops['model_preds'],
-                ops['model_top_10_values'],
-                ops['model_top_10_indices']
-            ], feed_dict=batch_data)
+
+            aggregated_results = []
+            for r in range(6):
+                aggregated_results.append([])
+
+            for j in range(data.shape[0]):
+               
+                for d in range(6):
+                    batch_data[ops['ph']["x_" + str(d)]] = data[d][j]
+                
+                result = sess.run([
+                    ops['test_correct_pred'],
+                    ops['test_prob'],
+                    ops['all_preds'],
+                    ops['model_preds'],
+                    ops['model_top_10_values'],
+                    ops['model_top_10_indices']
+                ], feed_dict=batch_data)
+
+                for r in range(6):
+                    aggregated_results[r].append(result[r])
+
+            for r in range(6):
+                aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
+                print(aggregated_results[r].shape)
 
             ensemble_prediction = model_consensus(result, model_csv, batch_data[ops['ph']["y"]])
 
