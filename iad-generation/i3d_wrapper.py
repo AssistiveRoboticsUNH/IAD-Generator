@@ -25,7 +25,7 @@ def obtain_files(directory_file):
     while illegal_token >=0 :
       filename=filename[:illegal_token]+'\\'+filename[illegal_token:]
       illegal_token = filename.find(')')
-    print(filename)
+      print(filename)
     print('')
 
     filenames.append(filename)
