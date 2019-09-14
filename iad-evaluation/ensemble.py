@@ -282,23 +282,20 @@ def get_data_test(iad_list, index):
         f = np.load(filename)
         d, l, z = f["data"], f["label"], f["length"]
 
-        print("before:", d.shape)
-
         #break d in to chuncks of window size
         window_size = data_shape_i3d[layer][1]
         pad_length = window_size - (z%window_size)
         d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
-        print("padded:", d.shape)
         d = np.split(d, d.shape[1]/window_size, axis=1)
         d = np.stack(d)
-        print("after:", d.shape)
         file_data.append(d)
 
-
-
-    '''
     #add flattened data segment
-    flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
+    flat_data = [x.flatten() for x in file_data]
+    for f in flat_data:
+        print("flat:", f.shape)
+    '''
+    flat_data = np.concatenate([x.flatten(axis=1) for x in file_data], axis = 0)
 
     for i in range(5):
         batch_data[i].append(file_data[i])
