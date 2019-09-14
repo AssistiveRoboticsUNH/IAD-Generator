@@ -529,6 +529,7 @@ def main():
     
     
     if args.train != '':
+        print("----> TRAINING")
         BATCH_SIZE = 15
         train_dataset = locate_iads(args.train, iad_dict)
         train_model(args.model, train_dataset, eval_dataset, args.num_classes)
