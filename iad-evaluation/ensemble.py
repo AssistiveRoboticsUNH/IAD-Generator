@@ -282,11 +282,12 @@ def get_data_test(iad_list, index):
         f = np.load(filename)
         d, l, z = f["data"], f["label"], f["length"]
 
-        print(d.shape)
+        print("before:", d.shape)
 
         #break d in to chuncks of window size
-        d = np.split(d, 64, axis=1)
-        file_data.append(np.stack(d))
+        d = np.stack(np.split(d, 64, axis=1))
+        print("after:", d.shape)
+        file_data.append(d)
 
 
 
