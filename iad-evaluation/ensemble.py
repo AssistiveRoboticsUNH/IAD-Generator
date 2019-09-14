@@ -503,7 +503,7 @@ def test_model(model, test, num_classes):
     print("Model accuracy: ")
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
-    '''
+    
 
 def locate_iads(file, iad_dict):
     iads = []
