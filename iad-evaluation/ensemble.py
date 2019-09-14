@@ -352,11 +352,12 @@ def train_model(model, train, test, num_classes):
 
     #define network
     ops = tensor_operations(num_classes, data_shape)
-    saver = tf.train.Saver()
     
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
+
+        saver = tf.train.Saver()
 
         # train the network
     
@@ -376,7 +377,7 @@ def train_model(model, train, test, num_classes):
             batch_data[ops['ph']["y"]] = label
 
             batch_data[ops['ph']["train"]] = True
-            
+
 
             # combine training operations into one variable
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
