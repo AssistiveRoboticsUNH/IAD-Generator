@@ -20,11 +20,13 @@ def obtain_files(directory_file):
     line = line.split()
 
     filename, label = line
+    print(filename)
     illegal_token = filename.find(')')
     while illegal_token >=0 :
-      filename=[:illegal_token]+'\\'+[illegal_token:]
+      filename=filename[:illegal_token]+'\\'+filename[illegal_token:]
       illegal_token = filename.find(')')
     print(filename)
+    print('')
 
     filenames.append(filename)
     labels.append(label)
