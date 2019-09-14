@@ -53,6 +53,7 @@ def read_file(file, input_placeholder):
       filename = os.path.join(r, f[i])
       img = Image.open(filename)
 
+      print(" before resize", img.shape)
       # resize and crop to fit input size
       #print(img.height, img.width)
       img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
