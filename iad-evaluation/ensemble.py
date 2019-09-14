@@ -527,7 +527,7 @@ def main():
         iad_dict[k].sort()
     print("t1")
     # define the dataset file names    
-    eval_dataset = locate_iads(args.test, iad_dict)
+    eval_dataset = locate_iads(args.test, iad_dict) 
     print("t2")
     
     if args.train != '':
