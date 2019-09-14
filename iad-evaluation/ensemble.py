@@ -127,6 +127,11 @@ def model_consensus(result, csv_writer, true_class):
 
     # write csv data
     # columns - ["true_class", "model", "place", "class", "confidence"]
+
+    print("true_class", true_class.shape)
+    print("confidences.shape:", confidences.shape)
+
+
     for i, r in enumerate(classes[0]):
         # i is the model
         for j, c in enumerate(r):
