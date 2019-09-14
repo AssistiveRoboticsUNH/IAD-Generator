@@ -447,9 +447,9 @@ def test_model(model, test, num_classes):
             for r in range(6):
                 aggregated_results.append([])
 
-            for j in range(len(data)):
+            for j in range(len(data[0])):
                 for d in range(6):
-                    print(d, j, len(data))
+                    print(d, j, len(data[0]))
                     input_data = data[d][j]
                     #print("------>input_data.shape:", np.expand_dims(input_data, axis = 0).shape)
 
