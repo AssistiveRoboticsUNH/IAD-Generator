@@ -22,9 +22,8 @@ def obtain_files(directory_file):
     filename, label = line
     print(filename)
     illegal_token = filename.find(')')
-    if illegal_token >=0 :
-      filename=filename[:illegal_token]+'\\'+filename[illegal_token:]
-    print(filename)
+    
+    print(os.path.exists(filename))
     print('')
 
     filenames.append(filename)
