@@ -514,6 +514,8 @@ def locate_iads(file, iad_dict):
 
 def main():
     """Determine if the user has specified training or testing and run the appropriate function."""
+    print("t0")
+
     iad_dict = {}
     for iad in os.listdir(args.iad_dir):
         iad_filename = iad[:-6]
@@ -523,10 +525,10 @@ def main():
 
     for k in iad_dict.keys():
         iad_dict[k].sort()
-
+    print("t1")
     # define the dataset file names    
     eval_dataset = locate_iads(args.test, iad_dict)
-    
+    print("t2")
     
     if args.train != '':
         print("----> TRAINING")
