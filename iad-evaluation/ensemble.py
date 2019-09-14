@@ -344,38 +344,39 @@ def tensor_operations(num_classes, data_shapes):
 
 def train_model(model, train, test, num_classes):
     """Train a model given the dataset, dataset parameters, and a model name."""
-    # load data
-    #train_data, train_labels = read_file(train)
-    #eval_data, eval_labels = read_file(test)
+    #Get Data Shape
+    unified_shape = 0
+    for shape in input_shape:
+        unified_shape += shape[0]*shape[1]
+    data_shape = input_shape + [(unified_shape, 1)]
 
     #define network
-    '''
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
     
-
     with tf.Session() as sess:
-        #sess.run(tf.global_variables_initializer())
-        #sess.run(tf.local_variables_initializer())
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
 
         # train the network
-    '''
-    num_iter = EPOCHS * len(train) / BATCH_SIZE
-    for i in range(num_iter):
+    
+        num_iter = EPOCHS * len(train) / BATCH_SIZE
+        for i in range(num_iter):
         # setup training batch
 
-        data, label = get_data_train(train)
-        for entry in data:
-            print("entry: ", entry.shape)
-        print("label:", label)
+            data, label = get_data_train(train)
+            for entry in data:
+                print("entry: ", entry.shape)
+            print("label:", label)
 
-    '''
+        
             batch_data = {}
             for d in range(6):
                 batch_data[ops['ph']["x_" + str(d)]] = data[d]
             batch_data[ops['ph']["y"]] = label
 
             batch_data[ops['ph']["train"]] = True
+            
 
             # combine training operations into one variable
             training_operations = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
@@ -410,7 +411,6 @@ def train_model(model, train, test, num_classes):
         # save the model
         save_path = saver.save(sess, model)
         print("Final model saved in %s" % save_path)
-    '''
 
 def test_model(model, test, num_classes):
     """Test the model."""
