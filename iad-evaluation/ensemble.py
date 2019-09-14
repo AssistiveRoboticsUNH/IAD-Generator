@@ -276,8 +276,8 @@ def get_data_test(iad_list, index):
    
 
     file_data = []
-    for npz_file in range(5):
-        filename = iad_list[index][npz_file]
+    for layer in range(5):
+        filename = iad_list[index][layer]
         print("filename:"), filename
         f = np.load(filename)
         d, l, z = f["data"], f["label"], f["length"]
@@ -285,7 +285,8 @@ def get_data_test(iad_list, index):
         print("before:", d.shape)
 
         #break d in to chuncks of window size
-        pad_length = z%window_size
+        window_size = data_shape_i3d[layer][1]
+        pad_length = window_size - (z%window_size)
         d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
         print("padded:", d.shape)
         d = np.split(d, 64, axis=1)
