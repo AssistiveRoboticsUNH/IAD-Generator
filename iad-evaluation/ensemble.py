@@ -31,9 +31,8 @@ parser.add_argument('--gpu', default="0", help='verbose')
 
 args = parser.parse_args()
 
-window_size = 64
-data_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
-data_shape = data_shape_i3d
+input_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
+input_shape = input_shape_i3d
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -283,7 +282,7 @@ def get_data_test(iad_list, index):
         d, l, z = f["data"], f["label"], f["length"]
 
         #break d in to chuncks of window size
-        window_size = data_shape_i3d[layer][1]
+        window_size = input_shape[layer][1]
         pad_length = window_size - (z%window_size)
         d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
         d = np.split(d, d.shape[1]/window_size, axis=1)
@@ -293,22 +292,6 @@ def get_data_test(iad_list, index):
     #add flattened data segment
     flat_data = np.concatenate([x.reshape(x.shape[0], -1) for x in file_data], axis = 1)
     file_data.append(flat_data)
-
-    '''
-    for i in range(5):
-        batch_data[i].append(file_data[i])
-    batch_data[5].append(flat_data)
-
-    batch_label = l
-
-    for i in range(6):
-        batch_data[i] = np.array(batch_data[i])
-    batch_label = np.array(batch_label)
-
-    return batch_data, batch_label
-    '''
-    for i in range(len(file_data)):
-        print(i, file_data[i].shape)
 
     return file_data, l
 
@@ -485,11 +468,9 @@ def train_model(model, train, test, num_classes):
 def test_model(model, test, num_classes):
     """Test the model."""
 
-    for i in range(5):
+    num_iter = 5#len(test)
+    for i in range(num_iter):
         data, label = get_data_test(test, i)
-
-    '''
-    eval_data, eval_labels = read_file(test)
 
     #Get Data Shape
     data_shape = []
@@ -499,7 +480,7 @@ def test_model(model, test, num_classes):
     #define network
     ops = tensor_operations(num_classes, data_shape)
     saver = tf.train.Saver()
-
+    '''
     test_batch_size = 1
     correct, total = 0, 0
     model_correct = [0, 0, 0, 0, 0, 0]
