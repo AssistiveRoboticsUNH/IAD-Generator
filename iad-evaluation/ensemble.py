@@ -453,7 +453,7 @@ def test_model(model, test, num_classes):
                     print("------>input_data.shape:", np.expand_dims(input_data, axis = 0).shape)
 
                     batch_data[ops['ph']["x_" + str(d)]] = input_data
-                
+
                 result = sess.run([
                     ops['test_correct_pred'],
                     ops['test_prob'],
