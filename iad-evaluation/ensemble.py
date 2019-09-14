@@ -529,7 +529,7 @@ def main():
     # define the dataset file names    
     eval_dataset = locate_iads(args.test, iad_dict) 
     print("t2")
-    
+    '''
     if args.train != '':
         print("----> TRAINING")
         BATCH_SIZE = 15
@@ -542,7 +542,7 @@ def main():
     else:
         print("Must provide either train or test file")
         sys.exit(1)
-    
+    '''
 
 if __name__ == "__main__":
     main()
