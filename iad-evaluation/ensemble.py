@@ -445,7 +445,7 @@ def test_model(model, test, num_classes):
             data, label = get_data_test(test, i)
 
             batch_data = {}
-            batch_data[ops['ph']["y"]] = [label]
+            batch_data[ops['ph']["y"]] = np.array([label])
             batch_data[ops['ph']["train"]] = False
 
             aggregated_results = []
