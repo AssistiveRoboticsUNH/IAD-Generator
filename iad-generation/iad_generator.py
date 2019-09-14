@@ -151,7 +151,7 @@ def clean_up_npy_files(list_of_files):
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
-	list_of_files_and_labels = list_of_files_and_labels[100:]
+	#list_of_files_and_labels = list_of_files_and_labels[100:]
 
 	print("list_of_files_and_labels:", len(list_of_files_and_labels))
 	print("max_frame_length:", max_frame_length)
