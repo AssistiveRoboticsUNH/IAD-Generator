@@ -35,12 +35,6 @@ def obtain_files(directory_file):
 def read_file(file, input_placeholder):
   # read a file and concatenate all of the frames
   # pad or prune the video to the given length
-  print("reading: "+ file)
-  if(";-)" in file):
-    file = file[:file.find(";-)")]+"\;-\)"+file[file.find(";-)")+ 3:]
-  print("reading: "+ file)
-  print(os.path.exists(file))
-
 
   # input_shape
   _, num_frames, h, w, ch = input_placeholder.get_shape()
@@ -48,6 +42,9 @@ def read_file(file, input_placeholder):
   # read available frames in file
   img_data = []
   for r, d, f in os.walk(file):
+    print(file, r)
+    print("num_files:", len(f))
+
     f.sort()
     limit = min(int(num_frames), len(f))
     
