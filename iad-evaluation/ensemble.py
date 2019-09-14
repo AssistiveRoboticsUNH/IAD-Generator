@@ -205,7 +205,7 @@ def get_data_train(iad_list):
             d = np.stack(d)
             file_data.append(d)
 
-        flat_data = np.concatenate([x.reshape(x.shape[0], -1) for x in file_data], axis = 1)
+        flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
         file_data.append(flat_data)
 
         win_index = random.randint(0, file_data[0].shape[0]-1)
@@ -237,7 +237,7 @@ def get_data_test(iad_list, index):
         file_data.append(d)
 
     #add flattened data segment
-    flat_data = np.concatenate([x.reshape(x.shape[0], -1) for x in file_data], axis = 1)
+    flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
     file_data.append(flat_data)
 
     return file_data, l
