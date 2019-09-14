@@ -15,6 +15,7 @@ import sys
 import tensorflow as tf
 
 import time
+import random
 
 
 parser = argparse.ArgumentParser(description="Ensemble model processor")
@@ -187,40 +188,36 @@ def get_data_train(iad_list):
 
     #select files randomly
     batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
-    batch_files = iad_list[batch_indexs]
 
-    for file_group in batch_files:
-        scaled_window_index = -1
+    for index in batch_indexs:
 
-        #open the files for the given file name
         file_data = []
-        for layer_index in range(5):
-            filename = file_group[layer_index]
-            d, l, z = np.load(filename)
+        for layer in range(5):
+            filename = iad_list[index][layer]
+            print("filename:"), filename
+            f = np.load(filename)
+            d, l, z = f["data"], f["label"], f["length"]
 
-            if(scaled_window_index < 0):
-                scaled_window_index = random.randint(0, (z* window_siz)-window_size)
-
-            d = d[start_index*ratio : start_index*ratio + data_shape[layer_index][1]]
-
-            #get the data chunk 
-            ratio = z/original_length
+            #break d in to chuncks of window size
+            window_size = input_shape[layer][1]
+            pad_length = window_size - (z%window_size)
+            d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
+            d = np.split(d, d.shape[1]/window_size, axis=1)
+            d = np.stack(d)
             file_data.append(d)
 
-        #add flattened data segment
-        flat_data = np.concatenate([x.flatten() for x in file_data], axis = 0)
+        flat_data = np.concatenate([x.reshape(x.shape[0], -1) for x in file_data], axis = 1)
+        file_data.append(flat_data)
 
-        for i in range(5):
-            batch_data[i].append(file_data[i])
-        batch_data[5].append(flat_data)
-
+        win_index = random.randint(0, file_data[0].shape[0]-1)
+        for layer in range(len(file_data)):
+            batch_data[layer].append(file_data[layer][win_index])
         batch_label.append(l)
 
     for i in range(6):
         batch_data[i] = np.array(batch_data[i])
-    batch_label = np.array(batch_label)
 
-    return batch_data, batch_label
+    return batch_data, np.array(batch_label)
 
 def get_data_test(iad_list, index):
    
@@ -529,14 +526,7 @@ def main():
     for k in iad_dict.keys():
         iad_dict[k].sort()
 
-    print("iad_dict:", iad_dict.keys())
-
-    print("args.train", args.train)
-    print("args.test", args.test)
-
-
-    # define the dataset file names
-    
+    # define the dataset file names    
     eval_dataset = locate_iads(args.test, iad_dict)
     
     with tf.device('/gpu:'+args.gpu):
