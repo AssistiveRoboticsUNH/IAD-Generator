@@ -287,6 +287,7 @@ def get_data_test(iad_list, index):
         #break d in to chuncks of window size
         pad_length = z%window_size
         d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
+        print("padded:", d.shape)
         d = np.split(d, 64, axis=1)
         d = np.stack()
         print("after:", d.shape)
