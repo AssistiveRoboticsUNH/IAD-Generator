@@ -449,7 +449,10 @@ def test_model(model, test, num_classes):
 
             for j in range(len(data)):
                 for d in range(6):
-                    batch_data[ops['ph']["x_" + str(d)]] = np.expand_dims(data[d][j], axis=0)
+                    input_data = data[d][j]
+                    print("input_data.shape:", input_data.shape)
+
+                    batch_data[ops['ph']["x_" + str(d)]] = 
                 
                 result = sess.run([
                     ops['test_correct_pred'],
