@@ -152,7 +152,7 @@ def model_consensus(result, csv_writer, true_class):
                 if j in range(5):
                     label = classes[0][i][j]
 
-                    print(layer, len(confidence),  i, len(confidence_discount_layer))
+                    print(label, len(confidence),  i, len(confidence_discount_layer))
                     confidence[label] += p * confidence_discount_layer[i]
 
         consensus = np.argmax(confidence)
