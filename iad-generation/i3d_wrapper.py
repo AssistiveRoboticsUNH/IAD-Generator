@@ -20,6 +20,12 @@ def obtain_files(directory_file):
     line = line.split()
 
     filename, label = line
+    illegal_token = filename.find(')')
+    while illegal_token >=0 :
+      filename=[:illegal_token]+'\\'+[illegal_token:]
+      illegal_token = filename.find(')')
+    print(filename)
+
     filenames.append(filename)
     labels.append(label)
     file_length = len(os.listdir(filename))-1
