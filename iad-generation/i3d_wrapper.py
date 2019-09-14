@@ -22,10 +22,9 @@ def obtain_files(directory_file):
     filename, label = line
     print(filename)
     illegal_token = filename.find(')')
-    while illegal_token >=0 :
+    if illegal_token >=0 :
       filename=filename[:illegal_token]+'\\'+filename[illegal_token:]
-      illegal_token = filename.find(')')
-      print(filename)
+    print(filename)
     print('')
 
     filenames.append(filename)
