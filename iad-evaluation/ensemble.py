@@ -145,13 +145,13 @@ def model_consensus(result, csv_writer, true_class):
     '''
     print("confidences norm:", confidences.shape)
 
-    confidences = np.transpose(confidences, [2, 1, 0])
-    print("confidences transposed:", confidences.shape)
+    
 
     confidences = confidences * confidence_discount_layer
-    print("confidences shape:", confidences.shape)
-    
-    confidences = np.sum(confidences)
+    print("confidences mult:", confidences.shape)
+
+    confidences = np.sum(confidences, axis=2)
+    print("confidences summed:", confidences.shape)
 
     consensus = np.argmax(confidences)
 
