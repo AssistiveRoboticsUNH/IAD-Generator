@@ -215,6 +215,7 @@ def get_data_train(iad_list):
             
             d = np.stack(d)
             print("post_split: ", d.shape)
+            print('')
             file_data.append(d)
 
         flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
