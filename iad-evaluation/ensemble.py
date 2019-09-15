@@ -208,7 +208,7 @@ def get_data_train(iad_list):
         win_index = random.randint(0, file_data[0].shape[0]-1)
         for layer in range(len(file_data)):
             batch_data[layer].append(file_data[layer][win_index])
-        batch_label.append(l)
+        batch_label.append(int(l))
 
     for i in range(6):
         batch_data[i] = np.array(batch_data[i])
@@ -429,8 +429,12 @@ def test_model(model, test, num_classes):
 
     with tf.Session() as sess:
         # restore the model
-        saver.restore(sess, model)
-        print("Model restored from %s" % model)
+        try:
+            saver.restore(sess, model)
+            print("Model restored from %s" % model)
+        except:
+            print("Failed to load model")
+
 
         num_iter = len(test)
         for i in range(num_iter):
