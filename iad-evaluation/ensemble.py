@@ -451,7 +451,7 @@ def test_model(model, test, num_classes):
             batch_data[ops['ph']["train"]] = False
 
             aggregated_results = []
-            for r in range(6):
+            for r in range(7):
                 aggregated_results.append([])
 
             for j in range(len(data[0])):
@@ -468,16 +468,19 @@ def test_model(model, test, num_classes):
                     ops['all_preds'],
                     ops['model_preds'],
                     ops['model_top_10_values'],
-                    ops['model_top_10_indices']
+                    ops['model_top_10_indices'],
+                    ops['predictions_arr']
                 ], feed_dict=batch_data)
 
-                for r in range(6):
+                for r in range(7):
                     aggregated_results[r].append(result[r])
 
 
-            print(aggregated_results[5][0])
-            for r in range(6):
+            print(aggregated_results[7][0].shape)
+            for r in range(7):
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
+            print(aggregated_results[7].shape)
+
 
             print("classes:", batch_data[ops['ph']["y"]])
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
