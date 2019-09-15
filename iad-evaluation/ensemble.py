@@ -446,7 +446,7 @@ def test_model(model, test, num_classes):
 
             for j in range(len(data[0])):
                 for d in range(6):
-                    print(d, j, len(data[0]))
+                    #print(d, j, len(data[0]))
                     input_data = data[d][j]
                     #print("------>input_data.shape:", np.expand_dims(input_data, axis = 0).shape)
 
@@ -473,6 +473,7 @@ def test_model(model, test, num_classes):
 
             #print("classes:", batch_data[ops['ph']["y"]])
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
+            print(ensemble_prediction, label)
 
             # check if model output is correct
             for j, m in enumerate(result[3][0]):
