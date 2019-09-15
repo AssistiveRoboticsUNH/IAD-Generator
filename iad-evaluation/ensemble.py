@@ -113,7 +113,7 @@ def conv_model(features, c3d_depth, num_classes, data_shapes):
 def model_consensus(result, csv_writer, true_class):
     """Return a prediction based on the ensemble model consensus heuristic."""
     consensus = -1.
-    confidences = np.transpose(result[2], [2, 1, 0])
+    confidences = result[2]
     confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
 
     '''
@@ -143,8 +143,14 @@ def model_consensus(result, csv_writer, true_class):
 
         consensus = np.argmax(confidence)
     '''
+    print("confidences norm:", confidences.shape)
+
+    confidences = np.transpose(, [2, 1, 0])
+    print("confidences transposed:", confidences.shape)
+
     confidences = confidences * confidence_discount_layer
     print("confidences shape:", confidences.shape)
+    
     confidences = np.sum(confidences)
 
     consensus = np.argmax(confidences)
