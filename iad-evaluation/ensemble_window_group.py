@@ -207,7 +207,7 @@ def get_data_train(iad_list):
             #break d in to chuncks of window size
             window_size = input_shape[layer][1]
             pad_length = window_size - (z%window_size)
-            print("pre_pad: ", d.shape, pad_length)
+            print("pre_pad: ", d.shape, pad_length, window_size)
             d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
             print("pre_split: ", d.shape, d.shape[1], window_size, z)
             d = np.split(d, d.shape[1]/window_size, axis=1)
