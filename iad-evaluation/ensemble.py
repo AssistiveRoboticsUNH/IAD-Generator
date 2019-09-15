@@ -149,7 +149,7 @@ def model_consensus(result, csv_writer, true_class):
 
     # write csv record
     # columns - ["true_class", "model", "place", "class", "confidence"]
-    row = [true_class[0], "ensemble", 0, consensus, confidence[consensus]]
+    #row = [true_class[0], "ensemble", 0, consensus, confidences[consensus]]
     #csv_writer.writerow(row)
 
     return consensus
