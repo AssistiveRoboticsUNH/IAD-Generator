@@ -145,7 +145,7 @@ def model_consensus(result, csv_writer, true_class):
     '''
     print("confidences norm:", confidences.shape)
 
-    confidences = np.transpose(, [2, 1, 0])
+    confidences = np.transpose(confidences, [2, 1, 0])
     print("confidences transposed:", confidences.shape)
 
     confidences = confidences * confidence_discount_layer
