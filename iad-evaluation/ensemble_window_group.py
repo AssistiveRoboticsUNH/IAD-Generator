@@ -536,14 +536,14 @@ def main():
     print("t0")
 
     # define the dataset file names 
-    eval_files = [x for x in os.listdir(args.iad_dir) if x.find("test") >= 0 and x.find("pruned") < 0]
+    eval_files = [os.path.join(args.iad_dir, x) for x in os.listdir(args.iad_dir) if x.find("test") >= 0 and x.find("pruned") < 0]
     eval_dataset = locate_iads(eval_files) 
 
     if args.train != '':
         print("----> TRAINING")
         BATCH_SIZE = 15
 
-        train_files = [x for x in os.listdir(args.iad_dir) if x.find("train") >= 0 and x.find("pruned") < 0]   
+        train_files = [os.path.join(args.iad_dir, x) for x in os.listdir(args.iad_dir) if x.find("train") >= 0 and x.find("pruned") < 0]   
         train_dataset = locate_iads(train_files)
         train_model(args.model, train_dataset, eval_dataset, args.num_classes)
     elif args.test != '':
