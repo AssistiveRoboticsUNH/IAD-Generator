@@ -465,13 +465,13 @@ def test_model(model, test, num_classes):
                     aggregated_results[r].append(result[r])
 
 
-            print(aggregated_results[2][0])
+            #print(aggregated_results[2][0])
             for r in range(6):
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
-            print(aggregated_results[2].shape)
+            #print(aggregated_results[2].shape)
 
 
-            print("classes:", batch_data[ops['ph']["y"]])
+            #print("classes:", batch_data[ops['ph']["y"]])
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
 
             # check if model output is correct
@@ -527,10 +527,10 @@ def main():
 
     for k in iad_dict.keys():
         iad_dict[k].sort()
-    print("t1")
+    #print("t1")
     # define the dataset file names    
     eval_dataset = locate_iads(args.test, iad_dict) 
-    print("t2")
+    #print("t2")
     if args.train != '':
         print("----> TRAINING")
         BATCH_SIZE = 15
