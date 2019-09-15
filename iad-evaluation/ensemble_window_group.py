@@ -212,8 +212,9 @@ def get_data_train(iad_list):
             d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
             print("pre_split: ", d.shape, d.shape[1], window_size, z)
             d = np.split(d, d.shape[1]/window_size, axis=1)
-            print("post_split: ", d.shape)
+            
             d = np.stack(d)
+            print("post_split: ", d.shape)
             file_data.append(d)
 
         flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
@@ -237,6 +238,7 @@ def get_data_test(iad_list, index):
         
         d, l, z = iad_list["data"][layer][index], iad_list["label"][layer][index], iad_list["length"][layer][index]
 
+        d = d[:, :z]
         #break d in to chuncks of window size
         window_size = input_shape[layer][1]
         pad_length = window_size - (z%window_size)
