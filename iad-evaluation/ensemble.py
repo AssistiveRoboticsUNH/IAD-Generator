@@ -476,7 +476,7 @@ def test_model(model, test, num_classes):
 
             for r in range(6):
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
-                print(aggregated_results[r].shape)
+                print("agr_res_"+str(r), aggregated_results[r].shape)
 
             print("classes:", batch_data[ops['ph']["y"]])
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
