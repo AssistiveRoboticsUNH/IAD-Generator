@@ -517,9 +517,9 @@ def test_model(model, test, num_classes):
 
 def locate_iads(files):
 
-	data_arr, labels_arr, length_arr = [],[],[]
+    data_arr, labels_arr, length_arr = [],[],[]
 
-	files.sort()
+    files.sort()
     
     for i in range(5):
         data = np.load(files[i])
@@ -543,7 +543,7 @@ def main():
         print("----> TRAINING")
         BATCH_SIZE = 15
 
-    	train_files = [x for x in os.listdir(args.train) if x.find("train") >= 0 and x.find("pruned") < 0]   
+        train_files = [x for x in os.listdir(args.train) if x.find("train") >= 0 and x.find("pruned") < 0]   
         train_dataset = locate_iads(args.train, iad_dict)
         train_model(args.model, train_dataset, eval_dataset, args.num_classes)
     elif args.test != '':
