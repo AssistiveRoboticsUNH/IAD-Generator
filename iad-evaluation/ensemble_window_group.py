@@ -208,7 +208,9 @@ def get_data_train(iad_list):
             window_size = input_shape[layer][1]
             pad_length = window_size - (z%window_size)
             d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
+            print("pre_split: ", d.shape, d.shape[1], window_size)
             d = np.split(d, d.shape[1]/window_size, axis=1)
+            print("post_split: ", d.shape)
             d = np.stack(d)
             file_data.append(d)
 

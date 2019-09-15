@@ -438,6 +438,9 @@ def test_model(model, test, num_classes):
     model_csv.writerow(["true_class", "model", "place", "class", "confidence"])
     confidences = [0.] * 6
 
+    correct_class = np.zeros(np.float32, args.num_classes)
+    total_class = np.zeros(np.float32, args.num_classes)
+
     with tf.Session() as sess:
         # restore the model
         try:
@@ -491,6 +494,11 @@ def test_model(model, test, num_classes):
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
             print(ensemble_prediction, int(label[0]), ensemble_prediction == int(label[0]))
 
+            if(ensemble_prediction == int(label[0])):
+                correct_class[int(label[0])] += 1
+
+            total_class[int(label[0])] += 1
+
             # check if model output is correct
             for j, m in enumerate(result[3][0]):
                 if m == batch_data[ops['ph']["y"]]:
@@ -516,6 +524,8 @@ def test_model(model, test, num_classes):
     print("Model accuracy: ")
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
+
+    return correct_class / total_class
     
 
 def locate_iads(file, iad_dict):
