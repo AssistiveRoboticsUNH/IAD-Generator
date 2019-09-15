@@ -469,7 +469,7 @@ def test_model(model, test, num_classes):
                     ops['model_preds'],
                     ops['model_top_10_values'],
                     ops['model_top_10_indices'],
-                    ops['predictions_arr']
+                    ops['all_preds']
                 ], feed_dict=batch_data)
 
                 for r in range(7):
