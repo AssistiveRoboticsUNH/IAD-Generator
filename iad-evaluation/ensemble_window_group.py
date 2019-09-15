@@ -204,10 +204,11 @@ def get_data_train(iad_list):
         for layer in range(5):
             d, l, z = iad_list["data"][layer][index], iad_list["label"][layer][index], iad_list["length"][layer][index]
 
+            d = d[:, :z]
             #break d in to chuncks of window size
             window_size = input_shape[layer][1]
             pad_length = window_size - (z%window_size)
-            print("pre_pad: ", d.shape, pad_length, window_size)
+            print("pre_pad: ", d.shape, z, pad_length, window_size)
             d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
             print("pre_split: ", d.shape, d.shape[1], window_size, z)
             d = np.split(d, d.shape[1]/window_size, axis=1)
