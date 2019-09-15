@@ -556,6 +556,7 @@ def main():
     elif args.test != '':
         print("----> TESTING")
         BATCH_SIZE = 1
+
         test_model(args.model, eval_dataset, args.num_classes)
     else:
         print("Must provide either train or test file")
