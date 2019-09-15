@@ -470,9 +470,10 @@ def test_model(model, test, num_classes):
 
 
             #print(aggregated_results[2][0])
+            print(aggregated_results[5])
             for r in range(6):
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
-            #print(aggregated_results[2].shape)
+            
 
 
             #print("classes:", batch_data[ops['ph']["y"]])
