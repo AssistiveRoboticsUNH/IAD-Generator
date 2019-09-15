@@ -143,20 +143,20 @@ def model_consensus(result, csv_writer, true_class):
 
         consensus = np.argmax(confidence)
     '''
-    print("confidences norm:", confidences.shape)
+    #print("confidences norm:", confidences.shape)
 
     
 
     confidences = confidences * confidence_discount_layer
-    print("confidences mult:", confidences.shape)
+    #print("confidences mult:", confidences.shape)
 
     confidences = np.sum(confidences, axis=2)
-    print("confidences summed:", confidences.shape)
+    #print("confidences summed:", confidences.shape)
 
     consensus = np.argmax(confidences)
 
-    print("confidences:", confidences)
-    print("consensus:", consensus)
+    #print("confidences:", confidences)
+    #print("consensus:", consensus)
 
     # write csv record
     # columns - ["true_class", "model", "place", "class", "confidence"]
