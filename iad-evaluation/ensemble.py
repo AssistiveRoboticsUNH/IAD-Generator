@@ -475,7 +475,7 @@ def test_model(model, test, num_classes):
                     aggregated_results[r].append(result[r])
 
             for r in range(6):
-                print("pre_agr_res_"+str(r), aggregated_results[r].shape)
+                print("pre_agr_res_"+str(r), aggregated_results[r][0].shape)
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
                 print("pos_agr_res_"+str(r), aggregated_results[r].shape)
 
