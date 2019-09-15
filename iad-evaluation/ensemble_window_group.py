@@ -537,7 +537,7 @@ def main():
 
     # define the dataset file names 
     eval_files = [x for x in os.listdir(args.iad_dir) if x.find("test") >= 0 and x.find("pruned") < 0]
-    eval_dataset = locate_iads(args.test, iad_dict) 
+    eval_dataset = locate_iads(args.test, None) 
 
     if args.train != '':
         print("----> TRAINING")
