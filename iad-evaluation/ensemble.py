@@ -525,7 +525,7 @@ def test_model(model, test, num_classes):
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
 
-    return correct_class / total_class
+    np.save("classes.npz",  correct_class / total_class)
     
 
 def locate_iads(file, iad_dict):

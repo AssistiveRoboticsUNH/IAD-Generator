@@ -208,7 +208,7 @@ def get_data_train(iad_list):
             window_size = input_shape[layer][1]
             pad_length = window_size - (z%window_size)
             d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
-            print("pre_split: ", d.shape, d.shape[1], window_size)
+            print("pre_split: ", d.shape, d.shape[1], window_size, z)
             d = np.split(d, d.shape[1]/window_size, axis=1)
             print("post_split: ", d.shape)
             d = np.stack(d)
@@ -437,6 +437,9 @@ def test_model(model, test, num_classes):
     model_csv.writerow(["true_class", "model", "place", "class", "confidence"])
     confidences = [0.] * 6
 
+    correct_class = np.zeros(np.float32, args.num_classes)
+    total_class = np.zeros(np.float32, args.num_classes)
+
     with tf.Session() as sess:
         # restore the model
         try:
@@ -490,6 +493,12 @@ def test_model(model, test, num_classes):
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
             print(ensemble_prediction, int(label[0]), ensemble_prediction == int(label[0]))
 
+            if(ensemble_prediction == int(label[0])):
+                correct_class[int(label[0])] += 1
+
+            total_class[int(label[0])] += 1
+
+
             # check if model output is correct
             for j, m in enumerate(result[3][0]):
                 if m == batch_data[ops['ph']["y"]]:
@@ -515,6 +524,8 @@ def test_model(model, test, num_classes):
     print("Model accuracy: ")
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
+
+    np.save("classes.npz",  correct_class / total_class)
     
 
 def locate_iads(files):
