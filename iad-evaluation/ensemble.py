@@ -476,7 +476,7 @@ def test_model(model, test, num_classes):
                     aggregated_results[r].append(result[r])
 
 
-            print(aggregated_results[6][0].shape)
+            print(aggregated_results[6][0])
             for r in range(7):
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
             print(aggregated_results[6].shape)
