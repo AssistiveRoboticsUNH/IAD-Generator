@@ -522,6 +522,7 @@ def locate_iads(files):
     files.sort()
     
     for i in range(5):
+        print("opening file: ", files[i])
         data = np.load(files[i])
         d, l, z = data["data"], data["label"], data["length"]
 
