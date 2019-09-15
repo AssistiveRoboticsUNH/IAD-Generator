@@ -473,7 +473,7 @@ def test_model(model, test, num_classes):
 
             #print("classes:", batch_data[ops['ph']["y"]])
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
-            print(ensemble_prediction, label)
+            print(ensemble_prediction, label[0])
 
             # check if model output is correct
             for j, m in enumerate(result[3][0]):
