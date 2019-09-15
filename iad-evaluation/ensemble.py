@@ -432,7 +432,7 @@ def test_model(model, test, num_classes):
         saver.restore(sess, model)
         print("Model restored from %s" % model)
 
-        num_iter = 5#len(test)
+        num_iter = len(test)
         for i in range(num_iter):
             data, label = get_data_test(test, i)
 
