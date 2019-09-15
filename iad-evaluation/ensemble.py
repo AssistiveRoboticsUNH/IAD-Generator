@@ -113,25 +113,10 @@ def conv_model(features, c3d_depth, num_classes, data_shapes):
 def model_consensus(result, csv_writer, true_class):
     """Return a prediction based on the ensemble model consensus heuristic."""
     consensus = -1.
-    confidences = result[4]
-    classes = result[5]
+    confidences = np.transpose(result[2], [2, 1, 0])
     confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
-    avg_confidences = [
-        0.38178119,
-        0.56168587,
-        0.56371784,
-        0.54200298,
-        0.49888024,
-        0.71540061
-    ]
 
-    # write csv data
-    # columns - ["true_class", "model", "place", "class", "confidence"]
-
-    print("true_class", true_class.shape)
-    print("confidences.shape:", confidences.shape)
-
-
+    '''
     for i, r in enumerate(classes[0]):
         # i is the model
         for j, c in enumerate(r):
@@ -139,9 +124,10 @@ def model_consensus(result, csv_writer, true_class):
             # c is the class
             row = [true_class[0], i, j, c, confidences[0][i][j]]
             csv_writer.writerow(row)
-
+    '''
     # consensus heuristics
     
+    '''
     if CONSENSUS_HEURISTIC == 'top_5_confidence_discounted':
         confidence = [0.] * 101
 
@@ -156,11 +142,15 @@ def model_consensus(result, csv_writer, true_class):
                     confidence[label] += p * confidence_discount_layer[i]
 
         consensus = np.argmax(confidence)
+    '''
+    confidences = confidences * confidence_discount_layer
+    confidences = np.sum(confidences)
+    consensus = np.argmax(confidences)
 
     # write csv record
     # columns - ["true_class", "model", "place", "class", "confidence"]
     row = [true_class[0], "ensemble", 0, consensus, confidence[consensus]]
-    csv_writer.writerow(row)
+    #csv_writer.writerow(row)
 
     return consensus
 
