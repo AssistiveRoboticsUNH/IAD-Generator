@@ -442,8 +442,8 @@ def test_model(model, test, num_classes):
     model_csv.writerow(["true_class", "model", "place", "class", "confidence"])
     confidences = [0.] * 6
 
-    correct_class = np.zeros(np.float32, args.num_classes)
-    total_class = np.zeros(np.float32, args.num_classes)
+    correct_class = np.zeros(args.num_classes, dtype=np.float32)
+    total_class = np.zeros(args.num_classes, dtype=np.float32)
 
     with tf.Session() as sess:
         # restore the model
