@@ -488,7 +488,7 @@ def test_model(model, test, num_classes):
 
 
             #print(aggregated_results[2][0])
-            print(aggregated_results[5])
+            #print(aggregated_results[5])
             for r in range(6):
                 aggregated_results[r] = np.mean(np.array(aggregated_results[r]), axis=0)
             
@@ -496,7 +496,7 @@ def test_model(model, test, num_classes):
 
             #print("classes:", batch_data[ops['ph']["y"]])
             ensemble_prediction = model_consensus(aggregated_results, model_csv, batch_data[ops['ph']["y"]])
-            print(ensemble_prediction, int(label[0]), ensemble_prediction == int(label[0]))
+            #print(ensemble_prediction, int(label[0]), ensemble_prediction == int(label[0]))
 
             if(ensemble_prediction == int(label[0])):
                 correct_class[int(label[0])] += 1
