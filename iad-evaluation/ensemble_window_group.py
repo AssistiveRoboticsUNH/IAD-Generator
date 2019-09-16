@@ -32,7 +32,7 @@ parser.add_argument('--gpu', default="0", help='verbose')
 
 args = parser.parse_args()
 
-input_shape_c3d = [(64, 64), (128, 32), (256, 16), (256, 8), (256, 4)]
+input_shape_c3d = [(64, 64), (128, 64), (256, 16), (256, 8), (256, 4)]
 input_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
 input_shape = input_shape_c3d
 
