@@ -438,9 +438,9 @@ def test_model(model, test, num_classes):
     model_csv.writerow(["true_class", "model", "place", "class", "confidence"])
     confidences = [0.] * 6
 
-    correct_class = np.zeros(args.num_classes, dtype=np.float32)
-    total_class = np.zeros(args.num_classes, dtype=np.float32)
-    
+    correct_class = np.zeros(int(args.num_classes), dtype=np.float32)
+    total_class = np.zeros(int(args.num_classes), dtype=np.float32)
+
     with tf.Session() as sess:
         # restore the model
         try:
@@ -525,7 +525,7 @@ def test_model(model, test, num_classes):
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
 
-    np.save("classes.npz",  correct_class / total_class)
+    np.save("classes.npy",  correct_class / total_class)
     
 
 def locate_iads(file, iad_dict):
