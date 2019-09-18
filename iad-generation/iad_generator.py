@@ -2,7 +2,11 @@
 # iad_generator.py
 # 8/29/2019
 
-import i3d_wrapper as model
+MODEL = 'c3d'#'i3d'
+if MODEL == 'c3d':
+	import c3d as model
+elif MODEL == 'i3d':
+	import i3d_wrapper as model
 
 import os
 
