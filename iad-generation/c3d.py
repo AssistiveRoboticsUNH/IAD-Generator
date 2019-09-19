@@ -40,7 +40,7 @@ def read_file(file, input_placeholder):
   img_data = []
   for r, d, f in os.walk(file):
     f.sort()
-    limit = min(num_frames, len(f))
+    limit = min(int(num_frames), len(f))
     
     for i in range(limit):
       filename = os.path.join(r, f[i])
