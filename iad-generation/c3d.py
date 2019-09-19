@@ -20,8 +20,8 @@ def obtain_files(directory_file):
       filenames.append(filename)
       labels.append(int(label))
 
-    if(int(start_frame) + 16 > max_length):
-      max_length = int(start_frame) + 16
+      if(len(os.listdir(filename)) > max_length):
+        max_length = len(os.listdir(filename))
 
     line = ifile.readline()
 
@@ -59,7 +59,7 @@ def read_file(file, input_placeholder):
       img_data.append(np.array(img))
 
   img_data = np.array(img_data).astype(np.float32)
-  length_ratio = len(img_data) / int(num_frames)
+  length_ratio = float(limit) / int(num_frames)
 
   # pad file to appropriate length
   buffer_len = int(num_frames) - len(img_data)

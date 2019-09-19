@@ -52,12 +52,14 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 	for i in range(len(data)):
 		filename = output_filename(file, i)
 		data[i] = data[i][:, :int(data[i].shape[1]*length_ratio)]
+
 		np.savez(filename, data=data[i], label=label, length=data[i].shape[1])
 
 def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
-	input_placeholder = model.get_input_placeholder(batch_size, num_frames=1024 )
+	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length )
+	print("input_placeholder.get_shape():", input_placeholder.get_shape())
 	
 	# define model
 	activation_map, saver = model.load_model(input_placeholder)
@@ -65,8 +67,6 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):
 		activation_map[layer] = tf.reduce_max(activation_map[layer], axis = (2,3))
-
-		print("activation_map[layer]:", activation_map[layer].get_shape())
 		activation_map[layer] = tf.squeeze(activation_map[layer])
 		activation_map[layer] = tf.transpose(activation_map[layer])
 
@@ -119,6 +119,7 @@ def normalize_dataset(list_of_files, min_max_vals):
 					data[row] = np.zeros_like(data[row])
 				else:
 					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
+
 			np.savez(filename, data=data, label=label, length=length)
 
 def combine_npy_files(list_of_files):
@@ -128,10 +129,13 @@ def combine_npy_files(list_of_files):
 		for i in range(len(list_of_files)):
 			file, _ = list_of_files[i]
 
+			# open data
 			filename = output_filename(file, layer)
 			f = np.load(filename)
-
 			data, label, length = f["data"], f["label"], f["length"]
+
+			#pad data to common length
+			data = np.pad(data, [[0,0],[0,FLAGS.pad_length-length]], 'constant', constant_values=0)
 
 			data_all.append(data)
 			label_all.append(label)
@@ -152,7 +156,7 @@ def clean_up_npy_files(list_of_files):
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
-	#list_of_files_and_labels = list_of_files_and_labels[100:]
+	#list_of_files_and_labels = list_of_files_and_labels[:5]
 
 	print("list_of_files_and_labels:", len(list_of_files_and_labels))
 	print("max_frame_length:", max_frame_length)
@@ -176,10 +180,10 @@ if __name__ == '__main__':
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
 	
-	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
-	normalize_dataset(list_of_files_and_labels, min_max_vals)
-	#combine_npy_files(list_of_files_and_labels)
-	#clean_up_npy_files(list_of_files_and_labels)
+	#convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
+	#normalize_dataset(list_of_files_and_labels, min_max_vals)
+	combine_npy_files(list_of_files_and_labels)
+	clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")
