@@ -17,9 +17,6 @@ import tensorflow as tf
 import time
 import random
 
-TRAIN_PREFIX = "train"
-TEST_PREFIX = "test"
-
 parser = argparse.ArgumentParser(description="Ensemble model processor")
 parser.add_argument('model', help='model to save (when training) or to load (when testing)')
 parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
@@ -36,13 +33,9 @@ parser.add_argument('--v', default=False, help='verbose')
 
 args = parser.parse_args()
 
-input_shape_c3d_custom = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (256, args.window_length/4), (256, args.window_length/8)]
-input_shape_i3d_custom = [(64, args.window_length/2), (192, args.window_length/2), (480, args.window_length/2), (832, args.window_length/4), (1024, args.window_length/8)]
-
-input_shape_c3d_full = [(64, 1024), (128, 1024), (256, 512), (256, 256), (256, 128)]
-input_shape_c3d_frame = [(64, 64), (128, 64), (256, 32), (256, 16), (256, 8)]
-input_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
-input_shape = input_shape_c3d_custom
+input_shape_c3d = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (256, args.window_length/4), (256, args.window_length/8)]
+input_shape_i3d = [(64, args.window_length/2), (192, args.window_length/2), (480, args.window_length/2), (832, args.window_length/4), (1024, args.window_length/8)]
+input_shape = input_shape_c3d
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -58,6 +51,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
 EPOCHS = 30
 ALPHA = 1e-4
+
+TRAIN_PREFIX = "train"
+TEST_PREFIX = "test"
 
 ##############################################
 # File IO
@@ -106,6 +102,7 @@ def open_and_org_file(filename_group):
     return file_data, np.array([int(label)])
 
 def get_data_train(iad_list):
+    '''Randomly select a batch of IADs, if using windows smaller than the input the select a window that will capture the data'''
     
     batch_data = []
     for i in range(6):
@@ -132,19 +129,6 @@ def get_data_train(iad_list):
 
 def get_data_test(iad_list, index):
     return open_and_org_file(iad_list[index])
-
-def locate_iads(file, iad_dict):
-    iads = []
-    ifile = open(file, 'r')
-
-    line = ifile.readline()
-    while len(line) != 0:
-        filename = line.split()[0].split('/')[-1]
-        iads.append(iad_dict[filename])
-
-        line = ifile.readline()
-
-    return np.array(iads)
 
 ##############################################
 # Model Structure
@@ -253,7 +237,6 @@ def tensor_operations(num_classes, data_shapes):
     all_preds = tf.transpose(all_preds, [1, 2, 0])
 
     model_preds = tf.transpose(all_preds, [0, 2, 1])
-    model_top_10_values, model_top_10_indices = tf.nn.top_k(model_preds, k=10)
     model_preds = tf.argmax(model_preds, axis=2, output_type=tf.int32)
     model_preds = tf.squeeze(model_preds)
 
@@ -263,22 +246,15 @@ def tensor_operations(num_classes, data_shapes):
 
     # verify if prediction is correct
     test_correct_pred = tf.equal(test_class, ph["y"])
+
     ops = dict()
     placeholders = ph
     ops['loss_arr'] = loss_arr
     ops['train_op_arr'] = train_op_arr
-    ops['predictions_arr'] = predictions_arr#
     ops['accuracy_arr'] = accuracy_arr
-    ops['weights'] = weights#
-    ops['logits'] = logits#
-    ops['all_preds'] = all_preds#
-    ops['model_preds'] = model_preds#
-    ops['model_top_10_values'] = model_top_10_values#
-    ops['model_top_10_indices'] = model_top_10_indices#
-    ops['test_prob'] = test_prob#
-    ops['test_class'] = test_class#
 
     ops['test_correct_pred'] = test_correct_pred
+    ops['model_preds'] = model_preds
     ops["train"] = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
 
     return ph, ops
@@ -297,7 +273,6 @@ def train_model(model_name, num_classes, train_data, test_data):
         sess.run(tf.local_variables_initializer())
 
         # train the network
-    
         num_iter = EPOCHS * len(train_data) / BATCH_SIZE
         for i in range(num_iter):
         # setup training batch
@@ -398,20 +373,17 @@ def test_model(model_name, num_classes, test_data):
             aggregated_confidences = np.mean(aggregated_confidences, axis=0)
             ensemble_prediction = model_consensus(aggregated_confidences)
 
-            
-
             #check if ensemble is correct
             if(ensemble_prediction == label):
                 correct_class[label] += 1
             total_class[label] += 1
             
-
-
+    # print partial model's cummulative accuracy
     print("Model accuracy: ")
     for i in range(6):
         print("%s: %s" % (i, model_correct[i] / float(model_total[i])))
            
-    print("sum:",  np.sum(correct_class),  np.sum(total_class))
+    # print ensemble cummulative accuracy
     print("FINAL - accuracy:", np.sum(correct_class) / np.sum(total_class))
     np.save("classes.npy",  correct_class / total_class)
 
@@ -419,21 +391,7 @@ def test_model(model_name, num_classes, test_data):
 
 if __name__ == "__main__":
     """Determine if the user has specified training or testing and run the appropriate function."""
-    '''
-    iad_dict = {}
-    for iad in os.listdir(args.iad_dir):
-        iad_filename = iad[:-6]
-        if(iad_filename not in iad_dict):
-            iad_dict[iad_filename] = []
-        iad_dict[iad_filename].append(os.path.join(args.iad_dir, iad) )
-
-    for k in iad_dict.keys():
-        iad_dict[k].sort()
-    '''
-  
-    # define the dataset file names    
-    #eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)#locate_iads(args.test, iad_dict) 
-
+    
     if args.prefix == TRAIN_PREFIX:
         print("----> TRAINING")
         BATCH_SIZE = 15
