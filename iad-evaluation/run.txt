@@ -1,1 +1,0 @@
-python ensemble.py train models/ucf_01_100 ucf_01/ucf_100 ucf 101 100

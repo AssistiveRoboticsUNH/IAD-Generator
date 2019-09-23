@@ -19,7 +19,7 @@ import random
 
 parser = argparse.ArgumentParser(description="Ensemble model processor")
 parser.add_argument('model', help='model to save (when training) or to load (when testing)')
-parser.add_argument('num_classes', help='the number of classes in the dataset')
+parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
 parser.add_argument('iad_dir', help='location of the generated IADs')
 
 parser.add_argument('--train', default='', help='.list file containing the train files')
@@ -33,7 +33,7 @@ args = parser.parse_args()
 input_shape_c3d_full = [(64, 1024), (128, 1024), (256, 512), (256, 256), (256, 128)]
 input_shape_c3d_frame = [(64, 64), (128, 64), (256, 32), (256, 16), (256, 8)]
 input_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
-input_shape = input_shape_i3d
+input_shape = input_shape_c3d_full
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -57,6 +57,7 @@ ALPHA = 1e-4
 # File IO
 ##############################################
 
+'''
 def open_and_org_file(filename):
     file_data = []
 
@@ -98,7 +99,6 @@ def get_data_train(iad_list):
 
         for layer in range(len(file_data)):
             batch_data[layer].append(file_data[layer][win_index])
-        
         batch_label.append(int(l))
 
     for i in range(6):
@@ -123,7 +123,73 @@ def locate_iads(file, iad_dict):
         line = ifile.readline()
 
     return np.array(iads)
+'''
 
+def get_data_train(dataset):
+    data, label = dataset["data"], dataset["label"]
+
+    batch_data = []
+    for i in range(6):
+        batch_data.append([])
+
+    #select files randomly
+    batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
+    batch_label = label[0][batch_indexs]
+
+    for index in batch_indexs:
+        flat_data = []
+        for layer in range(5):
+            iad = data[layer][index]
+            batch_data[layer].append(iad)
+            flat_data.append(iad.reshape(iad.shape[0], -1, 1))
+
+        flat_data = np.concatenate(flat_data, axis = 1)
+        batch_data[5].append(flat_data)
+
+    for i in range(6):
+        batch_data[i] = np.array(batch_data[i])
+
+    return batch_data, np.array(batch_label)
+
+def get_data_test(dataset, index):
+   
+    data, label = dataset["data"], dataset["label"]
+
+    batch_data = []
+    for i in range(6):
+        batch_data.append([])
+
+    #select files randomly
+
+    batch_label = label[0][index]
+
+
+    flat_data = []
+    for layer in range(5):
+        iad = data[layer][index]
+        batch_data[layer].append(iad)
+        flat_data.append(iad.reshape(iad.shape[0], -1, 1))
+
+    flat_data = np.concatenate(flat_data, axis = 1)
+    batch_data[5].append(flat_data)
+
+    for i in range(6):
+        batch_data[i] = np.array(batch_data[i])
+
+    return batch_data, np.array(batch_label)
+
+
+
+def open_group(file):
+    data, label, length = [],[],[]
+
+    for i in range(5):
+        f = np.load(file+str(i)+".npz")
+        data.append( f["data"] )
+        label.append( f["label"] )
+        length.append( f["length"] )
+
+    return data, label, length
 
 ##############################################
 # Model Structure
@@ -191,7 +257,7 @@ def tensor_operations(num_classes, data_shapes):
     }
 
     for c3d_depth in range(6):
-        print("train_data_shapes[c3d_depth]:", data_shapes[c3d_depth])
+        #print("train_data_shapes[c3d_depth]:", data_shapes[c3d_depth])
 
         ph["x_" + str(c3d_depth)] = tf.placeholder(
             tf.float32, shape=(None, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1])
@@ -269,10 +335,10 @@ def tensor_operations(num_classes, data_shapes):
     operations['test_class'] = test_class
 
     operations['test_correct_pred'] = test_correct_pred
-    operations["train"] = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
+    operations["train"] = operations['train_op_arr'] + operations['loss_arr'] + operations['accuracy_arr']
 
 
-    return placholders, operations
+    return ph, operations
 
 def train_model(model_name, num_classes, train_data, test_data):
 
@@ -280,6 +346,7 @@ def train_model(model_name, num_classes, train_data, test_data):
     data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
     #define network
+    print("-------------#", num_classes)#num_classes)#, data_shape)
     ph, ops = tensor_operations(num_classes, data_shape)
 
     saver = tf.train.Saver()
@@ -294,7 +361,7 @@ def train_model(model_name, num_classes, train_data, test_data):
         for i in range(num_iter):
         # setup training batch
 
-            data, label = get_data_train(train)
+            data, label = get_data_train(train_data)
         
             batch_data = {}
             for d in range(6):
@@ -322,7 +389,7 @@ def train_model(model_name, num_classes, train_data, test_data):
                     print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
 
                 # evaluate test network
-                data, label = get_data_train(test)
+                data, label = get_data_train(test_data)
             
                 batch_data = {}
                 for d in range(6):
@@ -375,7 +442,7 @@ def test_model(model_name, num_classes, train_data, test_data):
 
         num_iter = len(test)
         for i in range(num_iter):
-            data, label = get_data_test(test, i)
+            data, label = get_data_test(test_data, i)
 
             
             aggregated_results = []
@@ -436,6 +503,7 @@ def test_model(model_name, num_classes, train_data, test_data):
 
 def main():
     """Determine if the user has specified training or testing and run the appropriate function."""
+    '''
     iad_dict = {}
     for iad in os.listdir(args.iad_dir):
         iad_filename = iad[:-6]
@@ -445,19 +513,23 @@ def main():
 
     for k in iad_dict.keys():
         iad_dict[k].sort()
-  
+    '''
     # define the dataset file names    
-    eval_dataset = locate_iads(args.test, iad_dict) 
+    #eval_dataset = locate_iads(args.test, iad_dict) 
+    data, label, length = open_group(args.test)
+    eval_dataset = {"data": data, "label":label, "length":length}
 
     if args.train != '':
         print("----> TRAINING")
         BATCH_SIZE = 15
-        train_dataset = locate_iads(args.train, iad_dict)
-        train_model(args.model, train_dataset, eval_dataset, args.num_classes)
+        #train_dataset = locate_iads(args.train, iad_dict)
+        data, label, length = open_group(args.train)
+        train_dataset = {"data": data, "label":label, "length":length}
+        train_model(args.model, args.num_classes, train_dataset, eval_dataset)
     elif args.test != '':
         print("----> TESTING")
         BATCH_SIZE = 1
-        test_model(args.model, eval_dataset, args.num_classes)
+        test_model(args.model, args.num_classes, eval_dataset)
     else:
         print("Must provide either train or test file")
         sys.exit(1)

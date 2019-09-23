@@ -1,11 +1,11 @@
 #!/bin/bash
 
-for SIZE in 25 50
+for SIZE in 100 75 50 25
 do
-	IAD_DIR="../iad-generation/ucf_01/ucf_"$SIZE
-	LIST_DIR="~/datasets/UCF-101/listFiles/"
+	IAD_DIR="~/datasets/ICRA_2020/hmdb/hmdb_iads/hmdb_"$SIZE #../iad-generation/ucf_01/ucf_"$SIZE
+	LIST_DIR="~/datasets/HMDB-51/listFiles/"
 
-	CMD="python ensemble.py model/ucf_"$SIZE" 101 "$IAD_DIR" --gpu 0 --test "$LIST_DIR"testlist01.list --train "$LIST_DIR"trainlist01_"$SIZE".list"
+	CMD="python ensemble_window_group.py model/hmdb_"$SIZE" 51 "$IAD_DIR" --gpu 0 --test "$LIST_DIR"testlist01.list --train "$LIST_DIR"trainlist01_"$SIZE".list"
 	echo $CMD
 	eval $CMD
 done

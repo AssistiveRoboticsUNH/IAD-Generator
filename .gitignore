@@ -106,3 +106,13 @@ venv.bak/
 #npy files
 *.npy
 *.npz
+
+#tensorflow ckpts
+*.meta
+*.index
+*.data*
+*.csv
+checkpoint
+
+#log files
+log

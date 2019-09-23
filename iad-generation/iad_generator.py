@@ -20,9 +20,10 @@ parser.add_argument('--prefix', nargs='?', default="complete", help='the prefix 
 parser.add_argument('--min_max_file', nargs='?', default=None, help='max and minimum values')
 parser.add_argument('--features_file', nargs='?', default=None, help='which features to keep')
 parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
-parser.add_argument('--pad_length', nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+parser.add_argument('--pad_length', type=int, nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 
 parser.add_argument('--gpu', default="1", help='gpu to run on')
+parser.add_argument('--c', default="1", help='combine files')
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
@@ -182,8 +183,9 @@ if __name__ == '__main__':
 	
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
-	combine_npy_files(list_of_files_and_labels)
-	clean_up_npy_files(list_of_files_and_labels)
+	if(FLAGS.c):
+		combine_npy_files(list_of_files_and_labels)
+		clean_up_npy_files(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")
