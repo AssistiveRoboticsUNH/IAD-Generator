@@ -17,13 +17,17 @@ import tensorflow as tf
 import time
 import random
 
+TRAIN_PREFIX = "train"
+TEST_PREFIX = "test"
+
 parser = argparse.ArgumentParser(description="Ensemble model processor")
 parser.add_argument('model', help='model to save (when training) or to load (when testing)')
 parser.add_argument('num_classes', help='the number of classes in the dataset')
 parser.add_argument('iad_dir', help='location of the generated IADs')
+parser.add_argument('prefix', help='"train" or "test"')
 
-parser.add_argument('--train', default='', help='.list file containing the train files')
-parser.add_argument('--test', default='', help='.list file containing the test files')
+#parser.add_argument('--train', default='', help='.list file containing the train files')
+#parser.add_argument('--test', default='', help='.list file containing the test files')
 
 parser.add_argument('--gpu', default="0", help='gpu to run on')
 parser.add_argument('--v', default=False, help='verbose')
@@ -33,7 +37,7 @@ args = parser.parse_args()
 input_shape_c3d_full = [(64, 1024), (128, 1024), (256, 512), (256, 256), (256, 128)]
 input_shape_c3d_frame = [(64, 64), (128, 64), (256, 32), (256, 16), (256, 8)]
 input_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
-input_shape = input_shape_i3d
+input_shape = input_shape_c3d_frame
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -50,21 +54,37 @@ os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 EPOCHS = 30
 ALPHA = 1e-4
 
-
-
-
 ##############################################
 # File IO
 ##############################################
 
-def open_and_org_file(filename):
+def parse_iadlist(iad_dir, prefix):
+
+    iadlist_filename = os.path.join(iad_dir, prefix+".iadlist")
+
+    try:
+        ifile = open (iadlist_filename, 'r')
+    except:
+        print("File doesn't exist: "+ iadlist_filename)
+        sys.exit(1)
+    
+    iad_groups = []
+
+    line = ifile.readline()
+    while(len(line) > 0):
+        filename_group = [os.path.join(iad_dir, f) for f in line.split()]
+        iad_groups.append(filename_group)
+        line = ifile.readline()
+    return iad_groups
+
+def open_and_org_file(filename_group):
     file_data = []
 
     #join the separate IAD layers
-    for layer in range(5):
+    for layer, filename in enumerate(filename_group):
         
         f = np.load(filename)
-        d, l, z = f["data"], f["label"], f["length"]
+        d, label, z = f["data"], f["label"], f["length"]
 
         #break d in to chuncks of window size
         window_size = input_shape[layer][1]
@@ -78,7 +98,7 @@ def open_and_org_file(filename):
     flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
     file_data.append(flat_data)
 
-    return file_data
+    return file_data, np.array([int(label)])
 
 def get_data_train(iad_list):
     
@@ -91,25 +111,22 @@ def get_data_train(iad_list):
     batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
 
     for index in batch_indexs:
-        file_data = open_and_org_file(iad_list[index][layer])
+        file_data, label = open_and_org_file(iad_list[index])
         
         #randomly select a window from the example
         win_index = random.randint(0, file_data[0].shape[0]-1)
-
         for layer in range(len(file_data)):
             batch_data[layer].append(file_data[layer][win_index])
-        
-        batch_label.append(int(l))
+
+        batch_label.append(label)
 
     for i in range(6):
         batch_data[i] = np.array(batch_data[i])
 
-    return batch_data, np.array(batch_label)
+    return batch_data, np.array(batch_label).reshape(-1)
 
 def get_data_test(iad_list, index):
-   
-    file_data = open_and_org_file(iad_list[index][layer])
-    return file_data, np.array([l])
+    return open_and_org_file(iad_list[index])
 
 def locate_iads(file, iad_dict):
     iads = []
@@ -124,17 +141,9 @@ def locate_iads(file, iad_dict):
 
     return np.array(iads)
 
-
 ##############################################
 # Model Structure
 ##############################################
-
-
-
-
-
-
-
 
 def model(features, c3d_depth, num_classes, data_shapes):
     """Return a single layer softmax model."""
@@ -171,8 +180,6 @@ def conv_model(features, c3d_depth, num_classes, data_shapes):
     # output layers
     return tf.layers.dense(inputs=dropout, units=num_classes)
 
-
-
 def model_consensus(confidences):
     """Generate a weighted average over the composite models"""
     confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
@@ -180,7 +187,6 @@ def model_consensus(confidences):
     confidences = confidences * confidence_discount_layer
     confidences = np.sum(confidences, axis=2)
     return np.argmax(confidences)
-
 
 def tensor_operations(num_classes, data_shapes):
     """Create the tensor operations to be used in training and testing, stored in a dictionary."""
@@ -191,8 +197,6 @@ def tensor_operations(num_classes, data_shapes):
     }
 
     for c3d_depth in range(6):
-        print("train_data_shapes[c3d_depth]:", data_shapes[c3d_depth])
-
         ph["x_" + str(c3d_depth)] = tf.placeholder(
             tf.float32, shape=(None, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1])
         )
@@ -253,26 +257,25 @@ def tensor_operations(num_classes, data_shapes):
 
     # verify if prediction is correct
     test_correct_pred = tf.equal(test_class, ph["y"])
-    operations = dict()
+    ops = dict()
     placeholders = ph
-    operations['loss_arr'] = loss_arr
-    operations['train_op_arr'] = train_op_arr
-    operations['predictions_arr'] = predictions_arr
-    operations['accuracy_arr'] = accuracy_arr
-    operations['weights'] = weights
-    operations['logits'] = logits
-    operations['all_preds'] = all_preds
-    operations['model_preds'] = model_preds
-    operations['model_top_10_values'] = model_top_10_values
-    operations['model_top_10_indices'] = model_top_10_indices
-    operations['test_prob'] = test_prob
-    operations['test_class'] = test_class
+    ops['loss_arr'] = loss_arr
+    ops['train_op_arr'] = train_op_arr
+    ops['predictions_arr'] = predictions_arr#
+    ops['accuracy_arr'] = accuracy_arr
+    ops['weights'] = weights#
+    ops['logits'] = logits#
+    ops['all_preds'] = all_preds#
+    ops['model_preds'] = model_preds#
+    ops['model_top_10_values'] = model_top_10_values#
+    ops['model_top_10_indices'] = model_top_10_indices#
+    ops['test_prob'] = test_prob#
+    ops['test_class'] = test_class#
 
-    operations['test_correct_pred'] = test_correct_pred
-    operations["train"] = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
+    ops['test_correct_pred'] = test_correct_pred
+    ops["train"] = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
 
-
-    return placholders, operations
+    return ph, ops
 
 def train_model(model_name, num_classes, train_data, test_data):
 
@@ -281,7 +284,6 @@ def train_model(model_name, num_classes, train_data, test_data):
 
     #define network
     ph, ops = tensor_operations(num_classes, data_shape)
-
     saver = tf.train.Saver()
     
     with tf.Session() as sess:
@@ -294,7 +296,7 @@ def train_model(model_name, num_classes, train_data, test_data):
         for i in range(num_iter):
         # setup training batch
 
-            data, label = get_data_train(train)
+            data, label = get_data_train(train_data)
         
             batch_data = {}
             for d in range(6):
@@ -303,11 +305,7 @@ def train_model(model_name, num_classes, train_data, test_data):
             batch_data[ph["y"]] = label
             batch_data[ph["train"]] = True
 
-
-
-
             # combine training operations into one variable
-            
             start = time.time()
 
             out = sess.run(ops["train"], feed_dict=batch_data)
@@ -322,7 +320,7 @@ def train_model(model_name, num_classes, train_data, test_data):
                     print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
 
                 # evaluate test network
-                data, label = get_data_train(test)
+                data, label = get_data_train(test_data)
             
                 batch_data = {}
                 for d in range(6):
@@ -339,27 +337,18 @@ def train_model(model_name, num_classes, train_data, test_data):
         # save the model
         print("Final model saved in %s" % saver.save(sess, model_name))
 
-def test_model(model_name, num_classes, train_data, test_data):
-
-    is_training = (train_data == None)
+def test_model(model_name, num_classes, test_data):
 
     # get the shape of the flattened and merged IAD and append
+    test_batch_size = 1
     data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
     #define network
     ph, ops = tensor_operations(num_classes, data_shape)
-
     saver = tf.train.Saver()
-    
 
-
-
-
-
-    test_batch_size = 1
     correct, total = 0, 0
-    model_correct = [0]*6
-    confidences = [0.]*6
+    model_correct, model_total = [0]*6, [0]*6
 
     correct_class = np.zeros(int(args.num_classes), dtype=np.float32)
     total_class = np.zeros(int(args.num_classes), dtype=np.float32)
@@ -372,70 +361,67 @@ def test_model(model_name, num_classes, train_data, test_data):
         except:
             print("Failed to load model")
 
-
-        num_iter = len(test)
+        num_iter = len(test_data)
         for i in range(num_iter):
-            data, label = get_data_test(test, i)
-
+            data, label = get_data_test(test_data, i)
+            label = int(label[0])
             
-            aggregated_results = []
-            for r in range(6):
-                aggregated_results.append([])
+            aggregated_confidences = []
 
             batch_data = {}
-            batch_data[ph["y"]] = int(label[0])
+            batch_data[ph["y"]] = label
             batch_data[ph["train"]] = False
 
             for j in range(len(data[0])):
                 for d in range(6):
                     batch_data[ph["x_" + str(d)]] = np.expand_dims(data[d][j], axis = 0)
 
-                result = sess.run([
+                confidences, predictions = sess.run([
                     ops['all_preds'], # confidences
                     ops['model_preds'], # predictions
                 ], feed_dict=batch_data)
 
-                for r in range(6):
-                    aggregated_results[r].append(result[r])
+                aggregated_confidences.append(confidences)
 
-            aggregated_results = [ np.mean(np.array(r), axis=0) for r in aggregated_results]
-            ensemble_prediction = model_consensus(aggregated_results[0])
+                #model_total[]
 
-            actual_label = int(label[0])
 
-            if(ensemble_prediction == actual_label):
-                correct_class[actual_label] += 1
 
-            total_class[actual_label] += 1
 
+            aggregated_confidences = np.mean(aggregated_confidences, axis=0)
+            ensemble_prediction = model_consensus(aggregated_confidences)
+
+            
+
+            #check if ensemble is correct
+            if(ensemble_prediction == label):
+                correct_class[label] += 1
+            total_class[label] += 1
+            '''
             # check if model output is correct
             for j, m in enumerate(result[1][0]):
                 if m == batch_data[ph["y"]]:
                     model_correct[j] += 1
             if ensemble_prediction == batch_data[ph["y"]]:
                 correct += 1
-
+            
             total += len(result[0])
-
+            
             if(i % 1000 == 0):
                 print("step: ", str(i) + '/' + str(num_iter), "cummulative_accuracy:", correct / float(total))
-    
+            
     print("Model accuracy: ")
     for i, c in enumerate(model_correct):
         print("%s: %s" % (i, c / float(total)))
-
+            '''
     print("FINAL - accuracy:", correct / float(total))
     np.save("classes.npy",  correct_class / total_class)
 
 
 
-
-
-
-
-
-def main():
+if __name__ == "__main__":
     """Determine if the user has specified training or testing and run the appropriate function."""
+    '''
     iad_dict = {}
     for iad in os.listdir(args.iad_dir):
         iad_filename = iad[:-6]
@@ -445,22 +431,22 @@ def main():
 
     for k in iad_dict.keys():
         iad_dict[k].sort()
+    '''
   
     # define the dataset file names    
-    eval_dataset = locate_iads(args.test, iad_dict) 
+    #eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)#locate_iads(args.test, iad_dict) 
 
-    if args.train != '':
+    if args.prefix == TRAIN_PREFIX:
         print("----> TRAINING")
         BATCH_SIZE = 15
-        train_dataset = locate_iads(args.train, iad_dict)
-        train_model(args.model, train_dataset, eval_dataset, args.num_classes)
-    elif args.test != '':
+        train_dataset = parse_iadlist(args.iad_dir, TRAIN_PREFIX)
+        eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)
+        train_model(args.model, args.num_classes, train_dataset, eval_dataset)
+    elif args.prefix == TEST_PREFIX:
         print("----> TESTING")
         BATCH_SIZE = 1
-        test_model(args.model, eval_dataset, args.num_classes)
+        eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)
+        test_model(args.model, args.num_classes, eval_dataset)
     else:
-        print("Must provide either train or test file")
+        print('"prefix must be either "train" or "test"')
         sys.exit(1)
-
-if __name__ == "__main__":
-    main()
