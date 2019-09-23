@@ -22,22 +22,27 @@ TEST_PREFIX = "test"
 
 parser = argparse.ArgumentParser(description="Ensemble model processor")
 parser.add_argument('model', help='model to save (when training) or to load (when testing)')
-parser.add_argument('num_classes', help='the number of classes in the dataset')
+parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
 parser.add_argument('iad_dir', help='location of the generated IADs')
 parser.add_argument('prefix', help='"train" or "test"')
 
 #parser.add_argument('--train', default='', help='.list file containing the train files')
 #parser.add_argument('--test', default='', help='.list file containing the test files')
+parser.add_argument('--window_length', type=int, default=-1, help='the size of the window. If left unset then the entire IAD is fed in at once. \
+                                                                    If the window is longer than the video then we pad to the IADs to that length')
 
 parser.add_argument('--gpu', default="0", help='gpu to run on')
 parser.add_argument('--v', default=False, help='verbose')
 
 args = parser.parse_args()
 
+input_shape_c3d_custom = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (256, args.window_length/4), (256, args.window_length/8)]
+input_shape_i3d_custom = [(64, args.window_length/2), (192, args.window_length/2), (480, args.window_length/2), (832, args.window_length/4), (1024, args.window_length/8)]
+
 input_shape_c3d_full = [(64, 1024), (128, 1024), (256, 512), (256, 256), (256, 128)]
 input_shape_c3d_frame = [(64, 64), (128, 64), (256, 32), (256, 16), (256, 8)]
 input_shape_i3d = [(64, 32), (192, 32), (480, 32), (832, 16), (1024, 8)]
-input_shape = input_shape_c3d_frame
+input_shape = input_shape_c3d_custom
 
 # optional - specify the CUDA device to use for GPU computation
 # comment this line out if you wish to use all CUDA-capable devices
@@ -250,6 +255,7 @@ def tensor_operations(num_classes, data_shapes):
     model_preds = tf.transpose(all_preds, [0, 2, 1])
     model_top_10_values, model_top_10_indices = tf.nn.top_k(model_preds, k=10)
     model_preds = tf.argmax(model_preds, axis=2, output_type=tf.int32)
+    model_preds = tf.squeeze(model_preds)
 
     # average over softmaxes
     test_prob = tf.reduce_mean(all_preds, axis=2)
@@ -350,8 +356,8 @@ def test_model(model_name, num_classes, test_data):
     correct, total = 0, 0
     model_correct, model_total = [0]*6, [0]*6
 
-    correct_class = np.zeros(int(args.num_classes), dtype=np.float32)
-    total_class = np.zeros(int(args.num_classes), dtype=np.float32)
+    correct_class = np.zeros(num_classes, dtype=np.float32)
+    total_class = np.zeros(num_classes, dtype=np.float32)
 
     with tf.Session() as sess:
         # restore the model
@@ -382,11 +388,12 @@ def test_model(model_name, num_classes, test_data):
                 ], feed_dict=batch_data)
 
                 aggregated_confidences.append(confidences)
+                print("predictions:", predictions.shape)
 
-                #model_total[]
-
-
-
+                for d in range(6):
+                    if(predictions[d] == label):
+                        model_correct[d] += 1
+                    model_total[d] += 1
 
             aggregated_confidences = np.mean(aggregated_confidences, axis=0)
             ensemble_prediction = model_consensus(aggregated_confidences)
@@ -397,24 +404,15 @@ def test_model(model_name, num_classes, test_data):
             if(ensemble_prediction == label):
                 correct_class[label] += 1
             total_class[label] += 1
-            '''
-            # check if model output is correct
-            for j, m in enumerate(result[1][0]):
-                if m == batch_data[ph["y"]]:
-                    model_correct[j] += 1
-            if ensemble_prediction == batch_data[ph["y"]]:
-                correct += 1
             
-            total += len(result[0])
-            
-            if(i % 1000 == 0):
-                print("step: ", str(i) + '/' + str(num_iter), "cummulative_accuracy:", correct / float(total))
-            
+
+
     print("Model accuracy: ")
-    for i, c in enumerate(model_correct):
-        print("%s: %s" % (i, c / float(total)))
-            '''
-    print("FINAL - accuracy:", correct / float(total))
+    for i in range(6):
+        print("%s: %s" % (i, model_correct[i] / float(model_total[i])))
+           
+    print("sum:",  np.sum(correct_class),  np.sum(total_class))
+    print("FINAL - accuracy:", np.sum(correct_class) / np.sum(total_class))
     np.save("classes.npy",  correct_class / total_class)
 
 
