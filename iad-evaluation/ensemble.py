@@ -23,8 +23,6 @@ parser.add_argument('num_classes', type=int, help='the number of classes in the 
 parser.add_argument('iad_dir', help='location of the generated IADs')
 parser.add_argument('prefix', help='"train" or "test"')
 
-#parser.add_argument('--train', default='', help='.list file containing the train files')
-#parser.add_argument('--test', default='', help='.list file containing the test files')
 parser.add_argument('--window_length', type=int, default=-1, help='the size of the window. If left unset then the entire IAD is fed in at once. \
                                                                     If the window is longer than the video then we pad to the IADs to that length')
 
@@ -60,6 +58,7 @@ TEST_PREFIX = "test"
 ##############################################
 
 def parse_iadlist(iad_dir, prefix):
+    '''Opena dn parse a .iadlist file'''
 
     iadlist_filename = os.path.join(iad_dir, prefix+".iadlist")
 
@@ -79,6 +78,7 @@ def parse_iadlist(iad_dir, prefix):
     return iad_groups
 
 def open_and_org_file(filename_group):
+    '''Open all of the files in the filename_group (an array of filenames). Then format and shape the IADs within'''
     file_data = []
 
     #join the separate IAD layers
@@ -134,51 +134,41 @@ def get_data_test(iad_list, index):
 # Model Structure
 ##############################################
 
-def model(features, c3d_depth, num_classes, data_shapes):
-    """Return a single layer softmax model."""
-    # input layers
-    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1], 1])  # batch_size, h, w, num_channels
-
-    # hidden layers
-    flatten = tf.reshape(input_layer, [-1, data_shapes[c3d_depth][0]* data_shapes[c3d_depth][1]])
-    dense = tf.layers.dense(inputs=flatten, units=2048, activation=tf.nn.leaky_relu)
-    dropout = tf.layers.dropout(dense, rate=0.5, training=features["train"])
-
-    # output layers
-    return tf.layers.dense(inputs=dropout, units=num_classes)
-
-
-def conv_model(features, c3d_depth, num_classes, data_shapes):
-    """Return a convolutional model."""
-    # input layers
-    input_layer = tf.reshape(features["x_" + str(c3d_depth)], [-1, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1], 1])  # batch_size, h, w, num_channels
-
-    # hidden layers
-    num_filters = 32
-    filter_width = 4
-    conv1 = tf.layers.conv2d(
-        inputs=input_layer,
-        filters=num_filters,
-        kernel_size=[1, filter_width],
-        padding="valid",  # don't want to add padding because that changes the IAD
-        activation=tf.nn.leaky_relu)
-    flatten = tf.reshape(input_layer, [-1, data_shapes[c3d_depth][0]* data_shapes[c3d_depth][1]])
-    dense = tf.layers.dense(inputs=flatten, units=2048, activation=tf.nn.leaky_relu)
-    dropout = tf.layers.dropout(dense, rate=0.5, training=features["train"])
-
-    # output layers
-    return tf.layers.dense(inputs=dropout, units=num_classes)
-
-def model_consensus(confidences):
-    """Generate a weighted average over the composite models"""
-    confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
-
-    confidences = confidences * confidence_discount_layer
-    confidences = np.sum(confidences, axis=2)
-    return np.argmax(confidences)
-
-def tensor_operations(num_classes, data_shapes):
+def model_def(num_classes, data_shapes):
     """Create the tensor operations to be used in training and testing, stored in a dictionary."""
+
+    def conv_model(input_ph):
+        """Return a convolutional model."""
+        top = input_ph
+
+        # hidden layers
+        num_filters = 32
+        filter_width = 4
+        conv1 = tf.layers.conv2d(
+            inputs=input_layer,
+            filters=num_filters,
+            kernel_size=[1, filter_width],
+            padding="valid", 
+            activation=tf.nn.leaky_relu)
+        top = tf.layers.flatten(top)
+        top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
+        top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
+
+        # output layers
+        return tf.layers.dense(inputs=top, units=num_classes)
+
+    def dense_model(input_ph):
+        """Return a single layer softmax model."""
+        top = input_ph
+
+        # hidden layers
+        top = tf.layers.flatten(top)
+        top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
+        top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
+
+        # output layers
+        return tf.layers.dense(inputs=top, units=num_classes)
+
     # Placeholders
     ph = {
         "y": tf.placeholder(tf.int32, shape=(None)),
@@ -191,73 +181,68 @@ def tensor_operations(num_classes, data_shapes):
         )
 
     # Tensor operations
-    loss_arr = []
-    train_op_arr = []
-    predictions_arr = []
-    accuracy_arr = []
-    weights = {}
+    sftmx_ops = []
+    train_ops = []
+    loss_ops = []
+    accuracy_ops = []
 
-    # for each model generate the tensor ops
+    # for each model generate tensor ops
     for c3d_depth in range(6):
-        # logits
+
+        # Logits
+        # input layers [batch_size, h, w, num_channels]
+        input_layer = tf.reshape(ph["x_" + str(layer)], [-1, data_shapes[layer][0], data_shapes[layer][1], 1])
         if(c3d_depth < 3):
-            logits = conv_model(ph, c3d_depth, num_classes, data_shapes)
+            logits = conv_model(input_layer)
         else:
-            logits = model(ph, c3d_depth, num_classes, data_shapes)
+            logits = dense_model(input_layer)
 
-        # probabilities and associated weights
-        probabilities = tf.nn.softmax(logits, name="softmax_tensor")
-        
+        # Predict
+        softmax = tf.nn.softmax(logits, name="softmax_tensor")
+        class_pred = tf.argmax(input=logits, axis=1, output_type=tf.int32)
 
-        # functions for predicting class
-        predictions = {
-            "classes": tf.argmax(input=logits, axis=1, output_type=tf.int32),
-            "probabilities": probabilities
-        }
-        predictions_arr.append(predictions)
-
-        # functions for training/optimizing the network
+        # Train
         loss = tf.losses.sparse_softmax_cross_entropy(labels=ph["y"], logits=logits)
-        optimizer = tf.train.AdamOptimizer(learning_rate=ALPHA)
-        train_op = optimizer.minimize(
+        train_op = tf.train.AdamOptimizer(learning_rate=ALPHA).minimize(
             loss=loss,
             global_step=tf.train.get_global_step()
         )
-        loss_arr.append(loss)
-        train_op_arr.append(train_op)
 
-        # functions for evaluating the network
-        correct_pred = tf.equal(predictions["classes"], ph["y"])
+        # Test
+        correct_pred = tf.equal(class_pred, ph["y"])
         accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-        accuracy_arr.append(accuracy)
+        sftmx_ops.append(softmax)
+        loss_ops.append(loss)
+        train_ops.append(train_op)
+        accuracy_ops.append(accuracy)
 
-    # combine all of the models together for the ensemble
-    all_preds = tf.stack([x["probabilities"] for x in predictions_arr])
-    all_preds = tf.transpose(all_preds, [1, 2, 0])
+    # the softmax values across all of the models
+    all_sftmx = tf.transpose(tf.stack(sftmx_ops), [1, 2, 0])
 
-    model_preds = tf.transpose(all_preds, [0, 2, 1])
-    model_preds = tf.argmax(model_preds, axis=2, output_type=tf.int32)
-    model_preds = tf.squeeze(model_preds)
+    # the class predictions across all of the models
+    all_pred = tf.transpose(all_sftmx, [0, 2, 1])
+    all_pred = tf.squeeze(tf.argmax(all_pred, axis=2, output_type=tf.int32))
 
-    # average over softmaxes
-    test_prob = tf.reduce_mean(all_preds, axis=2)
-    test_class = tf.argmax(test_prob, axis=1, output_type=tf.int32)
-
-    # verify if prediction is correct
-    test_correct_pred = tf.equal(test_class, ph["y"])
-
-    ops = dict()
-    placeholders = ph
-    ops['loss_arr'] = loss_arr
-    ops['train_op_arr'] = train_op_arr
-    ops['accuracy_arr'] = accuracy_arr
-
-    ops['test_correct_pred'] = test_correct_pred
-    ops['model_preds'] = model_preds
-    ops["train"] = ops['train_op_arr'] + ops['loss_arr'] + ops['accuracy_arr']
-
+    ops = {
+        'train': train_ops + loss_ops + accuracy_ops,
+        'model_sftmx': all_sftmx,
+        'model_preds': all_pred
+    }
+    
     return ph, ops
+
+def model_consensus(confidences):
+    """Generate a weighted average over the composite models"""
+    confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
+
+    confidences = confidences * confidence_discount_layer
+    confidences = np.sum(confidences, axis=2)
+    return np.argmax(confidences)
+
+##############################################
+# Train/Test Functions
+##############################################
 
 def train_model(model_name, num_classes, train_data, test_data):
 
@@ -265,7 +250,7 @@ def train_model(model_name, num_classes, train_data, test_data):
     data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
     #define network
-    ph, ops = tensor_operations(num_classes, data_shape)
+    ph, ops = model_def(num_classes, data_shape)
     saver = tf.train.Saver()
     
     with tf.Session() as sess:
@@ -325,7 +310,7 @@ def test_model(model_name, num_classes, test_data):
     data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
     #define network
-    ph, ops = tensor_operations(num_classes, data_shape)
+    ph, ops = model_def(num_classes, data_shape)
     saver = tf.train.Saver()
 
     correct, total = 0, 0
@@ -358,12 +343,11 @@ def test_model(model_name, num_classes, test_data):
                     batch_data[ph["x_" + str(d)]] = np.expand_dims(data[d][j], axis = 0)
 
                 confidences, predictions = sess.run([
-                    ops['all_preds'], # confidences
-                    ops['model_preds'], # predictions
+                    ops['model_sftmx'], 
+                    ops['model_preds'], 
                 ], feed_dict=batch_data)
 
                 aggregated_confidences.append(confidences)
-                print("predictions:", predictions.shape)
 
                 for d in range(6):
                     if(predictions[d] == label):
