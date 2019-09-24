@@ -20,8 +20,8 @@ def obtain_files(directory_file):
       filenames.append(filename)
       labels.append(int(label))
 
-    if(int(start_frame) + 16 > max_length):
-      max_length = int(start_frame) + 16
+      if(len(os.listdir(filename)) > max_length):
+        max_length = len(os.listdir(filename))
 
     line = ifile.readline()
 
@@ -40,7 +40,7 @@ def read_file(file, input_placeholder):
   img_data = []
   for r, d, f in os.walk(file):
     f.sort()
-    limit = min(num_frames, len(f))
+    limit = min(int(num_frames), len(f))
     
     for i in range(limit):
       filename = os.path.join(r, f[i])
@@ -59,7 +59,7 @@ def read_file(file, input_placeholder):
       img_data.append(np.array(img))
 
   img_data = np.array(img_data).astype(np.float32)
-  length_ratio = len(img_data) / int(num_frames)
+  length_ratio = float(limit) / int(num_frames)
 
   # pad file to appropriate length
   buffer_len = int(num_frames) - len(img_data)
@@ -182,6 +182,15 @@ def generate_activation_map(input_ph, _weights, _biases, depth=4, separate_conv_
 
     return layers
   return pool5
+
+def load_model(input_ph):
+  weights, biases = get_variables()
+  variable_name_list = list( set(weights.values() + biases.values()))
+  saver = tf.train.Saver(variable_name_list)
+
+  activation_maps = generate_activation_map(input_ph, weights, biases)
+
+  return activation_maps, saver
 
 
 def generate_full_model(input_ph, _weights, _biases):

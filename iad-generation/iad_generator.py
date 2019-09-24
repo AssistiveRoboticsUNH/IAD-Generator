@@ -3,6 +3,7 @@
 # 8/29/2019
 
 import c3d as model
+#import i3d_wrapper as model
 
 import os
 
@@ -13,18 +14,26 @@ import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
 #required command line args
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
+parser.add_argument('prefix', help='"train" or "test"')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
 #optional command line args
-parser.add_argument('--prefix', nargs='?', default="complete", help='the prefix to place infront of finished files <prefix>_<layer>.npz')
+
 parser.add_argument('--min_max_file', nargs='?', default=None, help='max and minimum values')
 parser.add_argument('--features_file', nargs='?', default=None, help='which features to keep')
 parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
-parser.add_argument('--pad_length', nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+parser.add_argument('--pad_length', type=int, nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+
+parser.add_argument('--gpu', default="1", help='gpu to run on')
+parser.add_argument('--c', type=bool, default=False, help='combine files')
 FLAGS = parser.parse_args()
+
+os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
 batch_size = 1
 
-def output_filename(file, layer):
+def output_filename(file, layer, dirname=FLAGS.dst_directory):
+	if(dirname == ''):
+		return file.split(os.path.sep)[-1]+"_"+str(layer)+".npz"
 	return os.path.join(FLAGS.dst_directory, file.split(os.path.sep)[-1]+"_"+str(layer)+".npz")
 
 def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_ratio):
@@ -46,19 +55,18 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 	#save to disk
 	for i in range(len(data)):
 		filename = output_filename(file, i)
-		np.savez(filename, data=data[i], label=label, length=int(data[i].shape[1]*length_ratio))
+		data[i] = data[i][:, :int(data[i].shape[1]*length_ratio)]
+
+		np.savez(filename, data=data[i], label=label, length=data[i].shape[1])
 
 def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
-	input_placeholder = model.get_input_placeholder(batch_size)
+	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length )
+	print("input_placeholder.get_shape():", input_placeholder.get_shape())
 	
 	# define model
-	weights, biases = model.get_variables()
-	variable_name_dict = list( set(weights.values() + biases.values()))
-	saver = tf.train.Saver(variable_name_dict)
-
-	activation_map = model.generate_activation_map(input_placeholder, weights, biases)
+	activation_map, saver = model.load_model(input_placeholder)
 	
 	#collapse the spatial dimensions of the activation map
 	for layer in range(len(activation_map)):
@@ -70,7 +78,11 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
 		# initialize model variables to those in the described checkpoint file
-		saver.restore(sess, FLAGS.model_file)
+		ckpt = tf.train.get_checkpoint_state(FLAGS.model_file)
+		if ckpt and ckpt.model_checkpoint_path:
+			print("loading checkpoint %s,waiting......" % ckpt.model_checkpoint_path)
+			saver.restore(sess, ckpt.model_checkpoint_path)
+			print("load complete!")
 
 		# prevent further modification to the graph
 		sess.graph.finalize()
@@ -111,6 +123,7 @@ def normalize_dataset(list_of_files, min_max_vals):
 					data[row] = np.zeros_like(data[row])
 				else:
 					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
+
 			np.savez(filename, data=data, label=label, length=length)
 
 def combine_npy_files(list_of_files):
@@ -120,10 +133,13 @@ def combine_npy_files(list_of_files):
 		for i in range(len(list_of_files)):
 			file, _ = list_of_files[i]
 
+			# open data
 			filename = output_filename(file, layer)
 			f = np.load(filename)
-
 			data, label, length = f["data"], f["label"], f["length"]
+
+			#pad data to common length
+			data = np.pad(data, [[0,0],[0,FLAGS.pad_length-length]], 'constant', constant_values=0)
 
 			data_all.append(data)
 			label_all.append(label)
@@ -140,10 +156,29 @@ def clean_up_npy_files(list_of_files):
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
 			os.remove(output_filename(file, layer))
 
+def make_iadlist_file(list_of_files):
+	ofile = open(os.path.join(FLAGS.dst_directory, FLAGS.prefix+".iadlist"), 'w')
+	print("writing iadlist file: "+os.path.join(FLAGS.dst_directory, FLAGS.prefix+".iadlist"))
+
+	for i in range(len(list_of_files)):
+		file, _ = list_of_files[i]
+
+		entry = output_filename(file, 0, dirname='')+' '
+		for layer in range(1, len(model.CNN_FEATURE_COUNT)):
+			entry += output_filename(file, layer, dirname='')+' '
+
+		ofile.write(entry+'\n')
+	ofile.close()
+
+
 
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
+	list_of_files_and_labels = list_of_files_and_labels[:3]
+
+	print("list_of_files_and_labels:", len(list_of_files_and_labels))
+	print("max_frame_length:", max_frame_length)
 
 	if(not os.path.exists(FLAGS.dst_directory)):
 		os.makedirs(FLAGS.dst_directory)
@@ -163,10 +198,14 @@ if __name__ == '__main__':
 		f = np.load(FLAGS.min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
+	
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
-	combine_npy_files(list_of_files_and_labels)
-	clean_up_npy_files(list_of_files_and_labels)
+	if(FLAGS.c):
+		combine_npy_files(list_of_files_and_labels)
+		clean_up_npy_files(list_of_files_and_labels)
+	else:
+		make_iadlist_file(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")
