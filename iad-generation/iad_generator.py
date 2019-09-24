@@ -14,23 +14,26 @@ import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
 #required command line args
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
+parser.add_argument('prefix', help='"train" or "test"')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
 #optional command line args
-parser.add_argument('--prefix', nargs='?', default="complete", help='the prefix to place infront of finished files <prefix>_<layer>.npz')
+
 parser.add_argument('--min_max_file', nargs='?', default=None, help='max and minimum values')
 parser.add_argument('--features_file', nargs='?', default=None, help='which features to keep')
 parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
 parser.add_argument('--pad_length', type=int, nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 
 parser.add_argument('--gpu', default="1", help='gpu to run on')
-parser.add_argument('--c', default="1", help='combine files')
+parser.add_argument('--c', type=bool, default=False, help='combine files')
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
 batch_size = 1
 
-def output_filename(file, layer):
+def output_filename(file, layer, dirname=FLAGS.dst_directory):
+	if(dirname == ''):
+		return file.split(os.path.sep)[-1]+"_"+str(layer)+".npz"
 	return os.path.join(FLAGS.dst_directory, file.split(os.path.sep)[-1]+"_"+str(layer)+".npz")
 
 def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_ratio):
@@ -153,11 +156,26 @@ def clean_up_npy_files(list_of_files):
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
 			os.remove(output_filename(file, layer))
 
+def make_iadlist_file(list_of_files):
+	ofile = open(os.path.join(FLAGS.dst_directory, FLAGS.prefix+".iadlist"), 'w')
+	print("writing iadlist file: "+os.path.join(FLAGS.dst_directory, FLAGS.prefix+".iadlist"))
+
+	for i in range(len(list_of_files)):
+		file, _ = list_of_files[i]
+
+		entry = output_filename(file, 0, dirname='')+' '
+		for layer in range(1, len(model.CNN_FEATURE_COUNT)):
+			entry += output_filename(file, layer, dirname='')+' '
+
+		ofile.write(entry+'\n')
+	ofile.close()
+
+
 
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
-	#list_of_files_and_labels = list_of_files_and_labels[:5]
+	list_of_files_and_labels = list_of_files_and_labels[:3]
 
 	print("list_of_files_and_labels:", len(list_of_files_and_labels))
 	print("max_frame_length:", max_frame_length)
@@ -186,6 +204,8 @@ if __name__ == '__main__':
 	if(FLAGS.c):
 		combine_npy_files(list_of_files_and_labels)
 		clean_up_npy_files(list_of_files_and_labels)
+	else:
+		make_iadlist_file(list_of_files_and_labels)
 
 	#summarize operations
 	print("Summary")
