@@ -116,3 +116,6 @@ checkpoint
 
 #log files
 log
+
+#myfiles
+*.iadlist
