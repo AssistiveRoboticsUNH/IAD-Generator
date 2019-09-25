@@ -79,7 +79,7 @@ def read_file(file, input_placeholder):
 
 
 INPUT_DATA_SIZE = {"t": 16, "h":112, "w":112, "c":3}
-CNN_FEATURE_COUNT = [64, 128, 256, 256, 256]
+CNN_FEATURE_COUNT = [64, 128, 256, 512, 512]
 
 def get_input_placeholder(batch_size, num_frames=INPUT_DATA_SIZE["t"]):
   # returns a placeholder for the C3D input

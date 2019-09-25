@@ -46,10 +46,7 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 			local_max_values = np.max(data[layer], axis=1)
 			local_min_values = np.min(data[layer], axis=1)
 
-			print("layer:", layer, len(min_max_vals["max"]))
-
 			for i in range(len(local_max_values)):
-				print(i, len(local_max_values), len(min_max_vals["max"][layer]))
 				if(local_max_values[i] > min_max_vals["max"][layer][i]):
 					min_max_vals["max"][layer][i] = local_max_values[i]
 
@@ -67,7 +64,6 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length )
-	print("input_placeholder.get_shape():", input_placeholder.get_shape())
 	
 	# define model
 	activation_map, saver = model.load_model(input_placeholder)
@@ -77,8 +73,6 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 		activation_map[layer] = tf.reduce_max(activation_map[layer], axis = (2,3))
 		activation_map[layer] = tf.squeeze(activation_map[layer])
 		activation_map[layer] = tf.transpose(activation_map[layer])
-
-		print("activation_map[{:d}]: ".format(layer)+str(activation_map[layer].get_shape()))
 
 	gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.9)#.25
 	with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
