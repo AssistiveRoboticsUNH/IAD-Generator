@@ -46,7 +46,10 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 			local_max_values = np.max(data[layer], axis=1)
 			local_min_values = np.min(data[layer], axis=1)
 
+			print("layer:", layer, len(min_max_vals["max"]))
+
 			for i in range(len(local_max_values)):
+				print(i, len(local_max_values), len(min_max_vals["max"][layer]))
 				if(local_max_values[i] > min_max_vals["max"][layer][i]):
 					min_max_vals["max"][layer][i] = local_max_values[i]
 
