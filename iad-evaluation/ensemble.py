@@ -23,7 +23,7 @@ parser.add_argument('num_classes', type=int, help='the number of classes in the 
 parser.add_argument('iad_dir', help='location of the generated IADs')
 parser.add_argument('prefix', help='"train" or "test"')
 
-parser.add_argument('--window_length', type=int, default=-1, help='the size of the window. If left unset then the entire IAD is fed in at once. \
+parser.add_argument('window_length', type=int, help='the size of the window. If left unset then the entire IAD is fed in at once. \
                                                                     If the window is longer than the video then we pad to the IADs to that length')
 
 parser.add_argument('--gpu', default="0", help='gpu to run on')
@@ -187,7 +187,7 @@ def model_def(num_classes, data_shapes):
     accuracy_ops = []
 
     # for each model generate tensor ops
-    for c3d_depth in range(6):
+    for layer in range(6):
 
         # Logits
         # input layers [batch_size, h, w, num_channels]
