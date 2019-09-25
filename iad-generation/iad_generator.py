@@ -6,7 +6,7 @@
 import c3d_large as model
 #import i3d_wrapper as model
 
-import os
+import os, sys
 
 import tensorflow as tf
 import numpy as np
@@ -84,6 +84,9 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 			print("loading checkpoint %s,waiting......" % ckpt.model_checkpoint_path)
 			saver.restore(sess, ckpt.model_checkpoint_path)
 			print("load complete!")
+		else:
+			print("Failed to Load model: "+FLAGS.model_file)
+			sys.exit(1)
 
 		# prevent further modification to the graph
 		sess.graph.finalize()
