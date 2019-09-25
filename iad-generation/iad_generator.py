@@ -89,6 +89,9 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 			saver.restore(sess, FLAGS.model_file)	
 		else:
 			print("Failed to Load model: "+FLAGS.model_file)
+
+			print("os.path.exists(FLAGS.model_file) ", os.path.exists(FLAGS.model_file))
+
 			sys.exit(1)
 
 		# prevent further modification to the graph
