@@ -296,7 +296,7 @@ def train_model(model_name, num_classes, train_data, test_data):
                 batch_data[ph["y"]] = label
                 batch_data[ph["train"]] = False
 
-                correct_prediction = sess.run([ops['test_correct_pred']], feed_dict=batch_data)
+                correct_prediction = sess.run([ops['model_preds']], feed_dict=batch_data)
                 correct, total = np.sum(correct_prediction), len(correct_prediction[0])
 
                 print("test_accuracy: {0}, correct: {1}, total: {2}".format(correct / float(total), correct, total))
