@@ -75,6 +75,8 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 		activation_map[layer] = tf.squeeze(activation_map[layer])
 		activation_map[layer] = tf.transpose(activation_map[layer])
 
+		print("activation_map[{:d}]: ".format(layer)+str(activation_map[layer].get_shape()))
+
 	gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.9)#.25
 	with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
