@@ -101,6 +101,7 @@ def open_and_org_file(filename_group):
     #append the flattened and merged IAD
     for f in file_data:
         print(f.shape, f.reshape(f.shape[0], -1, 1).shape)
+    print('')
     flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
     file_data.append(flat_data)
 
