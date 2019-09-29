@@ -34,7 +34,7 @@ args = parser.parse_args()
 input_shape_c3d = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (256, args.window_length/4), (256, args.window_length/8)]
 input_shape_c3d_large = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (512, args.window_length/4), (512, args.window_length/8)]
 input_shape_i3d = [(64, args.window_length/2), (192, args.window_length/2), (480, args.window_length/2), (832, args.window_length/4), (1024, args.window_length/8)]
-input_shape = input_shape_c3d_large
+input_shape = input_shape_i3d#input_shape_c3d_large
 
 print(np.sum([x[0]*x[1] for x in input_shape_c3d]), np.sum([x[0]*x[1] for x in input_shape_c3d_large]))
 
