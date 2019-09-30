@@ -254,7 +254,7 @@ def train_model(model_name, num_classes, train_data, test_data):
             sess.graph.finalize()
 
             # train the network
-            num_iter = EPOCHS * len(train_data) / BATCH_SIZE
+            num_iter = 5#EPOCHS * len(train_data) / BATCH_SIZE
             for i in range(num_iter):
             # setup training batch
 
