@@ -279,8 +279,8 @@ def train_model(model_name, num_classes, train_data, test_data):
                 # print out every 2K iterations
                 if i % 2000 == 0:
                     print("step: ", str(i) + '/' + str(num_iter))
-                    for x in range(6):
-                        print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
+                    #for x in range(6):
+                    #    print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
 
                     # evaluate test network
                     data, label = get_data_train(test_data)
