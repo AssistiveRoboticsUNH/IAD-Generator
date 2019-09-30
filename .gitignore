@@ -103,6 +103,19 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# numpy files
+#npy files
 *.npy
 *.npz
+
+#tensorflow ckpts
+*.meta
+*.index
+*.data*
+*.csv
+checkpoint
+
+#log files
+log
+
+#myfiles
+*.iadlist
