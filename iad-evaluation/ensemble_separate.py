@@ -352,10 +352,9 @@ def test_model(model_name, num_classes, test_data):
 
                     aggregated_confidences[i].append(confidences)
 
-                    for d in range(6):
-                        if(predictions[d] == label):
-                            model_correct[d] += 1
-                        model_total[d] += 1
+                    if(predictions[layer] == label):
+                        model_correct[layer] += 1
+                    model_total[layer] += 1
         tf.reset_default_graph()
 
     for conf in aggregated_confidences:
