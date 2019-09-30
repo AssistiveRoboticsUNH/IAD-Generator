@@ -352,6 +352,8 @@ def test_model(model_name, num_classes, test_data):
 
                     aggregated_confidences[i].append(confidences)
 
+                    print("predictions:", predictions)
+
                     if(predictions[layer] == label):
                         model_correct[layer] += 1
                     model_total[layer] += 1
