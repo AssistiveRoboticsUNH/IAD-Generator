@@ -377,8 +377,14 @@ def test_model(model_name, num_classes, test_data):
     for i in range(6):
         print("%s: %s" % (i, model_correct[i] / float(model_total[i])))
            
+
+
+
     # print ensemble cummulative accuracy
     print("FINAL - accuracy:", np.sum(correct_class) / np.sum(total_class))
+
+    total_class[np.where(total_class == 0)] = 1
+
     np.save("classes.npy",  correct_class / total_class)
 
 
