@@ -211,11 +211,11 @@ def model_def(num_classes, data_shapes, layer=-1):
 
     # the softmax values across all of the models
     print("softmax.get_shape(): ", softmax.get_shape())
-    all_sftmx = tf.transpose(softmax, [1, 2, 0])
+    #all_sftmx = tf.transpose(softmax, [1, 2, 0])
 
     # the class predictions across all of the models
-    all_pred = tf.transpose(all_sftmx, [0, 2, 1])
-    all_pred = tf.squeeze(tf.argmax(all_pred, axis=2, output_type=tf.int32))
+    #all_pred = tf.transpose(all_sftmx, [0, 2, 1])
+    all_pred = tf.squeeze(tf.argmax(all_pred, axis=1, output_type=tf.int32))
 
     ops = {
         'train': [train_op , loss, accuracy],
