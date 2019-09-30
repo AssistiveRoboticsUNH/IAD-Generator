@@ -361,7 +361,7 @@ def test_model(model_name, num_classes, test_data):
 
     for conf in aggregated_confidences:
         print("conf1:", conf)
-        conf = np.mean(conf, axis=0)
+        conf = np.mean(conf, axis=1)
         print("conf2:", conf)
         ensemble_prediction = model_consensus(conf)
 
