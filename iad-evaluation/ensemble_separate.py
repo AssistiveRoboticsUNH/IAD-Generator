@@ -215,7 +215,7 @@ def model_def(num_classes, data_shapes, layer=-1):
 
     # the class predictions across all of the models
     #all_pred = tf.transpose(all_sftmx, [0, 2, 1])
-    all_pred = tf.squeeze(tf.argmax(all_pred, axis=1, output_type=tf.int32))
+    all_pred = tf.squeeze(tf.argmax(softmax, axis=1, output_type=tf.int32))
 
     ops = {
         'train': [train_op , loss, accuracy],
