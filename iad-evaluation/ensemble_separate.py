@@ -360,9 +360,9 @@ def test_model(model_name, num_classes, test_data):
         tf.reset_default_graph()
 
     for conf in aggregated_confidences:
-        print("conf1:", conf)
+        print("conf1:", conf.get_shape())
         conf = np.mean(conf, axis=1)
-        print("conf2:", conf)
+        print("conf2:", conf.get_shape())
         ensemble_prediction = model_consensus(conf)
 
         #check if ensemble is correct
