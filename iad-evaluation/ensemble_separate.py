@@ -255,7 +255,7 @@ def train_model(model_name, num_classes, train_data, test_data):
             sess.graph.finalize()
 
             # train the network
-            num_iter = 5#EPOCHS * len(train_data) / BATCH_SIZE
+            num_iter = EPOCHS * len(train_data) / BATCH_SIZE
             for i in range(num_iter):
             # setup training batch
 
@@ -329,7 +329,7 @@ def test_model(model_name, num_classes, test_data):
             except:
                 print("Failed to load model")
 
-            num_iter = 5#len(test_data)
+            num_iter = len(test_data)
             for i in range(num_iter):
                 data, label = get_data_test(test_data, i)
                 label = int(label[0])
@@ -361,10 +361,10 @@ def test_model(model_name, num_classes, test_data):
 
     for conf in aggregated_confidences:
         conf=np.array(conf)
-        print("conf1:", conf.shape)
+        #print("conf1:", conf.shape)
         #conf = np.mean(conf, axis=0)
         conf = np.transpose(conf, [2, 1, 0])
-        print("conf2:", conf.shape)
+        #print("conf2:", conf.shape)
         ensemble_prediction = model_consensus(conf)
 
         #check if ensemble is correct
