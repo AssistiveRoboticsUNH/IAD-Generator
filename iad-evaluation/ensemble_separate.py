@@ -329,7 +329,7 @@ def test_model(model_name, num_classes, test_data):
             except:
                 print("Failed to load model")
 
-            num_iter = len(test_data)
+            num_iter = 5#len(test_data)
             for i in range(num_iter):
                 data, label = get_data_test(test_data, i)
                 label = int(label[0])
