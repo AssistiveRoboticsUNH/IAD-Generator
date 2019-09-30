@@ -352,7 +352,7 @@ def test_model(model_name, num_classes, test_data):
 
                     aggregated_confidences[i].append(confidences)
 
-                    print("predictions:", predictions)
+                    #print("predictions:", predictions)
 
                     if(predictions == label):
                         model_correct[layer] += 1
@@ -360,7 +360,9 @@ def test_model(model_name, num_classes, test_data):
         tf.reset_default_graph()
 
     for conf in aggregated_confidences:
+        print("conf1:", conf)
         conf = np.mean(conf, axis=0)
+        print("conf2:", conf)
         ensemble_prediction = model_consensus(conf)
 
         #check if ensemble is correct
