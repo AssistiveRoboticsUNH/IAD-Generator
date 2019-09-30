@@ -341,7 +341,7 @@ def test_model(model_name, num_classes, test_data):
                 batch_data[ph["y"]] = label
                 batch_data[ph["train"]] = False
 
-                for j in range(len(data[0])):
+                for j in range(1):#len(data[0])):
                     for d in range(6):
                         batch_data[ph["x_" + str(d)]] = np.expand_dims(data[d][j], axis = 0)
 
