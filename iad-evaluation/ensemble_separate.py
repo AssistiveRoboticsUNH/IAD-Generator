@@ -360,6 +360,7 @@ def test_model(model_name, num_classes, test_data):
         tf.reset_default_graph()
 
     for conf in aggregated_confidences:
+        conf=np.array(conf)
         print("conf1:", conf.get_shape())
         conf = np.mean(conf, axis=1)
         print("conf2:", conf.get_shape())
