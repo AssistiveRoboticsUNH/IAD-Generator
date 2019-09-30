@@ -299,7 +299,7 @@ def train_model(model_name, num_classes, train_data, test_data):
 
             # save the model
             print("Final model saved in %s" % saver.save(sess, model_name+'_'+str(layer)))
-            tf.reset_default_graph()
+        tf.reset_default_graph()
 
 def test_model(model_name, num_classes, test_data):
 
