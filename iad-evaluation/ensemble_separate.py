@@ -210,6 +210,7 @@ def model_def(num_classes, data_shapes, layer=-1):
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
     # the softmax values across all of the models
+    print("softmax.get_shape(): ", softmax.get_shape())
     all_sftmx = tf.transpose(softmax, [1, 2, 0])
 
     # the class predictions across all of the models
