@@ -354,7 +354,7 @@ def test_model(model_name, num_classes, test_data):
 
                     print("predictions:", predictions)
 
-                    if(predictions[layer] == label):
+                    if(predictions == label):
                         model_correct[layer] += 1
                     model_total[layer] += 1
         tf.reset_default_graph()
