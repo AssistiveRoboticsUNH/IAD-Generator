@@ -219,7 +219,7 @@ def model_def(num_classes, data_shapes, layer=-1):
 
     ops = {
         'train': [train_op , loss, accuracy],
-        'model_sftmx': all_sftmx,
+        'model_sftmx': softmax,
         'model_preds': all_pred
     }
     
