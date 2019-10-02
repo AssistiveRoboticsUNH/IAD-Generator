@@ -17,40 +17,33 @@ Generating IADs occurs in several steps. In our system we evaluated I3D using pr
 
 ### Training C3D
 If training the network using C3D first move the contents of the provided "caffe3d" folder into the caffe3d/examples/directory of the provided C3D implementation. To train the C3D network run the following code:
-'''
+```
 run code
-'''
+```
 You can evaluate the code using 
-'''
+```
 run code
-'''
+```
 Having trained the network in caffe you must convert the saved model to a tensorlfow interpretable format. Runn the given command to do so
-'''
+```
 run code
-'''
+```
 
 ### Generating IADs
 Once you have a working network you can generate IADs. To do so you need to provide the tensorflow checkpoint directory where the saved model is located and a list_file. The list_file is a plaintext space-delimited document containing the location of the dataset files and the class label.
-'''
+```
 python iad_generator.py <model_name> <list_file>
-'''
+```
 
 ### Evaluating IADs
 Having generated IADs for both the training and test dataset you can evaluate them using the following codes. If the dataset is particulalry small you should be able to fit the entire ensmeble into memory. You can do so using this code.
-'''
+```
 run code
-'''
+```
 If your IADs are particualrly large however you may want to separate the ensemble into its component parts for trainign and evaluating. To do so run this code.
-'''
+```
 run code
-'''
-
-
-To execute run: python iad_gen.py
-
-you will need to set the variables for the threshold options and compression options
-
-python iad_generator.py ~/i3d/train_i3d/experiments/ucf-101/models/ucf_i3d_pretrained_01_100/model.ckpt ~/datasets/UCF-101/listFiles/trainlist01_100.list
+```
 
 
 ToDo: 
