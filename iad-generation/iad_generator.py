@@ -3,8 +3,8 @@
 # 8/29/2019
 
 #import c3d as model
-import c3d_large as model
-#import i3d_wrapper as model
+#import c3d_large as model
+import i3d_wrapper as model
 
 import os, sys
 
@@ -64,7 +64,7 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length )
-	
+
 	# define model
 	activation_map, saver = model.load_model(input_placeholder)
 	
@@ -73,22 +73,22 @@ def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 		activation_map[layer] = tf.reduce_max(activation_map[layer], axis = (2,3))
 		activation_map[layer] = tf.squeeze(activation_map[layer])
 		activation_map[layer] = tf.transpose(activation_map[layer])
-
+	
 	gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.9)#.25
 	with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
 		# initialize model variables to those in the described checkpoint file
 		ckpt = tf.train.get_checkpoint_state(FLAGS.model_file)
 		if ckpt and ckpt.model_checkpoint_path:
-			print("loading checkpoint %s,waiting......" % ckpt.model_checkpoint_path)
+			print("loading checkpoint directory: "+ckpt.model_checkpoint_path)
 			saver.restore(sess, ckpt.model_checkpoint_path)
-			print("load complete!")
 		elif os.path.exists(FLAGS.model_file):
 			print("loading checkpoint file: "+FLAGS.model_file)
 			saver.restore(sess, FLAGS.model_file)	
 		else:
 			print("Failed to Load model: "+FLAGS.model_file)
 			sys.exit(1)
+		print("load complete!")
 
 		# prevent further modification to the graph
 		sess.graph.finalize()

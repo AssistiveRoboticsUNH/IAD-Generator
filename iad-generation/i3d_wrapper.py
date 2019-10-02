@@ -27,6 +27,7 @@ def obtain_files(directory_file):
 
     if(file_length > max_length):
       max_length = file_length
+      print("new longest:", filename, file_length)
 
     line = ifile.readline()
 
@@ -144,6 +145,6 @@ def load_model(input_ph):
   activation_maps = generate_activation_map(input_ph)
 
   variable_name_list = get_variables()
-  saver = tf.train.Saver(variable_name_list.values())
+  saver = tf.train.Saver(variable_name_list.values(), reshape=True)
 
   return activation_maps, saver
