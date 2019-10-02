@@ -39,16 +39,17 @@ The iad_generation code will output IADs into a directory listed by the --dst_di
 python iad_generator.py <model name> test <.list file> --dst_directory <output directory> --min_max_file <output directory/min_maxes.npy>
 ```
 
+Note: you will need to update line 7 to specifiy whether you are using C3 D or I3D. 
+
 ### Evaluating IADs
 Having generated IADs for both the training and test dataset you can evaluate them using the following codes. If the dataset is particulalry small you should be able to fit the entire ensmeble into memory. You can do so using this code.
 ```
-run code
+python ensemble.py <model> <num_classes> <iad_dir> <prefix> <window_length>
 ```
-If your IADs are particualrly large however you may want to separate the ensemble into its component parts for trainign and evaluating. To do so run this code.
+The purpose of the parameters is described by running with the -h parameter. If your IADs are particualrly large however you may want to separate the ensemble into its component parts for trainign and evaluating. To do so run this code.
 ```
-run code
+python ensemble_separate.py <model> <num_classes> <iad_dir> <prefix> <window_length>
 ```
-
 
 ToDo: 
 - [x] Write ReadMe file
