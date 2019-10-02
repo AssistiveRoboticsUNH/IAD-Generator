@@ -1,5 +1,17 @@
 # IAD-Generator
-Convert videos into IADs
+The provided files allow for the generation and evaluation of Interval Algebraic Descriptors (IADs). IADs are generated from contemporary 3D-CNN architectures, we specifically focused on C3D and I3D. The generated IADs were evaluated using an ensemble model which we provide.
+
+# Installation
+
+
+
+# Training C3D/I3D
+
+
+# Generating IADs
+
+
+# Evaluating IADs
 
 To execute run: python iad_gen.py
 
