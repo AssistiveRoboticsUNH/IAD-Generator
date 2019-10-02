@@ -47,6 +47,6 @@ run code
 
 
 ToDo: 
-[x] Write ReadMe file
-[] provide examples
-[] elaborate different C3D/I3D implementations
+- [x] Write ReadMe file
+- [] provide examples
+- [] elaborate different C3D/I3D implementations
