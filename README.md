@@ -16,17 +16,17 @@ The [UCF-101](https://www.crcv.ucf.edu/data/UCF101.php) dataset and the [HMDB-51
 Generating IADs occurs in several steps. In our system we evaluated I3D using pre-trained ImageNet features and so we omit the training descriptions for that network.
 
 ### Training C3D
-If training the network using C3D first move the contents of the provided "caffe3d" folder into the caffe3d/examples/directory of the provided C3D implementation. To train the C3D network run the following code:
+If training the network using C3D first move the contents of the provided "caffe3d" folder into the caffe3d/examples/directory of the provided C3D implementation. To train the C3D network go to the directory with the caffe build code and run the following code:
 ```
-run code
+./train.sh
 ```
 You can evaluate the code using 
 ```
-run code
+./test.sh
 ```
-Having trained the network in caffe you must convert the saved model to a tensorlfow interpretable format. Runn the given command to do so
+Having trained the network in caffe you must convert the saved model to a tensorlfow interpretable format. Change to the convert_caffe_to_tf directory and run the given command to do so
 ```
-run code
+python unpack_caffe_model.py <caffe_model> <num_classes> <dst_location>
 ```
 
 ### Generating IADs
