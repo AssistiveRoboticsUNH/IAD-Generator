@@ -2,14 +2,11 @@
 # iad_generator.py
 # 8/29/2019
 
-<<<<<<< HEAD
-import c3d as model
-from feature_rank_utils import order_feature_ranks
-=======
+
 #import c3d as model
-import c3d_large as model
-#import i3d_wrapper as model
->>>>>>> master
+#import c3d_large as model
+import i3d_wrapper as model
+from feature_rank_utils import order_feature_ranks
 
 import os, sys
 
@@ -24,9 +21,9 @@ parser.add_argument('prefix', help='"train" or "test"')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
 
 #optional command line args
-<<<<<<< HEAD
-parser.add_argument('--prefix', nargs='?', type=str, default="complete", help='the prefix to place infront of finished files <prefix>_<layer>.npz')
 parser.add_argument('--dst_directory', nargs='?', type=str, default='generated_iads/', help='where the IADs should be stored')
+parser.add_argument('--gpu', default="1", help='gpu to run on')
+parser.add_argument('--c', type=bool, default=False, help='combine files')
 #test dataset command line args
 parser.add_argument('--min_max_file', nargs='?', type=str, default=None, help='max and minimum values')
 parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
@@ -34,16 +31,6 @@ parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='lengt
 parser.add_argument('--feature_rank_file', nargs='?', type=str, default=None, help='a file containing the rankings of the features')
 parser.add_argument('--feature_remove_count', nargs='?', type=int, default=0, help='the number of features to remove')
 
-=======
-
-parser.add_argument('--min_max_file', nargs='?', default=None, help='max and minimum values')
-parser.add_argument('--features_file', nargs='?', default=None, help='which features to keep')
-parser.add_argument('--dst_directory', nargs='?', default='generated_iads/', help='where the IADs should be stored')
-parser.add_argument('--pad_length', type=int, nargs='?', default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
-
-parser.add_argument('--gpu', default="1", help='gpu to run on')
-parser.add_argument('--c', type=bool, default=False, help='combine files')
->>>>>>> master
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
@@ -81,11 +68,7 @@ def convert_to_iad(data, label, file, min_max_vals, update_min_maxes, length_rat
 def convert_dataset_to_iad(list_of_files, min_max_vals, update_min_maxes):
 	
 	# define placeholder
-<<<<<<< HEAD
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
-=======
-	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length )
->>>>>>> master
 	
 	# define model
 	activation_map, saver = model.load_model(input_placeholder)
@@ -231,13 +214,10 @@ def make_iadlist_file(list_of_files):
 if __name__ == '__main__':
 	
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
-<<<<<<< HEAD
-=======
 	#list_of_files_and_labels = list_of_files_and_labels[:3]
 
 	print("list_of_files_and_labels:", len(list_of_files_and_labels))
 	print("max_frame_length:", max_frame_length)
->>>>>>> master
 
 	if(not os.path.exists(FLAGS.dst_directory)):
 		os.makedirs(FLAGS.dst_directory)
@@ -260,19 +240,15 @@ if __name__ == '__main__':
 	
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
-<<<<<<< HEAD
 
-	prune_locs = get_features_to_prune(FLAGS.feature_rank_file, FLAGS.feature_remove_count)
+	if(FLAGS.feature_rank_file):
+		prune_locs = get_features_to_prune(FLAGS.feature_rank_file, FLAGS.feature_remove_count)
 
-	combine_npy_files(list_of_files_and_labels, prune_locs)
-	clean_up_npy_files(list_of_files_and_labels)
-=======
 	if(FLAGS.c):
 		combine_npy_files(list_of_files_and_labels)
 		clean_up_npy_files(list_of_files_and_labels)
 	else:
 		make_iadlist_file(list_of_files_and_labels)
->>>>>>> master
 
 	#summarize operations
 	print("--------------")
@@ -283,10 +259,9 @@ if __name__ == '__main__':
 	print("Longest video sequence in file list: {0}".format(max_frame_length))
 	print("Files place in: {0}".format(FLAGS.dst_directory))
 	print("Min/Max File was Saved: {0}".format(update_min_maxes))
-<<<<<<< HEAD
 
-	print("Removed Features:")
-	for i in range(len(prune_locs)):
-		print("\tremoved {0} features from layer {1}".format(len(prune_locs[i]), i))
-=======
->>>>>>> master
+	if(FLAGS.feature_rank_file):
+		print("Removed Features:")
+		for i in range(len(prune_locs)):
+			print("\tremoved {0} features from layer {1}".format(len(prune_locs[i]), i))
+
