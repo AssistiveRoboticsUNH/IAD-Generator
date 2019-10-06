@@ -24,10 +24,6 @@ if(FLAGS.pad_length < 0):
 	FLAGS.pad_length = max_frame_length
 input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
 	
-# define model
-variable_name_list = model.get_variables()
-saver = tf.train.Saver(variable_name_list.values())
-
 @tf.custom_gradient
 def rank_layer(x):
 	def grad(dy):
@@ -64,6 +60,10 @@ def generate_full_model(input_ph):
 # the order that the rankings are presented.
 _ = generate_full_model(input_placeholder)
 ranks_out = ranks_out[::-1]
+
+# define restore variables
+variable_name_list = model.get_variables()
+saver = tf.train.Saver(variable_name_list.values())
 
 total_ranks = None
 
