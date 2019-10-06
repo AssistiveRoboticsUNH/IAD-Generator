@@ -5,7 +5,6 @@ import tensorflow as tf
 import numpy as np 
 
 import i3d_wrapper as model
-from file_reader import obtain_files, read_file
 
 import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
@@ -20,7 +19,7 @@ FLAGS = parser.parse_args()
 
 #set up input files
 batch_size=1
-list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
+list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
 if(FLAGS.pad_length < 0):
 	FLAGS.pad_length = max_frame_length
 input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
@@ -90,7 +89,7 @@ with tf.Session() as sess:
 
 		file, label = list_of_files_and_labels[i]
 
-		raw_data, length_ratio = read_file(file, input_placeholder)
+		raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 		r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})
 		if(total_ranks == None):
