@@ -228,10 +228,17 @@ def model_def(num_classes, data_shapes, layer=-1):
 def model_consensus(confidences):
     """Generate a weighted average over the composite models"""
     confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
+    print("conf_strt:", confidences.shape)
 
     confidences = confidences * confidence_discount_layer
-    confidences = np.sum(confidences, axis=2)
-    return np.argmax(confidences)
+    print("conf_shape:", confidences.shape)
+
+    confidences = np.sum(confidences, axis=(2,3))
+    print("conf_sum:", confidences.shape)
+
+    maxes = np.argmax(confidences, axis=1)
+    print("conf_max:", maxes.shape)
+    return maxes
 
 ##############################################
 # Train/Test Functions
@@ -314,6 +321,7 @@ def test_model(model_name, num_classes, test_data):
     total_class = np.zeros(num_classes, dtype=np.float32)
 
     aggregated_confidences = []
+    aggregated_labels = []
 
     for layer in range(6):
 
@@ -351,6 +359,8 @@ def test_model(model_name, num_classes, test_data):
                     ], feed_dict=batch_data)
 
                     aggregated_confidences[i].append(confidences)
+                    if(layer == 0):
+                    	aggregated_labels.append(label)
 
                     #print("predictions:", predictions)
 
@@ -359,18 +369,20 @@ def test_model(model_name, num_classes, test_data):
                     model_total[layer] += 1
         tf.reset_default_graph()
 
-    for conf in aggregated_confidences:
-        conf=np.array(conf)
-        #print("conf1:", conf.shape)
-        #conf = np.mean(conf, axis=0)
-        conf = np.transpose(conf, [2, 1, 0])
-        #print("conf2:", conf.shape)
-        ensemble_prediction = model_consensus(conf)
+    aggregated_confidences=np.array(aggregated_confidences)
+    aggregated_confidences = np.transpose(aggregated_confidences, [0, 3, 2, 1])
+    ensemble_prediction = model_consensus(aggregated_confidences)
 
-        #check if ensemble is correct
-        if(ensemble_prediction == label):
+    print("aggregated_labels: ", aggregated_labels)
+    print("aggregated_confidences: ", aggregated_confidences.shape)
+
+    for i in range(len(aggregated_confidences)):
+    	label = aggregated_labels[i]
+
+
+    	if(ensemble_prediction[i] == label):
             correct_class[label] += 1
-        total_class[label] += 1
+        total_class[label] += 1    
                 
     # print partial model's cummulative accuracy
     print("Model accuracy: ")
