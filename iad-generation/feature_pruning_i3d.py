@@ -44,11 +44,7 @@ def rank_layer(x):
 # add ranking layer to model
 ranks_out = []
 def generate_full_model(input_ph):
-	is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
-	with tf.variable_scope('RGB'):
-		_, _, target_layers = i3d.InceptionI3d( num_classes=101,
-				spatial_squeeze=True,
-				final_endpoint='Logits')(input_ph, is_training)
+	target_layers = model.generate_activation_map(input_ph)
 
 	for l in range(len(target_layers)):
 		target_layers[l] = rank_layer(target_layers[l])
