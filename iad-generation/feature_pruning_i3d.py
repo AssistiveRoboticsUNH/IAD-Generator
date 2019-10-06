@@ -59,8 +59,7 @@ ranks_out = ranks_out[::-1]
 
 # define restore variables
 variable_name_list = model.get_variables()
-print("variable_name_list: ", variable_name_list.keys())
-saver = tf.train.Saver(variable_name_list.values())
+saver = tf.train.Saver(variable_name_list.values(), resize=True)
 
 total_ranks = None
 
