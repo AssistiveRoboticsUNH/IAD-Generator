@@ -59,11 +59,13 @@ ranks_out = ranks_out[::-1]
 
 # define restore variables
 variable_name_list = model.get_variables()
+print("variable_name_list: ", variable_name_list.keys())
 saver = tf.train.Saver(variable_name_list.values())
 
 total_ranks = None
 
 with tf.Session() as sess:
+
 	sess.run(tf.global_variables_initializer())
 
 	# Restore from file checkpoint
@@ -78,6 +80,8 @@ with tf.Session() as sess:
 	else:
 		print("Failed to Load model: "+FLAGS.model_file)
 		sys.exit(1)
+
+	sess.graph.finalize()
 
 	# parse each file in the input directory through the network to get the node ranks
 	for i in range(len(list_of_files_and_labels)):
