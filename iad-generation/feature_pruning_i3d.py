@@ -91,6 +91,7 @@ with tf.Session() as sess:
 		raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 		r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})
+		print(r)
 		if(total_ranks == None):
 			total_ranks = r
 		else:
