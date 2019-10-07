@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+
 
 #https://jacobgil.github.io/deeplearning/pruning-deep-learning
 
@@ -33,9 +38,7 @@ input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad
 
 
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+
 
 import sonnet as snt
 
