@@ -117,7 +117,19 @@ total_ranks = None
 
 with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
-	saver.restore(sess, FLAGS.model_file)
+	
+	# Restore from file checkpoint
+	ckpt = tf.train.get_checkpoint_state(FLAGS.model_file)
+	if ckpt and ckpt.model_checkpoint_path:
+		print("loading checkpoint %s,waiting......" % ckpt.model_checkpoint_path)
+		saver.restore(sess, ckpt.model_checkpoint_path)
+		print("load complete!")
+	elif os.path.exists(FLAGS.model_file):
+		print("loading checkpoint file: "+FLAGS.model_file)
+		saver.restore(sess, FLAGS.model_file)	
+	else:
+		print("Failed to Load model: "+FLAGS.model_file)
+		sys.exit(1)
 
 	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
 
