@@ -9,7 +9,7 @@ from __future__ import print_function
 import tensorflow as tf 
 import numpy as np 
 
-#import i3d_wrapper as model
+import i3d_wrapper as model
 
 import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
