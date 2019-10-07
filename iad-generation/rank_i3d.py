@@ -29,7 +29,7 @@ import sonnet as snt
 import tensorflow as tf
 
 @tf.custom_gradient
-def rank_layer(x, rank_out):
+def rank_layer(x):
   def grad(dy):
 
     #calculate the rank
