@@ -9,8 +9,7 @@ from __future__ import print_function
 import tensorflow as tf 
 import numpy as np 
 
-import rank_i3d as i3d
-import i3d_wrapper as model
+#import i3d_wrapper as model
 
 import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
@@ -545,18 +544,18 @@ class InceptionI3d(snt.AbstractModule):
 def generate_full_model(input_ph):
 	is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
 	with tf.variable_scope('RGB'):
-		logits, _, target_layers, ranks_out = i3d.InceptionI3d( num_classes=101,
+		logits, _, target_layers = i3d.InceptionI3d( num_classes=101,
 				spatial_squeeze=True,
 				final_endpoint='Logits')(input_ph, is_training)
-	return logits, ranks_out
+	return logits
 
 
 # generate the ranking tensors. These tensors are only generated when the 
 # gradients function is called and they are added in reverse, so I rotate
 # the order that the rankings are presented.
-pred_op, ranks_out = generate_full_model(input_placeholder)
+pred_op = generate_full_model(input_placeholder)
 gradients = tf.gradients(pred_op, input_placeholder)
-ranks_out = ranks_out[::-1]
+rank_out = rank_out[::-1]
 
 # define restore variables
 variable_name_list = model.get_variables()
@@ -591,7 +590,7 @@ with tf.Session() as sess:
 
 		raw_data, length_ratio = model.read_file(file, input_placeholder)
 
-		r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})
+		r = sess.run([rank_out], feed_dict={input_placeholder: raw_data})
 		print(r)
 		if(total_ranks == None):
 			total_ranks = r
