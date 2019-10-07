@@ -544,7 +544,7 @@ class InceptionI3d(snt.AbstractModule):
 def generate_full_model(input_ph):
 	is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
 	with tf.variable_scope('RGB'):
-		logits, _, target_layers = i3d.InceptionI3d( num_classes=101,
+		logits, _, target_layers = InceptionI3d( num_classes=101,
 				spatial_squeeze=True,
 				final_endpoint='Logits')(input_ph, is_training)
 	return logits
