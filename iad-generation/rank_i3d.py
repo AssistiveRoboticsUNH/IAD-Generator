@@ -157,7 +157,7 @@ class InceptionI3d(snt.AbstractModule):
     self._spatial_squeeze = spatial_squeeze
     self._final_endpoint = final_endpoint
 
-    self._rank_out = []
+    self.rank_out = []
 
   def _build(self, inputs, is_training, dropout_keep_prob=1.0):
     """Connects the model to inputs.
