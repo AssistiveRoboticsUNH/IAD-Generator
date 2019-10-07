@@ -65,7 +65,7 @@ def generate_full_model(input_ph):
 	return target_layers
 
 '''
-def generate_full_model(input_ph)
+def generate_full_model(input_ph):
 	is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
 	with tf.variable_scope('RGB'):
 		logits, _, target_layers, ranks_out = i3d.InceptionI3d( num_classes=101,
