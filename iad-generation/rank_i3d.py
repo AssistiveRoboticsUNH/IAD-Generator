@@ -40,7 +40,7 @@ def rank_layer(x, rank_out):
     norm_term = tf.cast(tf.reduce_prod(tf.shape(x)[:-1]), tf.float32)
     ranks = tf.math.divide(ranks, norm_term) 
 
-    ranks_out.append(ranks)
+    rank_out.append(ranks)
 
     return dy
   return tf.identity(x), grad
