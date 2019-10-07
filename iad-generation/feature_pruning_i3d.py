@@ -46,7 +46,9 @@ ranks_out = []
 def generate_full_model(input_ph):
 	target_layers = model.generate_activation_map(input_ph)
 
+	print("adding rank layers")
 	for l in range(len(target_layers)):
+		print("adding rank layer: ", l)
 		target_layers[l] = rank_layer(target_layers[l])
 
 	return target_layers
