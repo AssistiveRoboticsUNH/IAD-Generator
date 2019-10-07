@@ -4,6 +4,7 @@
 import tensorflow as tf 
 import numpy as np 
 
+import rank_i3d as i3d
 import i3d_wrapper as model
 
 import argparse
@@ -23,7 +24,8 @@ list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_fi
 if(FLAGS.pad_length < 0):
 	FLAGS.pad_length = max_frame_length
 input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
-	
+
+'''
 @tf.custom_gradient
 def rank_layer(x):
 	def grad(dy):
@@ -41,9 +43,18 @@ def rank_layer(x):
 		return dy
 	return tf.identity(x), grad
 
+
 # add ranking layer to model
 ranks_out = []
 def generate_full_model(input_ph):
+	is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
+	with tf.variable_scope('RGB'):
+		logits, _, target_layers = rank_i3d.InceptionI3d( num_classes=101,
+				spatial_squeeze=True,
+				final_endpoint='Logits')(input_ph, is_training)
+
+
+
 	target_layers = model.generate_activation_map(input_ph)
 
 	print("adding rank layers")
@@ -53,10 +64,21 @@ def generate_full_model(input_ph):
 
 	return target_layers
 
+'''
+def generate_full_model(input_ph)
+	is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
+	with tf.variable_scope('RGB'):
+		logits, _, target_layers, ranks_out = i3d.InceptionI3d( num_classes=101,
+				spatial_squeeze=True,
+				final_endpoint='Logits')(input_ph, is_training)
+	return logits, ranks_out
+
+
 # generate the ranking tensors. These tensors are only generated when the 
 # gradients function is called and they are added in reverse, so I rotate
 # the order that the rankings are presented.
-_ = generate_full_model(input_placeholder)
+pred_op, ranks_out = generate_full_model(input_placeholder)
+gradients = tf.gradients(pred_op, input_placeholder)
 ranks_out = ranks_out[::-1]
 
 # define restore variables
