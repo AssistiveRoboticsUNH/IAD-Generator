@@ -6,7 +6,6 @@
 #import c3d as model
 #import c3d_large as model
 import i3d_wrapper as model
-from feature_rank_utils import order_feature_ranks
 
 import os, sys
 
@@ -27,9 +26,6 @@ parser.add_argument('--c', type=bool, default=False, help='combine files')
 #test dataset command line args
 parser.add_argument('--min_max_file', nargs='?', type=str, default=None, help='max and minimum values')
 parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
-#feature pruning command line args
-parser.add_argument('--feature_rank_file', nargs='?', type=str, default=None, help='a file containing the rankings of the features')
-parser.add_argument('--feature_remove_count', nargs='?', type=int, default=0, help='the number of features to remove')
 
 FLAGS = parser.parse_args()
 
@@ -136,7 +132,7 @@ def normalize_dataset(list_of_files, min_max_vals):
 					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
 
 			np.savez(filename, data=data, label=label, length=length)
-
+"""
 def get_features_to_prune(feature_rank_file, num_features_to_remove):
 	#initalize array
 	prune_locs = []
@@ -157,7 +153,7 @@ def get_features_to_prune(feature_rank_file, num_features_to_remove):
 		prune_locs[i] = np.array(prune_locs[i])
 
 	return prune_locs
-
+"""
 def combine_npy_files(list_of_files, prune_locs=None):
 	# combine all of the IADs from a specific depth together
 	for layer in range(len(model.CNN_FEATURE_COUNT)):

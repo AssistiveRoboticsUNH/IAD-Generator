@@ -10,6 +10,24 @@ def order_feature_ranks(file):
 
 	return depth[order], index[order], rank[order]
 
+def get_top_n_feature_indexes(file, n):
+	# open file
+	f = np.load(file, allow_pickle=True)
+	depth, index, rank = f["depth"], f["index"], f["rank"]
+
+	keep_indexes = []
+	for d in np.unique(depth):
+
+		locs = np.argwhere(depth == d)
+		d_sub, i_sub, r_sub = depth[locs], index[locs], rank[locs]
+
+		order = r_sub.reshape(-1).argsort()
+		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
+
+		keep_indexes.append(i_sub[:n].reshape(-1))
+
+	return keep_indexes
+
 def view_feature_rankings(file):
 	depth, index, rank = order_feature_ranks(file)
 

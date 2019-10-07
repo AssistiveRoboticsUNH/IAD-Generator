@@ -26,6 +26,10 @@ parser.add_argument('prefix', help='"train" or "test"')
 parser.add_argument('window_length', type=int, help='the size of the window. If left unset then the entire IAD is fed in at once. \
                                                                     If the window is longer than the video then we pad to the IADs to that length')
 
+#feature pruning command line args
+parser.add_argument('--feature_rank_file', nargs='?', type=str, default=None, help='a file containing the rankings of the features')
+parser.add_argument('--feature_retain_count', nargs='?', type=int, default=-1, help='the number of features to remove')
+
 parser.add_argument('--gpu', default="0", help='gpu to run on')
 parser.add_argument('--v', default=False, help='verbose')
 
@@ -34,7 +38,14 @@ args = parser.parse_args()
 input_shape_c3d = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (256, args.window_length/4), (256, args.window_length/8)]
 input_shape_c3d_large = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (512, args.window_length/4), (512, args.window_length/8)]
 input_shape_i3d = [(64, args.window_length/2), (192, args.window_length/2), (480, args.window_length/2), (832, args.window_length/4), (1024, args.window_length/8)]
-input_shape = input_shape_i3d#input_shape_c3d_large
+
+input_shape_fp = [(min(64, args.feature_retain_count), args.window_length/2), 
+                    (min(192, args.feature_retain_count), args.window_length/2), 
+                    (min(480, args.feature_retain_count), args.window_length/2), 
+                    (min(832, args.feature_retain_count), args.window_length/4), 
+                    (min(1024, args.feature_retain_count), args.window_length/8)]
+
+input_shape = input_shape_fp#input_shape_c3d_large
 
 print(np.sum([x[0]*x[1] for x in input_shape_c3d]), np.sum([x[0]*x[1] for x in input_shape_c3d_large]))
 
@@ -80,7 +91,7 @@ def parse_iadlist(iad_dir, prefix):
         line = ifile.readline()
     return iad_groups
 
-def open_and_org_file(filename_group):
+def open_and_org_file(filename_group, pruning_keep_indexes=None):
     '''Open all of the files in the filename_group (an array of filenames). Then format and shape the IADs within'''
     file_data = []
 
@@ -89,6 +100,11 @@ def open_and_org_file(filename_group):
         
         f = np.load(filename)
         d, label, z = f["data"], f["label"], f["length"]
+
+        # prune irrelevant features
+        if(pruning_keep_indexes != None):
+            idx = pruning_keep_indexes[layer]
+            d = d[idx]
 
         #break d in to chuncks of window size
         window_size = input_shape[layer][1]
@@ -99,13 +115,12 @@ def open_and_org_file(filename_group):
         file_data.append(d)
 
     #append the flattened and merged IAD
-    
     flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
     file_data.append(flat_data)
 
     return file_data, np.array([int(label)])
 
-def get_data_train(iad_list):
+def get_data_train(iad_list, pruning_keep_indexes=None):
     '''Randomly select a batch of IADs, if using windows smaller than the input the select a window that will capture the data'''
     
     batch_data = []
@@ -117,7 +132,7 @@ def get_data_train(iad_list):
     batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
 
     for index in batch_indexs:
-        file_data, label = open_and_org_file(iad_list[index])
+        file_data, label = open_and_org_file(iad_list[index], pruning_keep_indexes)
         
         #randomly select a window from the example
         win_index = random.randint(0, file_data[0].shape[0]-1)
@@ -131,8 +146,8 @@ def get_data_train(iad_list):
 
     return batch_data, np.array(batch_label).reshape(-1)
 
-def get_data_test(iad_list, index):
-    return open_and_org_file(iad_list[index])
+def get_data_test(iad_list, index, pruning_keep_indexes=None):
+    return open_and_org_file(iad_list[index], pruning_keep_indexes)
 
 ##############################################
 # Model Structure
@@ -228,16 +243,23 @@ def model_def(num_classes, data_shapes, layer=-1):
 def model_consensus(confidences):
     """Generate a weighted average over the composite models"""
     confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
+    print("conf_strt:", confidences.shape)
 
     confidences = confidences * confidence_discount_layer
-    confidences = np.sum(confidences, axis=2)
-    return np.argmax(confidences)
+    print("conf_shape:", confidences.shape)
+
+    confidences = np.sum(confidences, axis=(2,3))
+    print("conf_sum:", confidences.shape)
+
+    maxes = np.argmax(confidences, axis=1)
+    print("conf_max:", maxes.shape)
+    return maxes
 
 ##############################################
 # Train/Test Functions
 ##############################################
 
-def train_model(model_name, num_classes, train_data, test_data):
+def train_model(model_name, num_classes, train_data, test_data, pruning_keep_indexes=None):
 
     # get the shape of the flattened and merged IAD and append
     data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
@@ -259,7 +281,7 @@ def train_model(model_name, num_classes, train_data, test_data):
             for i in range(num_iter):
             # setup training batch
 
-                data, label = get_data_train(train_data)
+                data, label = get_data_train(train_data, pruning_keep_indexes)
             
                 batch_data = {}
                 for d in range(6):
@@ -283,7 +305,7 @@ def train_model(model_name, num_classes, train_data, test_data):
                     #    print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
 
                     # evaluate test network
-                    data, label = get_data_train(test_data)
+                    data, label = get_data_train(test_data, pruning_keep_indexes)
                 
                     batch_data = {}
                     for d in range(6):
@@ -293,7 +315,7 @@ def train_model(model_name, num_classes, train_data, test_data):
                     batch_data[ph["train"]] = False
 
                     correct_prediction = sess.run([ops['model_preds']], feed_dict=batch_data)
-                    correct, total = np.sum(correct_prediction), len(correct_prediction[0])
+                    correct, total = np.sum(correct_prediction[0] == label), len(correct_prediction[0] == label)
 
                     print("test_accuracy: {0}, correct: {1}, total: {2}".format(correct / float(total), correct, total))
 
@@ -301,7 +323,7 @@ def train_model(model_name, num_classes, train_data, test_data):
             print("Final model saved in %s" % saver.save(sess, model_name+'_'+str(layer)))
         tf.reset_default_graph()
 
-def test_model(model_name, num_classes, test_data):
+def test_model(model_name, num_classes, test_data, pruning_keep_indexes=None):
 
     # get the shape of the flattened and merged IAD and append
     test_batch_size = 1
@@ -314,6 +336,7 @@ def test_model(model_name, num_classes, test_data):
     total_class = np.zeros(num_classes, dtype=np.float32)
 
     aggregated_confidences = []
+    aggregated_labels = []
 
     for layer in range(6):
 
@@ -331,7 +354,7 @@ def test_model(model_name, num_classes, test_data):
 
             num_iter = len(test_data)
             for i in range(num_iter):
-                data, label = get_data_test(test_data, i)
+                data, label = get_data_test(test_data, i, pruning_keep_indexes)
                 label = int(label[0])
                 
                 if(layer == 0):
@@ -351,6 +374,8 @@ def test_model(model_name, num_classes, test_data):
                     ], feed_dict=batch_data)
 
                     aggregated_confidences[i].append(confidences)
+                    if(layer == 0):
+                        aggregated_labels.append(label)
 
                     #print("predictions:", predictions)
 
@@ -359,18 +384,20 @@ def test_model(model_name, num_classes, test_data):
                     model_total[layer] += 1
         tf.reset_default_graph()
 
-    for conf in aggregated_confidences:
-        conf=np.array(conf)
-        #print("conf1:", conf.shape)
-        #conf = np.mean(conf, axis=0)
-        conf = np.transpose(conf, [2, 1, 0])
-        #print("conf2:", conf.shape)
-        ensemble_prediction = model_consensus(conf)
+    aggregated_confidences=np.array(aggregated_confidences)
+    aggregated_confidences = np.transpose(aggregated_confidences, [0, 3, 2, 1])
+    ensemble_prediction = model_consensus(aggregated_confidences)
 
-        #check if ensemble is correct
-        if(ensemble_prediction == label):
+    print("aggregated_labels: ", aggregated_labels)
+    print("aggregated_confidences: ", aggregated_confidences.shape)
+
+    for i in range(len(aggregated_confidences)):
+        label = aggregated_labels[i]
+
+
+        if(ensemble_prediction[i] == label):
             correct_class[label] += 1
-        total_class[label] += 1
+        total_class[label] += 1    
                 
     # print partial model's cummulative accuracy
     print("Model accuracy: ")
@@ -388,21 +415,28 @@ def test_model(model_name, num_classes, test_data):
     np.save("classes.npy",  correct_class / total_class)
 
 
-
 if __name__ == "__main__":
     """Determine if the user has specified training or testing and run the appropriate function."""
     
+    #get pruning_keep_indexes
+    pruning_keep_indexes = None
+    if(args.feature_rank_file):
+        sys.path.append("../iad-generation/")
+        from feature_rank_utils import get_top_n_feature_indexes
+        pruning_keep_indexes = get_top_n_feature_indexes(args.feature_rank_file, args.feature_retain_count)
+
+    #start training/testing
     if args.prefix == TRAIN_PREFIX:
         print("----> TRAINING")
         BATCH_SIZE = 15
         train_dataset = parse_iadlist(args.iad_dir, TRAIN_PREFIX)
         eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)
-        train_model(args.model, args.num_classes, train_dataset, eval_dataset)
+        train_model(args.model, args.num_classes, train_dataset, eval_dataset, pruning_keep_indexes=pruning_keep_indexes)
     elif args.prefix == TEST_PREFIX:
         print("----> TESTING")
         BATCH_SIZE = 1
         eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)
-        test_model(args.model, args.num_classes, eval_dataset)
+        test_model(args.model, args.num_classes, eval_dataset, pruning_keep_indexes=pruning_keep_indexes)
     else:
         print('"prefix must be either "train" or "test"')
         sys.exit(1)
