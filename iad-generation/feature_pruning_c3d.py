@@ -2,7 +2,6 @@ import tensorflow as tf
 import numpy as np 
 
 import c3d as model
-from file_reader import obtain_files, read_file
 
 import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
@@ -120,14 +119,14 @@ with tf.Session() as sess:
 	sess.run(tf.global_variables_initializer())
 	saver.restore(sess, FLAGS.model_file)
 
-	list_of_files_and_labels, max_frame_length = obtain_files(FLAGS.dataset_file)
+	list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
 
 	for i in range(len(list_of_files_and_labels)):
 		print("file: {:6d}/{:6d}".format(i, len(list_of_files_and_labels)))
 
 		file, label = list_of_files_and_labels[i]
 
-		raw_data, length_ratio = read_file(file, input_placeholder)
+		raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 		r = sess.run([ranks_out], feed_dict={input_placeholder: raw_data})
 		print(r)
