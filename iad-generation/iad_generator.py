@@ -256,8 +256,9 @@ if __name__ == '__main__':
 	print("Files place in: {0}".format(FLAGS.dst_directory))
 	print("Min/Max File was Saved: {0}".format(update_min_maxes))
 
+	'''
 	if(FLAGS.feature_rank_file):
 		print("Removed Features:")
 		for i in range(len(prune_locs)):
 			print("\tremoved {0} features from layer {1}".format(len(prune_locs[i]), i))
-
+	'''
