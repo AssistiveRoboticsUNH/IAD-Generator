@@ -237,8 +237,8 @@ if __name__ == '__main__':
 	convert_dataset_to_iad(list_of_files_and_labels, min_max_vals, update_min_maxes)
 	normalize_dataset(list_of_files_and_labels, min_max_vals)
 
-	if(FLAGS.feature_rank_file):
-		prune_locs = get_features_to_prune(FLAGS.feature_rank_file, FLAGS.feature_remove_count)
+	#if(FLAGS.feature_rank_file):
+	#	prune_locs = get_features_to_prune(FLAGS.feature_rank_file, FLAGS.feature_remove_count)
 
 	if(FLAGS.c):
 		combine_npy_files(list_of_files_and_labels)
