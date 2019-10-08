@@ -10,6 +10,7 @@ import tensorflow as tf
 import numpy as np 
 
 import i3d_wrapper as model
+import os
 
 import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
@@ -17,10 +18,13 @@ parser = argparse.ArgumentParser(description='Generate IADs from input files')
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
 
+parser.add_argument('--gpu', default="1", help='gpu to run on')
 parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 parser.add_argument('--output_file', nargs='?', default="feature_ranks.npz", help='the output file')
 
 FLAGS = parser.parse_args()
+
+os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
 #set up input files
 batch_size=1
@@ -610,7 +614,6 @@ rank = np.concatenate(rank)
 
 np.savez(FLAGS.output_file, depth=depth, index=index, rank=rank)
 
-from feature_rank_utils import view_feature_rankings
-
-view_feature_rankings(FLAGS.output_file)
+#from feature_rank_utils import view_feature_rankings
+#view_feature_rankings(FLAGS.output_file)
 
