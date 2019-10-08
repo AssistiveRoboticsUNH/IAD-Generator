@@ -45,7 +45,7 @@ input_shape_fp = [(min(64, args.feature_retain_count), args.window_length/2),
                     (min(832, args.feature_retain_count), args.window_length/4), 
                     (min(1024, args.feature_retain_count), args.window_length/8)]
 
-input_shape = input_shape_fp#input_shape_c3d_large
+input_shape = input_shape_i3d#input_shape_c3d_large
 
 print(np.sum([x[0]*x[1] for x in input_shape_c3d]), np.sum([x[0]*x[1] for x in input_shape_c3d_large]))
 
