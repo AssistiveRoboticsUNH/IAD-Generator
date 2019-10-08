@@ -144,6 +144,6 @@ def load_model(input_ph):
   activation_maps = generate_activation_map(input_ph)
 
   variable_name_list = get_variables()
-  saver = tf.train.Saver(variable_name_list.values())
+  saver = tf.train.Saver(variable_name_list.values(), reshape=True)
 
   return activation_maps, saver
