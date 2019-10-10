@@ -3,7 +3,8 @@ import csv
 def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 
 	with open(csv_filename, 'w') as csvfile:
-		writer = csv.DictWriter(csvfile, fieldnames=['label_name', 'example_id', 'label', 'dataset_id'])
+		writer = csv.DictWriter(csvfile, 
+			fieldnames=['label_name', 'example_id', 'label', 'dataset_id', 'length'])
 
 		writer.writeheader()
 
@@ -20,8 +21,15 @@ def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 			# assign dataset_id
 			dataset_id = (i%4) + 1
 
+			# determine length
+			length = len(os.listdir(filename))
+
 			# write to CSV
-			writer.writerow({'label_name': label_name, 'example_id': example_id, 'label':label, 'dataset_id':dataset_id})
+			writer.writerow({'label_name': label_name, 
+							'example_id': example_id, 
+							'label':label, 
+							'dataset_id':dataset_id,
+							'length':length})
 
 		for i, line in enumerate( list(open(testlist_filename, 'r')) ):
 
@@ -36,11 +44,32 @@ def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 			# assign dataset_id
 			dataset_id = 0
 
+			# determine length
+			length = len(os.listdir(filename))
+
 			# write to CSV
-			writer.writerow({'label_name': label_name, 'example_id': example_id, 'label':label, 'dataset_id':dataset_id})
+			writer.writerow({'label_name': label_name, 
+							'example_id': example_id, 
+							'label':label, 
+							'dataset_id':dataset_id,
+							'length':length})
 
 def read_csv_file(csv_file):
-	return []
+	csv_contents = []
+
+	with open(csv_file, newline='') as csvfile:
+		reader = csv.DictReader(csvfile)
+		for row in reader:
+			data = {'label_name': row['label_name'], 
+					'example_id': row['example_id'], 
+					'label':int(row['label']), 
+					'dataset_id':int(row['dataset_id']), 
+					'length':int(row['length']) }
+			csv_contents.append(data)
+	
+	return csv_contents, max_length
+
+			
 
 if __name__ == '__main__':
 	import argparse
