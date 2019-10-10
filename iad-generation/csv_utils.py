@@ -1,4 +1,4 @@
-import csv, sys
+import csv
 
 def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 
@@ -43,4 +43,13 @@ def read_csv_file(csv_file):
 	return []
 
 if __name__ == '__main__':
-	convert_list_to_csv(sys.argv[1], sys.argv[2], sys.argv[3])
+	import argparse
+	parser = argparse.ArgumentParser(description='Convert a .list file into a .csv file')
+
+	#required command line args
+	parser.add_argument('trainlist_filename', help='the .list file containing the training data')
+	parser.add_argument('testlist_filename', help='the .list file containing the test data')
+	parser.add_argument('csv_filename', help='the name of the .csv file to generate')
+	FLAGS = parser.parse_args()
+
+	convert_list_to_csv(FLAGS.trainlist_filename, FLAGS.testlist_filename, FLAGS.csv_filename)
