@@ -26,7 +26,7 @@ parser.add_argument('csv_filename', help='a csv file denoting the files in the d
 
 parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
 parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
-parser.add_argument('--gpu', default="1", help='gpu to run on')
+parser.add_argument('--gpu', default="0", help='gpu to run on')
 
 FLAGS = parser.parse_args()
 
