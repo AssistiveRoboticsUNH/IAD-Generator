@@ -14,6 +14,7 @@ import numpy as np
 
 import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
+
 #required command line args
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
 parser.add_argument('prefix', help='"train" or "test"')
@@ -23,6 +24,7 @@ parser.add_argument('dataset_file', help='the *.list file than contains the ')
 parser.add_argument('--dst_directory', nargs='?', type=str, default='generated_iads/', help='where the IADs should be stored')
 parser.add_argument('--gpu', default="1", help='gpu to run on')
 parser.add_argument('--c', type=bool, default=False, help='combine files')
+
 #test dataset command line args
 parser.add_argument('--min_max_file', nargs='?', type=str, default=None, help='max and minimum values')
 parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
