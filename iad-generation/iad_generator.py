@@ -2,6 +2,8 @@
 # iad_generator.py
 # 8/29/2019
 
+from csv_utils import read_csv
+
 
 #import c3d as model
 #import c3d_large as model
@@ -16,24 +18,22 @@ import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
 
 #required command line args
-parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
-parser.add_argument('prefix', help='"train" or "test"')
-parser.add_argument('dataset_file', help='the *.list file than contains the ')
+parser.add_argument('model_type', help='the type of model to use: I3D')
+parser.add_argument('model_filename', help='the checkpoint file to sue with the model')
 
-#optional command line args
-parser.add_argument('--dst_directory', nargs='?', type=str, default='generated_iads/', help='where the IADs should be stored')
+parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
+parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
+
+parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
 parser.add_argument('--gpu', default="1", help='gpu to run on')
-parser.add_argument('--c', type=bool, default=False, help='combine files')
-
-#test dataset command line args
-parser.add_argument('--min_max_file', nargs='?', type=str, default=None, help='max and minimum values')
-parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
 
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
 batch_size = 1
+
+
 
 def output_filename(file, layer, dirname=FLAGS.dst_directory):
 	if(dirname == ''):
@@ -257,10 +257,3 @@ if __name__ == '__main__':
 	print("Longest video sequence in file list: {0}".format(max_frame_length))
 	print("Files place in: {0}".format(FLAGS.dst_directory))
 	print("Min/Max File was Saved: {0}".format(update_min_maxes))
-
-	'''
-	if(FLAGS.feature_rank_file):
-		print("Removed Features:")
-		for i in range(len(prune_locs)):
-			print("\tremoved {0} features from layer {1}".format(len(prune_locs[i]), i))
-	'''
