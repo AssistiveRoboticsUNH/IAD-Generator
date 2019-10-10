@@ -17,10 +17,10 @@ parser = argparse.ArgumentParser(description='Generate IADs from input files')
 #required command line args
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
 parser.add_argument('dataset_file', help='the *.list file than contains the ')
+parser.add_argument('pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
+parser.add_argument('output_file', nargs='?', help='the output file')
 
 parser.add_argument('--gpu', default="1", help='gpu to run on')
-parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
-parser.add_argument('--output_file', nargs='?', default="feature_ranks.npz", help='the output file')
 
 FLAGS = parser.parse_args()
 
