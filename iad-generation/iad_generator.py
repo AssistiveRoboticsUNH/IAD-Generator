@@ -132,7 +132,7 @@ def normalize_dataset(csv_contents, min_max_vals):
 
 if __name__ == '__main__':
 	
-	csv_contents, max_frame_length = read_csv(FLAGS.csv_filename)
+	csv_contents = read_csv(FLAGS.csv_filename)
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
