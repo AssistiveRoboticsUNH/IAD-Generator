@@ -28,7 +28,21 @@ os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 
 #set up input files
 batch_size=1
-list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
+#list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
+
+csv_contents = read_csv(FLAGS.csv_filename)
+
+# get the maximum frame length among the dataset and add the 
+# full path name to the dict
+max_frame_length = 0
+filenames, labels = [],[]
+for ex in csv_contents:
+	file_location = os.path.join(ex['label_name'], ex['example_id'])
+	ex['raw_path'] = os.path.join(RAW_DATA_PATH, file_location)
+
+	if(ex['length'] > max_frame_length):
+		max_frame_length = ex['length']
+
 if(FLAGS.pad_length < 0):
 	FLAGS.pad_length = max_frame_length
 input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
@@ -565,7 +579,10 @@ rank_out = rank_out[::-1]
 variable_name_list = model.get_variables()
 saver = tf.train.Saver(variable_name_list.values(), reshape=True)
 
-total_ranks = None
+rank_groups = []
+for i in range(4):
+	rank_groups.append(None)
+
 
 with tf.Session() as sess:
 
@@ -587,32 +604,39 @@ with tf.Session() as sess:
 	sess.graph.finalize()
 
 	# parse each file in the input directory through the network to get the node ranks
-	for i in range(len(list_of_files_and_labels)):
-		print("file: {:6d}/{:6d}".format(i, len(list_of_files_and_labels)))
+	for i in range(len(csv_contents)):
+		print("file: {:6d}/{:6d}".format(i, len(csv_contents)))
 
-		file, label = list_of_files_and_labels[i]
+		file, label = csv_contents[i]['raw_path'], csv_contents[i]['label']
 
 		raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 		r = sess.run([rank_out], feed_dict={input_placeholder: raw_data})
 		#print(r)
-		if(total_ranks == None):
-			total_ranks = r
-		else:
-			total_ranks = np.add(total_ranks, r)
+
+		d_id = csv_contents[i]['dataset_id']
+		for j in range(d_id):
+			if(total_ranks[j] == None):
+				total_ranks[j] = r
+			else:
+				total_ranks[j] = np.add(total_ranks[j], r)
 
 # store rankings in a npy array
-total_ranks = total_ranks[0]
-depth, index, rank = [],[],[] 
-for i in range(len(total_ranks)):
-	depth.append(np.full(len(total_ranks[i]), i))
-	index.append(np.arange(len(total_ranks[i])))
-	rank.append(total_ranks[i])
-depth = np.concatenate(depth)
-index = np.concatenate(index)
-rank = np.concatenate(rank)
 
-np.savez(FLAGS.output_file, depth=depth, index=index, rank=rank)
+for j in range(4):
+	total_ranks = total_ranks[j]
+	depth, index, rank = [],[],[] 
+
+	for i in range(len(total_ranks[j])):
+		depth.append(np.full(len(total_ranks[j][i]), i))
+		index.append(np.arange(len(total_ranks[j][i])))
+		rank.append(total_ranks[j][i])
+
+	depth = np.concatenate(depth)
+	index = np.concatenate(index)
+	rank = np.concatenate(rank)
+
+	np.savez(FLAGS.output_file+"_"+str(i)+".npz", depth=depth, index=index, rank=rank)
 
 #from feature_rank_utils import view_feature_rankings
 #view_feature_rankings(FLAGS.output_file)

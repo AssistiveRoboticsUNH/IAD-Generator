@@ -19,7 +19,7 @@ def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 			label_name = filename.split('/')[-2]
 			
 			# assign dataset_id
-			dataset_id = (i%4) + 1
+			dataset_id = 4-(i%4)
 
 			# determine length
 			length = len(os.listdir(filename))
