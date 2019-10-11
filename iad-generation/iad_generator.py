@@ -94,6 +94,8 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
+		summed_ranks = [None]*4
+
 		# process files
 		for i in range(len(csv_contents)):
 			file, label = csv_contents[i]['raw_path'], csv_contents[i]['label']
@@ -104,18 +106,28 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 			raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 			# generate activation map from model
-			print("t0")
-			#iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
-			#iad_data = sess.run(activation_map, feed_dict={input_placeholder: raw_data})
-			print("rank4", rankings[0].get_shape())
-			rank_data = sess.run(rankings[0], feed_dict={input_placeholder: raw_data})
-			
-
-			print("t1")
-			print(rank_data.shape)
+			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
 
 			# write the am_layers to file and get the minimum and maximum values for each feature row
 			convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio)
+
+			# add new ranks to cummulative sum
+			for j in range(csv_contents[i]['dataset_id']):
+				summed_ranks[j] = r if summed_ranks[j] == None else np.add(summed_ranks[j], r)
+
+	# save ranking files
+	for j in range(4):
+		depth, index, rank = [],[],[] 
+
+		for i in range(len(summed_ranks[j])):
+			depth.append(np.full(len(summed_ranks[j][i]), i))
+			index.append(np.arange(len(summed_ranks[j][i])))
+			rank.append(summed_ranks[j][i])
+
+		filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str(i)+".npz")
+		np.savez(filename, 
+			depth=np.concatenate(depth), index=np.concatenate(index), rank=np.concatenate(rank))
+
 
 	#save min_max_vals
 	if(UPDATE_MIN_MAXES):
