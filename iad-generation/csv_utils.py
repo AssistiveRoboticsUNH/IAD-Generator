@@ -67,7 +67,7 @@ def read_csv(csv_file):
 					'length':int(row['length']) }
 			csv_contents.append(data)
 	
-	return csv_contents, max_length
+	return csv_contents
 
 			
 
