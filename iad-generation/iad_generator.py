@@ -106,7 +106,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 			print("t0")
 			#iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
 			#iad_data = sess.run(activation_map, feed_dict={input_placeholder: raw_data})
-			print(rankings.get_shape())
+			#print(rankings.get_shape())
 			#rank_data = sess.run(rankings, feed_dict={input_placeholder: raw_data})
 			
 
