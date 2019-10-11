@@ -113,7 +113,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 
 			# add new ranks to cummulative sum
 			for j in range(csv_contents[i]['dataset_id']):
-				summed_ranks[j] = r if summed_ranks[j] == None else np.add(summed_ranks[j], r)
+				summed_ranks[j] = rank_data if summed_ranks[j] == None else np.add(summed_ranks[j], rank_data)
 
 	# save ranking files
 	for j in range(4):
