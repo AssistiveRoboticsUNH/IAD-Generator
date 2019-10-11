@@ -145,7 +145,7 @@ if __name__ == '__main__':
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
 
-	list_of_files_and_labels = list_of_files_and_labels[:3]
+	csv_contents = csv_contents[:3]
 
 	print("numIADs:", len(csv_contents))
 	print("max_frame_length:", max_frame_length)
