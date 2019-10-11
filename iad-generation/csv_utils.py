@@ -57,7 +57,7 @@ def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 def read_csv(csv_file):
 	csv_contents = []
 
-	with open(csv_file, newline='') as csvfile:
+	with open(csv_file) as csvfile:
 		reader = csv.DictReader(csvfile)
 		for row in reader:
 			data = {'label_name': row['label_name'], 
