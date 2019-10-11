@@ -117,15 +117,15 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 				summed_ranks[j] = rank_data if summed_ranks[j] == None else np.add(summed_ranks[j], rank_data)
 
 	# save ranking files
-	for j in range(4):
+	for dataset_size in range(4):
 		depth, index, rank = [],[],[] 
 
-		for i in range(len(summed_ranks[j])):
-			depth.append(np.full(len(summed_ranks[j][i]), i))
-			index.append(np.arange(len(summed_ranks[j][i])))
-			rank.append(summed_ranks[j][i])
+		for layer in range(len(summed_ranks[dataset_size])):
+			depth.append(np.full(len(summed_ranks[dataset_size][layer]), layer))
+			index.append(np.arange(len(summed_ranks[dataset_size][layer])))
+			rank.append(summed_ranks[dataset_size][layer])
 
-		filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str(i)+".npz")
+		filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str((dataset_size+1)*25)+".npz")
 		np.savez(filename, 
 			depth=np.concatenate(depth), 
 			index=np.concatenate(index), 
