@@ -585,9 +585,9 @@ rank_out = rank_out[::-1]
 variable_name_list = model.get_variables()
 saver = tf.train.Saver(variable_name_list.values(), reshape=True)
 
-rank_groups = []
+total_ranks = []
 for i in range(4):
-	rank_groups.append(None)
+	total_ranks.append(None)
 
 
 with tf.Session() as sess:
