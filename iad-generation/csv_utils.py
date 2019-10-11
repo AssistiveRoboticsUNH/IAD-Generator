@@ -54,7 +54,7 @@ def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 							'dataset_id':dataset_id,
 							'length':length})
 
-def read_csv_file(csv_file):
+def read_csv(csv_file):
 	csv_contents = []
 
 	with open(csv_file, newline='') as csvfile:
