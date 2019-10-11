@@ -1,32 +1,15 @@
-# Copyright 2017 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ============================================================================
-"""Inception-v1 Inflated 3D ConvNet used for Kinetics CVPR paper.
 
-The model is introduced in:
 
-  Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset
-  Joao Carreira, Andrew Zisserman
-  https://arxiv.org/pdf/1705.07750v1.pdf.
-"""
+import tensorflow as tf
+import numpy as np
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+import os, cv2
+
+import PIL.Image as Image
 
 import sonnet as snt
-import tensorflow as tf
+
+rank_out = []
 
 @tf.custom_gradient
 def rank_layer(x):
@@ -192,33 +175,33 @@ class InceptionI3d(snt.AbstractModule):
     end_points[end_point] = net
 
     target_layers.append(net)
-    net = rank_layer(net, self.rank_out)
+    net = rank_layer(net)
 
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
     end_point = 'MaxPool3d_2a_3x3'
     net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
     end_point = 'Conv3d_2b_1x1'
     net = Unit3D(output_channels=64, kernel_shape=[1, 1, 1],
                  name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
     end_point = 'Conv3d_2c_3x3'
     net = Unit3D(output_channels=192, kernel_shape=[3, 3, 3],
                  name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
 
     target_layers.append(net)
-    net = rank_layer(net, self.rank_out)
+    net = rank_layer(net)
 
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
     end_point = 'MaxPool3d_3a_3x3'
     net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_3b'
     with tf.variable_scope(end_point):
@@ -247,7 +230,7 @@ class InceptionI3d(snt.AbstractModule):
 
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_3c'
     with tf.variable_scope(end_point):
@@ -277,15 +260,15 @@ class InceptionI3d(snt.AbstractModule):
     end_points[end_point] = net
 
     target_layers.append(net)
-    net = rank_layer(net, self.rank_out)
+    net = rank_layer(net)
 
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'MaxPool3d_4a_3x3'
     net = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_4b'
     with tf.variable_scope(end_point):
@@ -313,7 +296,7 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_4c'
     with tf.variable_scope(end_point):
@@ -341,7 +324,7 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_4d'
     with tf.variable_scope(end_point):
@@ -369,7 +352,7 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_4e'
     with tf.variable_scope(end_point):
@@ -397,7 +380,7 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_4f'
     with tf.variable_scope(end_point):
@@ -427,15 +410,15 @@ class InceptionI3d(snt.AbstractModule):
     end_points[end_point] = net
 
     target_layers.append(net)
-    net = rank_layer(net, self.rank_out)
+    net = rank_layer(net)
 
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'MaxPool3d_5a_2x2'
     net = tf.nn.max_pool3d(net, ksize=[1, 2, 2, 2, 1], strides=[1, 2, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_5b'
     with tf.variable_scope(end_point):
@@ -463,7 +446,7 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Mixed_5c'
     with tf.variable_scope(end_point):
@@ -493,9 +476,9 @@ class InceptionI3d(snt.AbstractModule):
     end_points[end_point] = net
 
     target_layers.append(net)
-    net = rank_layer(net, self.rank_out)
+    net = rank_layer(net)
 
-    if self._final_endpoint == end_point: return net, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return net, end_points, target_layers
 
     end_point = 'Logits'
     with tf.variable_scope(end_point):
@@ -512,9 +495,167 @@ class InceptionI3d(snt.AbstractModule):
         logits = tf.squeeze(logits, [2, 3], name='SpatialSqueeze')
     averaged_logits = tf.reduce_mean(logits, axis=1)
     end_points[end_point] = averaged_logits
-    if self._final_endpoint == end_point: return averaged_logits, end_points, target_layers, self.rank_out
+    if self._final_endpoint == end_point: return averaged_logits, end_points, target_layers
 
     end_point = 'Predictions'
     predictions = tf.nn.softmax(averaged_logits)
     end_points[end_point] = predictions
     return predictions, end_points, target_layers
+
+def generate_activation_map(input_ph):
+  is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
+  with tf.variable_scope('RGB'):
+    logits, _, target_layers = InceptionI3d( num_classes=101,
+        spatial_squeeze=True,
+        final_endpoint='Logits')(input_ph, is_training)
+
+  gradients = tf.gradients(logits, input_placeholder)
+  rank_out = rank_out[::-1]
+      
+  return target_layers, rank_out
+
+###################
+# FILE IO         #
+###################
+
+def obtain_files(directory_file):
+  # read a *.list file and get the file names and labels
+  ifile = open(directory_file, 'r')
+  line = ifile.readline()
+  
+  filenames, labels, max_length = [],[],0
+  while len(line) != 0:
+
+    line = line.split()
+
+    filename, label = line
+    
+    filenames.append(filename)
+    labels.append(label)
+    file_length = len(os.listdir(filename))-1
+
+    if(file_length > max_length):
+      max_length = file_length
+
+    line = ifile.readline()
+
+  return zip(filenames, labels), max_length
+
+def read_file(file, input_placeholder):
+  # read a file and concatenate all of the frames
+  # pad or prune the video to the given length
+
+  # input_shape
+  _, num_frames, h, w, ch = input_placeholder.get_shape()
+
+  # read available frames in file
+  img_data = []
+  for r, d, f in os.walk(file):
+    print(file, r)
+    print("num_files:", len(f))
+
+    f.sort()
+    limit = min(int(num_frames), len(f))
+    
+    for i in range(limit):
+      filename = os.path.join(r, f[i])
+      img = Image.open(filename)
+
+      # resize and crop to fit input size
+      #print(img.height, img.width)
+
+      if(img.width > img.height):
+        img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
+      else:
+        img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
+  
+      crop_x = int((img.shape[0] - h)/2)
+      crop_y = int((img.shape[1] - w)/2)
+      img = img[crop_x:crop_x+w, crop_y:crop_y+h,:] 
+
+      img_data.append(np.array(img))
+
+  img_data = np.array(img_data).astype(np.float32)
+
+  # pad file to appropriate length
+  buffer_len = int(num_frames) - len(img_data)
+  img_data = np.pad(np.array(img_data), 
+        ((0,buffer_len), (0,0), (0,0),(0,0)), 
+        'constant', 
+        constant_values=(0,0))
+  length_ratio = float(limit) / len(img_data)
+  img_data = np.expand_dims(img_data, axis=0)
+  
+
+
+
+  return img_data, length_ratio 
+
+
+###################
+# MODEL FUNCTIONS #
+###################
+
+#import i3d
+
+INPUT_DATA_SIZE = {"t": 64, "h":224, "w":224, "c":3}
+CNN_FEATURE_COUNT = [64, 192, 480, 832, 1024]
+
+def get_input_placeholder(batch_size, num_frames=INPUT_DATA_SIZE["t"]):
+  # returns a placeholder for the C3D input
+  return tf.placeholder(tf.float32, 
+      shape=(batch_size, num_frames, INPUT_DATA_SIZE["h"], INPUT_DATA_SIZE["w"], INPUT_DATA_SIZE["c"]),
+      name="c3d_input_ph")
+
+
+def get_output_placeholder(batch_size):
+  # returns a placeholder for the C3D output (currently unused)
+  return tf.placeholder(tf.int32, 
+      shape=(batch_size),
+      name="c3d_label_ph")
+
+
+def get_variables(num_classes=-1):
+  '''Define all of the variables for the convolutional layers of the C3D model. 
+  We ommit the FC layers as these layers are used to perform reasoning and do 
+  not contain feature information '''
+
+  variable_map = {}
+  for variable in tf.global_variables():
+    if variable.name.split('/')[0] == 'RGB' and 'Adam' not in variable.name.split('/')[-1] and variable.name.split('/')[2] != 'Logits':
+      variable_map[variable.name.replace(':0', '')] = variable
+
+  return variable_map
+
+"""
+def generate_activation_map(input_ph):
+  '''Generates the activation map for a given input from a specific depth
+        -input_ph: the input placeholder, should have been defined using the 
+          "get_input_placeholder" function
+        -_weights: weights used to convolve the input, defined in the 
+          "get_variables" function
+        -_biases: biases used to convolve the input, defined in the 
+          "get_variables" function
+        -depth: the depth at which the activation map should be extracted (an 
+          int between 0 and 4)
+  '''
+
+  # build I3D model
+  is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
+  with tf.variable_scope('RGB'):
+    _, _, target_layers = i3d.InceptionI3d( num_classes=101,
+                                  spatial_squeeze=True,
+                                  final_endpoint='Logits')(input_ph, is_training)
+
+  return target_layers
+"""
+
+def load_model(input_ph):
+  activation_maps, rankings = generate_activation_map(input_ph)
+
+  variable_name_list = get_variables()
+  saver = tf.train.Saver(variable_name_list.values(), reshape=True)
+
+  return activation_maps, rankings, saver
+
+

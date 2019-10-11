@@ -1,13 +1,14 @@
 # Madison Clark-Turner
 # iad_generator.py
-# 8/29/2019
+# 10/10/2019
 
 from csv_utils import read_csv
 import tf_utils
 
 #import c3d as model
 #import c3d_large as model
-import i3d_wrapper as model
+#import i3d_wrapper as model
+import rank_i3d as model
 
 import os, sys
 
