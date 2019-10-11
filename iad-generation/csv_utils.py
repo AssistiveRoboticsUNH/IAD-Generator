@@ -1,4 +1,4 @@
-import csv
+import os, csv
 
 def convert_list_to_csv(trainlist_filename, testlist_filename, csv_filename):
 
