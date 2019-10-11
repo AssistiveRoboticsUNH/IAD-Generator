@@ -109,7 +109,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 
 	#save min_max_vals
 	if(UPDATE_MIN_MAXES):
-		np.savez(os.path.join(FLAGS.dst_directory, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
+		np.savez(os.path.join(IAD_DATA_PATH, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
 	
 def normalize_dataset(csv_contents, min_max_vals):
 	for i in range(len(csv_contents)):
