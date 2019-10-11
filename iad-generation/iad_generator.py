@@ -64,11 +64,11 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
 
-		ex['iad_path_'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
+		meta_data['iad_path_'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
 
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 
-		np.savez(ex['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
+		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
 def convert_dataset_to_iad(csv_contents, min_max_vals):
 	
