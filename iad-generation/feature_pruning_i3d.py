@@ -30,6 +30,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
 batch_size=1
 #list_of_files_and_labels, max_frame_length = model.obtain_files(FLAGS.dataset_file)
 
+from csv_utils import read_csv
 csv_contents = read_csv(FLAGS.csv_filename)
 
 # get the maximum frame length among the dataset and add the 
