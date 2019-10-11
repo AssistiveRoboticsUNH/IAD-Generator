@@ -126,7 +126,9 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 
 		filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str(i)+".npz")
 		np.savez(filename, 
-			depth=np.concatenate(depth), index=np.concatenate(index), rank=np.concatenate(rank))
+			depth=np.concatenate(depth), 
+			index=np.concatenate(index), 
+			rank=np.concatenate(rank))
 
 
 	#save min_max_vals
