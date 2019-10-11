@@ -664,6 +664,9 @@ def generate_activation_map(input_ph):
 def load_model(input_ph):
   activation_maps, rankings = generate_activation_map(input_ph)
 
+  for v in rankings:
+    print("v: ", v.get_shape())
+
   variable_name_list = get_variables()
   saver = tf.train.Saver(variable_name_list.values(), reshape=True)
 
