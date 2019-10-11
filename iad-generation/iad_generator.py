@@ -64,11 +64,11 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
 
-		ex['iad_path'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
+		ex['iad_path_'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
 
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 
-		np.savez(ex['iad_path'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
+		np.savez(ex['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
 def convert_dataset_to_iad(csv_contents, min_max_vals):
 	
@@ -117,7 +117,7 @@ def normalize_dataset(csv_contents, min_max_vals):
 
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
 
-			filename = csv_contents[i]['iad_path'+str(layer)]
+			filename = csv_contents[i]['iad_path_'+str(layer)]
 
 			# open .npz file
 			f = np.load(filename)
