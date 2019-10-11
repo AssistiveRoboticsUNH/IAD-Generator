@@ -87,6 +87,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 	with tf.Session() as sess:
 
 		# Restore model
+		sess.run(tf.global_variables_initializer())
 		tf_utils.restore_model(sess, saver, FLAGS.model_filename)
 
 		# prevent further modification to the graph
