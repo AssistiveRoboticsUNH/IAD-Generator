@@ -60,8 +60,11 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 
 	#save to disk
 	for layer in range(len(data)):
-		file_location = os.path.join(meta_data['label_name'], meta_data['example_id'])
-		ex['iad_path'+str(layer)] = os.path.join(IAD_DATA_PATH, file_location)+"_"+str(layer)+".npz"
+		label_path = os.path.join(IAD_DATA_PATH, meta_data['label_name'])
+		if(not os.path.exists()):
+			os.makedirs(label_path)
+
+		ex['iad_path'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
 
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 
