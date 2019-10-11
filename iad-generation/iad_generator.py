@@ -104,7 +104,9 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 
 			# generate activation map from model
 			print("t0")
-			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
+			#iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
+			iad_data = sess.run(activation_map, feed_dict={input_placeholder: raw_data})
+			
 			print("t1")
 			print(rank_data.shape)
 
