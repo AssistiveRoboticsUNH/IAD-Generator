@@ -102,7 +102,8 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 			raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 			# generate activation map from model
-			iad_data = sess.run(activation_map, feed_dict={input_placeholder: raw_data})
+			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
+			print(rank_data)
 
 			# write the am_layers to file and get the minimum and maximum values for each feature row
 			convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio)
