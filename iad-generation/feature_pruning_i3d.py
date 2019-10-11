@@ -16,6 +16,8 @@ import argparse
 parser = argparse.ArgumentParser(description='Generate IADs from input files')
 #required command line args
 parser.add_argument('model_file', help='the tensorflow ckpt file used to generate the IADs')
+
+parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
 parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
 
 parser.add_argument('pad_length', nargs='?', type=int, default=-1, help='length to pad/prune the videos to, default is padd to the longest file in the dataset')
@@ -26,6 +28,8 @@ parser.add_argument('--gpu', default="1", help='gpu to run on')
 FLAGS = parser.parse_args()
 
 os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
+
+RAW_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'imgFiles')
 
 #set up input files
 batch_size=1
