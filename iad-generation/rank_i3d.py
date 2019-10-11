@@ -9,11 +9,13 @@ import PIL.Image as Image
 
 import sonnet as snt
 
-rank_out = []
+
 
 @tf.custom_gradient
 def rank_layer(x):
   def grad(dy):
+
+    global rank_out
 
     #calculate the rank
     ranks = tf.math.multiply(x, dy)
@@ -503,6 +505,11 @@ class InceptionI3d(snt.AbstractModule):
     return predictions, end_points, target_layers
 
 def generate_activation_map(input_ph):
+
+  global rank_out
+  rank_out = []
+
+
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
   with tf.variable_scope('RGB'):
     logits, _, target_layers = InceptionI3d( num_classes=101,
