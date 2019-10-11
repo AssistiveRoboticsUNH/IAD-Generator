@@ -61,7 +61,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 	#save to disk
 	for layer in range(len(data)):
 		label_path = os.path.join(IAD_DATA_PATH, meta_data['label_name'])
-		if(not os.path.exists()):
+		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
 
 		ex['iad_path'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
