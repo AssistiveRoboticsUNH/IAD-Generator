@@ -48,7 +48,6 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 	# modify data to desired window size
 	pading_length = window_size - (z%window_size)
-	print("add padding: ", window_size, z, pading_length, z+pading_length)
 	d = np.pad(d, [[0,0],[0,pading_length]], 'constant', constant_values=0)
 
 	# split the input into chunks of the given window size
@@ -193,11 +192,6 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 	input_shape = get_input_shape(len(pruning_indexes[0]), window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
-
-	print("input_shape:", len(pruning_indexes[0]), window_size)
-	for pi in input_shape:
-		print(pi)
-
 	for model_num in range(6):
 
 		#define network
@@ -217,9 +211,6 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 
 				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape[model_num][1], batch_size)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
-
-				print("data_shape: ", data.shape )
-				print("label: ", label)
 
 				out = sess.run(ops["train"], feed_dict=feed_dict)
 
