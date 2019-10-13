@@ -95,7 +95,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 # Model Structure
 ##############################################
 
-def model_def(num_classes, data_shapes, layer=-1):
+def model_def(num_classes, input_shape, model_num, alpha):
 	"""Create the tensor operations to be used in training and testing, stored in a dictionary."""
 
 	def conv_model(input_ph):
@@ -132,21 +132,16 @@ def model_def(num_classes, data_shapes, layer=-1):
 
 	# Placeholders
 	ph = {
+		"x_" + str(model_num):tf.placeholder(tf.float32, 
+				shape=(None, input_shape[model_num][0], input_shape[model_num][1]))
 		"y": tf.placeholder(tf.int32, shape=(None)),
 		"train": tf.placeholder(tf.bool)
 	}
 
-	for c3d_depth in range(6):
-		ph["x_" + str(c3d_depth)] = tf.placeholder(
-			tf.float32, shape=(None, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1])
-		)
-
-	# for each model generate tensor ops
-
 	# Logits
 	# input layers [batch_size, h, w, num_channels]
-	input_layer = tf.reshape(ph["x_" + str(layer)], [-1, data_shapes[layer][0], data_shapes[layer][1], 1])
-	if(c3d_depth < 3):
+	input_layer = tf.reshape(ph["x_" + str(model_num)], [-1, data_shapes[model_num][0], data_shapes[model_num][1], 1])
+	if(model_num < 3):
 		logits = conv_model(input_layer)
 	else:
 		logits = dense_model(input_layer)
@@ -157,7 +152,7 @@ def model_def(num_classes, data_shapes, layer=-1):
 
 	# Train
 	loss = tf.losses.sparse_softmax_cross_entropy(labels=ph["y"], logits=logits)
-	train_op = tf.train.AdamOptimizer(learning_rate=ALPHA).minimize(
+	train_op = tf.train.AdamOptimizer(learning_rate=alpha).minimize(
 		loss=loss,
 		global_step=tf.train.get_global_step()
 	)
@@ -166,16 +161,11 @@ def model_def(num_classes, data_shapes, layer=-1):
 	correct_pred = tf.equal(class_pred, ph["y"])
 	accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-	# the softmax values across all of the models
-	print("softmax.get_shape(): ", softmax.get_shape())
-	#all_sftmx = tf.transpose(softmax, [1, 2, 0])
-
 	# the class predictions across all of the models
-	#all_pred = tf.transpose(all_sftmx, [0, 2, 1])
 	all_pred = tf.squeeze(tf.argmax(softmax, axis=1, output_type=tf.int32))
 
 	ops = {
-		'train': [train_op , loss, accuracy],
+		'train': [train_op, loss, accuracy],
 		'model_sftmx': softmax,
 		'model_preds': all_pred
 	}
@@ -196,7 +186,7 @@ def model_consensus(confidences):
 # Train/Test Functions
 ##############################################
 
-def train_model(model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size):
+def train_model(model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size, alpha, epochs):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(len(pruning_indexes[0]), window_size)
@@ -208,7 +198,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 	for model_num in range(6):
 
 		#define network
-		ph, ops = model_def(num_classes, input_shape, layer=model_num)
+		ph, ops = model_def(num_classes, input_shape, model_num, alpha)
 		saver = tf.train.Saver()
 		
 		with tf.Session() as sess:
@@ -218,7 +208,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 			sess.graph.finalize()
 
 			# train the network
-			num_iter = FLAGS.EPOCHS * len(train_data) / FLAGS.BATCH_SIZE
+			num_iter = epochs * len(train_data) / FLAGS.BATCH_SIZE
 			for i in range(num_iter):
 			# setup training batch
 
@@ -270,7 +260,7 @@ def test_model(model_filename, num_classes, test_data, pruning_keep_indexes=None
 	for model_num in range(6):
 
 		#define network
-		ph, ops = model_def(num_classes, input_shape, layer=model_num)
+		ph, ops = model_def(num_classes, input_shape, model_num, alpha)
 		saver = tf.train.Saver()
 
 		with tf.Session() as sess:
@@ -363,7 +353,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Begin Training/Testing
 	if(FLAGS.operation == "train"):
 		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
-		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes, window_size, batch_size)
+		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes, window_size, batch_size, alpha, epochs)
 	elif(FLAGS.operation == "train"):
 		test_model (model_filename, num_classes, test_data, pruning_keep_indexes)
 	else:
