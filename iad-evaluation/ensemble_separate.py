@@ -216,6 +216,8 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 				data, label = get_batch_data(train_data, model_num, pruning_indexes, window_size, batch_size)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
+				print("data_shape: ", data.shape )
+
 				out = sess.run(ops["train"], feed_dict=feed_dict)
 
 				# print out every 2K iterations
