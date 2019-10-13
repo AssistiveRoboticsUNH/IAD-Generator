@@ -140,7 +140,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 
 	# Logits
 	# input layers [batch_size, h, w, num_channels]
-	input_layer = tf.reshape(ph["x_" + str(model_num)], [-1, layer[model_num][0], layer[model_num][1], 1])
+	input_layer = tf.reshape(ph["x_" + str(model_num)], [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
 	if(model_num < 3):
 		logits = conv_model(input_layer)
 	else:
