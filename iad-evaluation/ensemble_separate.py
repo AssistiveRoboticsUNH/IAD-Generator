@@ -223,7 +223,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 					correct_prediction = sess.run([ops['model_preds']], feed_dict=feed_dict)
 					correct, total = np.sum(correct_prediction[0] == label), len(correct_prediction[0] == label)
 
-					print("test_accuracy: {0}, correct: {1}, total: {2}".format(correct / float(total), correct, total))
+					print("model_num: {0}, test_accuracy: {1}, correct: {2}, total: {3}".format(model_num, correct / float(total), correct, total))
 
 			# save the model
 			save_name = model_filename+'_'+str(model_num)
