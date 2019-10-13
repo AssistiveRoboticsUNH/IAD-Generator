@@ -186,10 +186,10 @@ def model_consensus(confidences):
 # Train/Test Functions
 ##############################################
 
-def train_model(model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size, alpha, epochs):
+def train_model(model_filename, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs):
 
 	# get the shape of the flattened and merged IAD and append
-	input_shape = get_input_shape(len(pruning_indexes[0]), window_size)
+	input_shape = get_input_shape(num_features, window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
 	for model_num in range(6):
@@ -233,10 +233,10 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
-def test_model(model_filename, num_classes, test_data, pruning_indexes):
+def test_model(model_filename, num_classes, test_data, pruning_indexes, num_features, window_size):
 
 	# get the shape of the flattened and merged IAD and append
-	input_shape = get_input_shape(len(pruning_indexes[0]), window_size)
+	input_shape = get_input_shape(num_features, window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
 
@@ -356,9 +356,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Begin Training/Testing
 	if(FLAGS.operation == "train"):
 		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
-		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes, window_size, batch_size, alpha, epochs)
+		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs)
 	elif(FLAGS.operation == "train"):
-		test_model (model_filename, num_classes, test_data, pruning_keep_indexes)
+		test_model (model_filename, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
 	else:
 		print('Operation parameter must be either "train" or "test"')
 
