@@ -359,9 +359,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation,
 
 	# Begin Training/Testing
 	if(FLAGS.operation == "train"):
-		train_model(model_filename, FLAGS.num_classes, train_data, test_data, pruning_keep_indexes)
+		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes)
 	elif(FLAGS.operation == "train"):
-		test_model (model_filename, FLAGS.num_classes, test_data, pruning_keep_indexes)
+		test_model (model_filename, num_classes, test_data, pruning_keep_indexes)
 	else:
 		print('Operation parameter must be either "train" or "test"')
 
