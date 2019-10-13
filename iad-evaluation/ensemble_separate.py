@@ -76,7 +76,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 
 		return np.array(data), np.array(labels)
 
-
+	print("len(dataset):", len(dataset))
 	batch_indexes = np.random.randint(0, len(dataset), size=batch_size)
 
 	if (model_num < 5):
