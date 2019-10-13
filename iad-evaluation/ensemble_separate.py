@@ -132,8 +132,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 
 	# Placeholders
 	ph = {
-		"x_" + str(model_num):tf.placeholder(tf.float32, 
-				shape=(None, input_shape[model_num][0], input_shape[model_num][1]))
+		"x_"+str(model_num): tf.placeholder(tf.float32, shape=(None, input_shape[model_num][0], input_shape[model_num][1]))
 		"y": tf.placeholder(tf.int32, shape=(None)),
 		"train": tf.placeholder(tf.bool)
 	}
