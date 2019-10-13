@@ -219,6 +219,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
 				print("data_shape: ", data.shape )
+				print("label: ", label)
 
 				out = sess.run(ops["train"], feed_dict=feed_dict)
 
