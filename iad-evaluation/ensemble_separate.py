@@ -195,6 +195,8 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 
 
 	print("input_shape:", len(pruning_indexes[0]), window_size)
+	for pi in input_shape:
+		print(pi)
 
 	for model_num in range(6):
 
