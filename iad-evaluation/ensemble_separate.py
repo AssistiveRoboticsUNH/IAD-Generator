@@ -322,8 +322,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	model_filename = iad_model_path+'/'+model_filename
 
-	if(not os.path.exists(model_id_path)):
-		os.makedirs(model_id_path)
+	if(not os.path.exists(iad_model_path)):
+		os.makedirs(iad_model_path)
 
 	try:
 		csv_contents = read_csv(csv_filename)
