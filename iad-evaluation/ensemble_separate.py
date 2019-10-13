@@ -327,7 +327,7 @@ if __name__ == "__main__":
 	#required command line args
 	parser.add_argument('model_type', help='the type of model to use: I3D')
 
-	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
+	parser.add_argument('dataset_dir', help='the directory where the dataset is located')
 	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
 
 	parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
