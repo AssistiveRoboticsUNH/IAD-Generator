@@ -215,7 +215,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 			for i in range(num_iter):
 			# setup training batch
 
-				data, label = get_batch_data(train_data, model_num, pruning_indexes, window_size, batch_size)
+				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape[model_num][1], batch_size)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
 				print("data_shape: ", data.shape )
