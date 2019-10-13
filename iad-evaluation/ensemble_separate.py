@@ -48,7 +48,7 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 	# modify data to desired window size
 	pading_length = window_size - (z%window_size)
-	print("add padding: ", window_size, z, pading_length)
+	print("add padding: ", window_size, z, pading_length, z+pading_length)
 	d = np.pad(d, [[0,0],[0,pading_length]], 'constant', constant_values=0)
 
 	# split the input into chunks of the given window size
