@@ -226,7 +226,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 					print("test_accuracy: {0}, correct: {1}, total: {2}".format(correct / float(total), correct, total))
 
 			# save the model
-			save_name = model_filename+'_'+str(layer)
+			save_name = model_filename+'_'+str(model_num)
 			saver.save(sess, save_name)
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
