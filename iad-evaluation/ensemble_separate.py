@@ -319,8 +319,8 @@ def test_model(model_filename, num_classes, test_data, pruning_keep_indexes=None
 	np.save("classes.npy",  class_accuracy[:, 0] / float(class_accuracy[:, 1]) )
 
 
-def main(model_type, dataset_dir, csv_filename, num_classes, operation, 
-		dataset_id, model_filename, pad_length, epochs, batch_size, alpha,
+def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
+		window_size, epochs, batch_size, alpha, 
 		feature_retain_count, gpu):
 
 	# optional - specify the CUDA device to use for GPU computation
@@ -359,7 +359,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation,
 
 	# Begin Training/Testing
 	if(FLAGS.operation == "train"):
-		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes)
+		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
+		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes, window_size, batch_size)
 	elif(FLAGS.operation == "train"):
 		test_model (model_filename, num_classes, test_data, pruning_keep_indexes)
 	else:
@@ -384,7 +385,7 @@ if __name__ == "__main__":
 	parser.add_argument('dataset_id', nargs='?', type=int, default=4, help='the dataset_id used to train the network. Is used in determing feature rank file')
 
 	parser.add_argument('--model_filename', default="model", help='the checkpoint file to use with the model')
-	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--window_size', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--epochs', nargs='?', type=int, default=-30, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--batch_size', nargs='?', type=int, default=-30, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--alpha', nargs='?', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
@@ -401,7 +402,7 @@ if __name__ == "__main__":
 		FLAGS.operation, 
 		FLAGS.dataset_id, 
 		FLAGS.model_filename, 
-		FLAGS.pad_length, 
+		FLAGS.window_size, 
 		FLAGS.epochs,
 		FLAGS.batch_size,
 		FLAGS.alpha,
