@@ -8,8 +8,7 @@
 #   if test is specified, the model name will be the name of the loaded model
 
 
-from csv_utils import read_csv
-import tf_utils
+
 
 #import c3d as model
 #import c3d_large as model
@@ -20,6 +19,11 @@ import os, random
 
 import tensorflow as tf
 import numpy as np
+
+import sys
+sys.path.append("../iad-generation/")
+from csv_utils import read_csv
+import tf_utils
 
 get_input_shape = lambda num_features, pad_length: \
 				   [(min(  64, num_features), pad_length/2), 
@@ -369,7 +373,7 @@ if __name__ == "__main__":
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] > 0]
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
-	
+
 
 	# Determine features to prune
 	pruning_keep_indexes = None
