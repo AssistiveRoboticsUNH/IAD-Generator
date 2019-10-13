@@ -325,6 +325,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	try:
 		csv_contents = read_csv(csv_filename)
+		csv_contents = csv_contents[:20]
 	except:
 		print("Cannot open CSV file: "+ csv_filename)
 
