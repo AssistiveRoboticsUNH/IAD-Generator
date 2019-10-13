@@ -385,8 +385,8 @@ if __name__ == "__main__":
 
 	parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
 	parser.add_argument('operation', help='"train" or "test"')
-	parser.add_argument('dataset_id', nargs='?', type=int, default=4, help='the dataset_id used to train the network. Is used in determing feature rank file')
-	parser.add_argument('window_size', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
+	parser.add_argument('dataset_id', nargs='?', type=int, help='the dataset_id used to train the network. Is used in determing feature rank file')
+	parser.add_argument('window_size', nargs='?', type=int, help='the maximum length video to convert into an IAD')
 
 	parser.add_argument('--model_filename', default="model", help='the checkpoint file to use with the model')
 	parser.add_argument('--epochs', nargs='?', type=int, default=-30, help='the maximum length video to convert into an IAD')
