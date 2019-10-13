@@ -318,6 +318,54 @@ def test_model(model_filename, num_classes, test_data, pruning_keep_indexes=None
 	np.save("classes.npy",  class_accuracy[:, 0] / float(class_accuracy[:, 1]) )
 
 
+def main(model_type, dataset_dir, csv_filename, num_classes, operation, 
+		dataset_id, model_filename, pad_length, epochs, batch_size, alpha,
+		feature_retain_count, gpu):
+
+	# optional - specify the CUDA device to use for GPU computation
+	# comment this line out if you wish to use all CUDA-capable devices
+	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+
+	# Setup file IO
+	iad_data_path = os.path.join(dataset_dir, 'iad')
+	model_id_path = os.path.join('iad_model', 'model_'+str(25*dataset_id))
+	iad_model_path = os.path.join(dataset_dir, model_id_path)
+
+	model_filename = iad_model_path+'/'+model_filename
+
+	try:
+		csv_contents = read_csv(csv_filename)
+	except:
+		print("Cannot open CSV file: "+ csv_filename)
+
+	for ex in csv_contents:
+		file_location = os.path.join(ex['label_name'], ex['example_id'])
+		for layer in range(5):
+			iad_file = os.path.join(iad_data_path, file_location+"_"+str(layer)+".npz")
+			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
+			ex['iad_path_'+str(layer)] = iad_file
+
+	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] > 0]
+	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
+
+
+	# Determine features to prune
+	pruning_keep_indexes = None
+	if(feature_retain_count and dataset_id):
+		ranking_file = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_id * 25)+".npz")
+		assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
+		pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+
+	# Begin Training/Testing
+	if(FLAGS.operation == "train"):
+		train_model(model_filename, FLAGS.num_classes, train_data, test_data, pruning_keep_indexes)
+	elif(FLAGS.operation == "train"):
+		test_model (model_filename, FLAGS.num_classes, test_data, pruning_keep_indexes)
+	else:
+		print('Operation parameter must be either "train" or "test"')
+
+
+
 if __name__ == "__main__":
 	"""Determine if the user has specified training or testing and run the appropriate function."""
 	
@@ -341,54 +389,23 @@ if __name__ == "__main__":
 	parser.add_argument('--alpha', nargs='?', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--feature_retain_count', nargs='?', type=int, default=-1, help='the number of features to remove')
 	
-
-
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
 
 	FLAGS = parser.parse_args()
 
-	# optional - specify the CUDA device to use for GPU computation
-	# comment this line out if you wish to use all CUDA-capable devices
-	os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
+	main(FLAGS.model_type, 
+		FLAGS.dataset_dir, 
+		FLAGS.csv_filename, 
+		FLAGS.num_classes, 
+		FLAGS.operation, 
+		FLAGS.dataset_id, 
+		FLAGS.model_filename, 
+		FLAGS.pad_length, 
+		FLAGS.epochs,
+		FLAGS.batch_size,
+		FLAGS.alpha,
+		FLAGS.feature_retain_count,
+		FLAGS.gpu)
 
-
-
-
-	# Setup file IO
-	iad_data_path = os.path.join(FLAGS.dataset_dir, 'iad')
-	model_id_path = os.path.join('iad_model', 'model_'+str(25*FLAGS.dataset_id))
-	iad_model_path = os.path.join(FLAGS.dataset_dir, model_id_path)
-
-	model_filename = iad_model_path+'/'+FLAGS.model_filename
-
-	try:
-		csv_contents = read_csv(FLAGS.csv_filename)
-	except:
-		print("Cannot open CSV file: "+ FLAGS.csv_filename)
-
-	for ex in csv_contents:
-		file_location = os.path.join(ex['label_name'], ex['example_id'])
-		for layer in range(5):
-			iad_file = os.path.join(iad_data_path, file_location+"_"+str(layer)+".npz")
-			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
-			ex['iad_path_'+str(layer)] = iad_file
-
-	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] > 0]
-	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
-
-
-	# Determine features to prune
-	pruning_keep_indexes = None
-	if(FLAGS.feature_retain_count and FLAGS.dataset_id):
-		ranking_file = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_id * 25)+".npz")
-		assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
-		pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
-
-	# Begin Training/Testing
-	if(FLAGS.operation == "train"):
-		train_model(model_filename, FLAGS.num_classes, train_data, test_data, pruning_keep_indexes)
-	elif(FLAGS.operation == "train"):
-		test_model (model_filename, FLAGS.num_classes, test_data, pruning_keep_indexes)
-	else:
-		print('Operation parameter must be either "train" or "test"')
+	
 
