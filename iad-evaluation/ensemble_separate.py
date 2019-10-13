@@ -68,7 +68,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 			d, l = get_data(dataset[b_idx], layer, pruning_indexes, window_size)
 
 			# randomly select one of the windows in the data
-			w_idx = random.randint(0, d[0].shape[0]-1)
+			w_idx = 0 # replace if using sliding window: random.randint(0, d[0].shape[0]-1)
 
 			# add values to list
 			data.append(d[w_idx])
