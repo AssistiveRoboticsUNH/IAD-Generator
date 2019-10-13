@@ -362,9 +362,9 @@ if __name__ == "__main__":
 	model_filename = iad_model_path+'/'+FLAGS.model_filename
 
 	try:
-		csv_contents = read_csv(csv_file)
+		csv_contents = read_csv(FLAGS.csv_filename)
 	except:
-		print("Cannot open CSV file: "+ csv_file)
+		print("Cannot open CSV file: "+ FLAGS.csv_filename)
 
 	for ex in csv_contents:
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
