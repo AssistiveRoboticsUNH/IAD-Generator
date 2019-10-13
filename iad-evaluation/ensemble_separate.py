@@ -325,7 +325,6 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	try:
 		csv_contents = read_csv(csv_filename)
-		csv_contents = csv_contents[:20]
 	except:
 		print("Cannot open CSV file: "+ csv_filename)
 
@@ -338,6 +337,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] > 0]
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
+
+	train_data = train_data[:50]
+	test_data = test_data[:50]
 
 
 	# Determine features to prune
