@@ -129,7 +129,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 		return tf.layers.dense(inputs=top, units=num_classes)
 
 	# Placeholders
-	print("Model Shape:", input_shape[model_num][0], input_shape[model_num][1])
+	print("Model Shape:", model_num, input_shape[model_num][0], input_shape[model_num][1])
 
 	ph = {
 		"x_"+str(model_num): tf.placeholder(tf.float32, 
