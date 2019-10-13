@@ -10,10 +10,7 @@
 
 
 
-#import c3d as model
-#import c3d_large as model
-#import i3d_wrapper as model
-import rank_i3d as model
+
 
 import os, random
 
@@ -24,6 +21,11 @@ import sys
 sys.path.append("../iad-generation/")
 from csv_utils import read_csv
 import tf_utils
+
+#import c3d as model
+#import c3d_large as model
+#import i3d_wrapper as model
+import rank_i3d as model
 
 get_input_shape = lambda num_features, pad_length: \
 				   [(min(  64, num_features), pad_length/2), 
