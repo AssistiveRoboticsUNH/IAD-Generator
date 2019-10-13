@@ -42,8 +42,8 @@ def get_data(ex, layer, pruning_indexes, window_size):
 	d, z = f["data"], f["length"]
 
 	# prune unused indexes
-	if(pruning_keep_indexes != None):
-		idx = pruning_keep_indexes[layer]
+	if(pruning_indexes != None):
+		idx = pruning_indexes[layer]
 		d = d[idx]
 
 	# modify data to desired window size
@@ -236,7 +236,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
-def test_model(model_filename, num_classes, test_data, pruning_keep_indexes=None):
+def test_model(model_filename, num_classes, test_data, pruning_indexes):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(len(pruning_indexes[0]), window_size)
