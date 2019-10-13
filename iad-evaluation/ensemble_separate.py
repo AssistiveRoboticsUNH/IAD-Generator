@@ -208,7 +208,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 			sess.graph.finalize()
 
 			# train the network
-			num_iter = epochs * len(train_data) / FLAGS.BATCH_SIZE
+			num_iter = epochs * len(train_data) / batch_size
 			for i in range(num_iter):
 			# setup training batch
 
