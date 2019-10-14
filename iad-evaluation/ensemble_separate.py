@@ -64,6 +64,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 		for b_idx in batch_indexes:
 
 			# open example and prepare data
+			print("b_idx:", b_idx, layer, input_shape[layer][1])
 			d, l = get_data(dataset[b_idx], layer, pruning_indexes, input_shape[layer][1])
 
 			# randomly select one of the windows in the data
