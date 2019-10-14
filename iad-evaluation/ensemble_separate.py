@@ -85,7 +85,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 			print("layer: ", layer)
 			d, labels = get_batch_at_layer(layer, batch_indexes)
 			data.append(d)
-		data = [x.reshape(batch_size, -1, 1) for x in file_data]
+		data = [x.reshape(batch_size, -1, 1) for x in data]
 
 	return data, labels
 
