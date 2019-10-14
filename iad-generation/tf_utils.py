@@ -1,5 +1,5 @@
 import tensorflow as tf
-import sys
+import sys, os
 
 def restore_model(sess, saver, model_filename):
 	ckpt = tf.train.get_checkpoint_state(model_filename)
