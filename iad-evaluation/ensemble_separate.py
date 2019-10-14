@@ -310,9 +310,10 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	# print ensemble cummulative accuracy
 	print("FINAL\t{:4.6f}".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
 	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
+	ofile.close()
 
 	# save per-class accuracy
-	np.save("class_accuracy.npy",  class_accuracy[:, 0] / class_accuracy[:, 1] )
+	np.save(os.path.join(iad_model_path, "class_accuracy.npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 
 def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
@@ -353,8 +354,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] > 0]
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
 
-	train_data = train_data[:5]
-	test_data = test_data[:5]
+	#train_data = train_data[:5]
+	#test_data = test_data[:5]
 
 
 	# Determine features to prune
