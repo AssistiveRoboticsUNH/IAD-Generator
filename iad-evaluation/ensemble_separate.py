@@ -85,9 +85,10 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 			print("layer: ", layer)
 			d, labels = get_batch_at_layer(layer, batch_indexes)
 			w_idx = 0
+			print("d_shape1:", d.shape)
 			d = d[w_idx].reshape(batch_size, -1, 1)
 
-			print("d_shape:", d.shape)
+			print("d_shape2:", d.shape)
 			data.append(d)
 		
 
