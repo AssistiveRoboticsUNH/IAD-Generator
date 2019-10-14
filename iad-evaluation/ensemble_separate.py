@@ -192,6 +192,9 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 	input_shape = get_input_shape(num_features, window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
+	for ish in input_shape:
+		print(ish)
+
 	for model_num in range(6):
 
 		#define network
