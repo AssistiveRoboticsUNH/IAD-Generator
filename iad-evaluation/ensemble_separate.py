@@ -56,7 +56,7 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 	return d, ex['label']
 
-def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size):
+def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size):
 
 	def get_batch_at_layer(layer, batch_indexes):
 		data, labels = [],[]
@@ -64,7 +64,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 		for b_idx in batch_indexes:
 
 			# open example and prepare data
-			d, l = get_data(dataset[b_idx], layer, pruning_indexes, window_size)
+			d, l = get_data(dataset[b_idx], layer, pruning_indexes, input_shape[layer][1])
 
 			# randomly select one of the windows in the data
 			w_idx = 0 # replace if using sliding window: random.randint(0, d[0].shape[0]-1)
@@ -86,7 +86,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 			d, labels = get_batch_at_layer(layer, batch_indexes)
 			w_idx = 0
 			print("d_shape1:", d.shape)
-			d = d[w_idx].reshape(batch_size, -1, 1)
+			d = d.reshape(batch_size, -1, 1)
 
 			print("d_shape2:", d.shape)
 			data.append(d)
@@ -220,7 +220,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 			
 			# setup training batch
 
-				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape[model_num][1], batch_size)
+				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
 				out = sess.run(ops["train"], feed_dict=feed_dict)
@@ -230,7 +230,7 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 					print("step: ", str(i) + '/' + str(num_iter))
 					
 					# evaluate test network
-					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape[model_num][1], batch_size)
+					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size)
 					feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: False }
 
 					correct_prediction = sess.run([ops['model_preds']], feed_dict=feed_dict)
