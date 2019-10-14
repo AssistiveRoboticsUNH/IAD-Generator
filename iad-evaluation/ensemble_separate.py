@@ -84,8 +84,11 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 		for layer in range(5):
 			print("layer: ", layer)
 			d, labels = get_batch_at_layer(layer, batch_indexes)
-			data.append(d)
-		data = [x.reshape(batch_size, -1, 1) for x in data]
+			data.append(d.reshape(batch_size, -1, 1))
+		data = np.array(data)
+
+		print("data shape: ", data.shape)
+		data = np.concatenate(data)
 
 	return data, labels
 
@@ -191,9 +194,6 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
-
-	for ish in input_shape:
-		print(ish)
 
 	for model_num in range(6):
 
