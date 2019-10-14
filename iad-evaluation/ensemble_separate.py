@@ -60,7 +60,6 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 
 	def get_batch_at_layer(layer, batch_indexes):
 		data, labels = [],[]
-		layer = model_num
 
 		for b_idx in batch_indexes:
 
