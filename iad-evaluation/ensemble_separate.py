@@ -187,7 +187,7 @@ def model_consensus(confidences):
 # Train/Test Functions
 ##############################################
 
-def train_model(model_filename, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs):
+def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
@@ -230,12 +230,11 @@ def train_model(model_filename, num_classes, train_data, test_data, pruning_inde
 					print("model_num: {0}, test_accuracy: {1}, correct: {2}, total: {3}".format(model_num, correct / float(total), correct, total))
 
 			# save the model
-			save_name = model_filename+'_'+str(model_num)
-			saver.save(sess, save_name)
-			print("Final model saved in %s" % save_name)
+			saver.save(sess, model_dirs[model_num])
+			print("Final model saved in %s" % model_dirs[model_num])
 		tf.reset_default_graph()
 
-def test_model(model_filename, num_classes, test_data, pruning_indexes, num_features, window_size):
+def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
@@ -264,7 +263,7 @@ def test_model(model_filename, num_classes, test_data, pruning_indexes, num_feat
 
 		with tf.Session() as sess:
 			# restore the model
-			tf_utils.restore_model(sess, saver, model_filename+'_'+str(model_num))
+			tf_utils.restore_model(sess, saver, model_dirs[model_num])
 
 			num_iter = len(test_data)
 			for i in range(num_iter):
@@ -324,10 +323,15 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	model_id_path = os.path.join('iad_model', 'model_'+str(25*dataset_id))
 	iad_model_path = os.path.join(dataset_dir, model_id_path)
 
-	model_filename = iad_model_path+'/'+model_filename
+	model_dirs = []
+	for model_num in range(6):
+		separate_model_dir = os.path.join(iad_model_path, 'model_'+str(model_num))
+		model_dirs.append(separate_model_dir+'/'+model_filename)
 
-	if(not os.path.exists(iad_model_path)):
-		os.makedirs(iad_model_path)
+		if(not os.path.exists(separate_model_dir)):
+			os.makedirs(separate_model_dir)
+
+	
 
 	try:
 		csv_contents = read_csv(csv_filename)
@@ -358,9 +362,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Begin Training/Testing
 	if(FLAGS.operation == "train"):
 		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
-		train_model(model_filename, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs)
+		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs)
 	elif(FLAGS.operation == "test"):
-		test_model (model_filename, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
+		test_model (model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
 	else:
 		print('Operation parameter must be either "train" or "test"')
 
