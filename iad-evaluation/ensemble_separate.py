@@ -83,6 +83,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, window_size, batch_size)
 	else:
 		data = []
 		for layer in range(5):
+			print("layer: ", layer)
 			d, labels = get_batch_at_layer(layer, batch_indexes)
 			data.append(d)
 		data = [x.reshape(batch_size, -1, 1) for x in file_data]
@@ -386,7 +387,7 @@ if __name__ == "__main__":
 	parser.add_argument('--epochs', nargs='?', type=int, default=30, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--batch_size', nargs='?', type=int, default=15, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--alpha', nargs='?', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
-	parser.add_argument('--feature_retain_count', nargs='?', type=int, default=-1, help='the number of features to remove')
+	parser.add_argument('--feature_retain_count', nargs='?', type=int, default=10000, help='the number of features to remove')
 	
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
 
