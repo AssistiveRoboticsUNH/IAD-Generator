@@ -236,7 +236,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
-def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size):
+def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
@@ -301,15 +301,18 @@ def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features
 		class_accuracy[label, 1] += 1    
 				
 	# print partial model's cummulative accuracy
+    ofile = open(os.path.join(iad_model_path, "model_accuracy.txt"), 'w')
 	print("Model accuracy: ")
 	for model_num in range(6):
 		print("{:d}\t{:4.6f}".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
+        ofile.write("{:d}\t{:4.6f}\n".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
 
 	# print ensemble cummulative accuracy
 	print("FINAL\t{:4.6f}".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
+    ofile.write("FINAL\t{:4.6f}\n".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
 
 	# save per-class accuracy
-	np.save("classes.npy",  class_accuracy[:, 0] / class_accuracy[:, 1] )
+	np.save("class_accuracy.npy",  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 
 def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
@@ -366,7 +369,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
 		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs)
 	elif(operation == "test"):
-		test_model (model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
+		test_model (iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
 	else:
 		print('Operation parameter must be either "train" or "test"')
 
