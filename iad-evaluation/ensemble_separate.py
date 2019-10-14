@@ -259,7 +259,7 @@ def test_model(model_filename, num_classes, test_data, pruning_indexes, num_feat
 	for model_num in range(6):
 
 		#define network
-		ph, ops = model_def(num_classes, input_shape, model_num, alpha)
+		ph, ops = model_def(num_classes, input_shape, model_num, 1e-4)
 		saver = tf.train.Saver()
 
 		with tf.Session() as sess:
