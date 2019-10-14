@@ -91,11 +91,8 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size)
 			print("d_shape2:", d.shape)
 			data.append(d)
 		
-
-		data = np.array(data)
-
+		data = np.concatenate(data, axis=1)
 		print("data shape: ", data.shape)
-		data = np.concatenate(data)
 
 	return data, labels
 
