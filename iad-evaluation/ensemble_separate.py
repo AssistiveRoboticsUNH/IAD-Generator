@@ -230,8 +230,9 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 					print("model_num: {0}, test_accuracy: {1}, correct: {2}, total: {3}".format(model_num, correct / float(total), correct, total))
 
 			# save the model
-			saver.save(sess, model_dirs[model_num])
-			print("Final model saved in %s" % model_dirs[model_num])
+			save_name = model_dirs[model_num]+'/model'
+			saver.save(sess, save_name)
+			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
 def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size):
@@ -326,7 +327,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	model_dirs = []
 	for model_num in range(6):
 		separate_model_dir = os.path.join(iad_model_path, 'model_'+str(model_num))
-		model_dirs.append(separate_model_dir+'/'+model_filename)
+		model_dirs.append(separate_model_dir)
 
 		if(not os.path.exists(separate_model_dir)):
 			os.makedirs(separate_model_dir)
