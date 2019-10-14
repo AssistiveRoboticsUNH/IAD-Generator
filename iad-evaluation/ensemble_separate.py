@@ -362,10 +362,10 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
 
 	# Begin Training/Testing
-	if(FLAGS.operation == "train"):
+	if(operation == "train"):
 		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
 		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs)
-	elif(FLAGS.operation == "test"):
+	elif(operation == "test"):
 		test_model (model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
 	else:
 		print('Operation parameter must be either "train" or "test"')
