@@ -264,7 +264,7 @@ def test_model(model_filename, num_classes, test_data, pruning_indexes, num_feat
 
 		with tf.Session() as sess:
 			# restore the model
-			tf_utils.restore_model(sess, saver, model_filename)
+			tf_utils.restore_model(sess, saver, model_filename+'_'+str(model_num))
 
 			num_iter = len(test_data)
 			for i in range(num_iter):
