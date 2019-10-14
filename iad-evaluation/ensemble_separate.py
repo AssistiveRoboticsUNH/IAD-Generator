@@ -270,7 +270,7 @@ def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features
 			num_iter = len(test_data)
 			for i in range(num_iter):
 
-				data, label = get_batch_data(test_data[i], model_num, pruning_indexes, window_size, 1, batch_indexes=[i])
+				data, label = get_batch_data(test_data, model_num, pruning_indexes, window_size, 1, batch_indexes=[i])
 
 				for w_idx in range(1): # replace with len(data[0]) if using sliding window
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
