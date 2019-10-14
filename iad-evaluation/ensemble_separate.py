@@ -64,9 +64,6 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 		for b_idx in batch_indexes:
 
 			# open example and prepare data
-			print("b_idx:", b_idx)
-			print("layer:", layer)
-			print("input_shape:", input_shape[layer][1])
 			d, l = get_data(dataset[b_idx], layer, pruning_indexes, input_shape[layer][1])
 
 			# randomly select one of the windows in the data
@@ -309,10 +306,10 @@ def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features
 		print("{:d}\t{:4.6f}".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
 
 	# print ensemble cummulative accuracy
-	print( "FINAL\t{:4.6f}".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
+	print("FINAL\t{:4.6f}".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
 
 	# save per-class accuracy
-	np.save("classes.npy",  class_accuracy[:, 0] / float(class_accuracy[:, 1]) )
+	np.save("classes.npy",  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 
 def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
