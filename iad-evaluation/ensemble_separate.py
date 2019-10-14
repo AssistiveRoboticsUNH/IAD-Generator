@@ -56,7 +56,7 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 	return d, ex['label']
 
-def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size):
+def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, batch_indexes=None):
 
 	def get_batch_at_layer(layer, batch_indexes):
 		data, labels = [],[]
@@ -75,7 +75,8 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size)
 
 		return np.array(data), np.array(labels)
 
-	batch_indexes = np.random.randint(0, len(dataset), size=batch_size)
+	if(batch_indexes == None):
+		batch_indexes = np.random.randint(0, len(dataset), size=batch_size)
 
 	if (model_num < 5):
 		return get_batch_at_layer(model_num, batch_indexes)
@@ -269,7 +270,7 @@ def test_model(model_dirs, num_classes, test_data, pruning_indexes, num_features
 			num_iter = len(test_data)
 			for i in range(num_iter):
 
-				data, label = get_data(test_data[i], model_num, pruning_indexes, window_size)
+				data, label = get_data(test_data[i], model_num, pruning_indexes, window_size, batch_indexes=i)
 
 				for w_idx in range(1): # replace with len(data[0]) if using sliding window
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
