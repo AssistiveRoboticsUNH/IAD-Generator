@@ -301,15 +301,15 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		class_accuracy[label, 1] += 1    
 				
 	# print partial model's cummulative accuracy
-    ofile = open(os.path.join(iad_model_path, "model_accuracy.txt"), 'w')
+	ofile = open(os.path.join(iad_model_path, "model_accuracy.txt"), 'w')
 	print("Model accuracy: ")
 	for model_num in range(6):
 		print("{:d}\t{:4.6f}".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
-        ofile.write("{:d}\t{:4.6f}\n".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
+		ofile.write("{:d}\t{:4.6f}\n".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
 
 	# print ensemble cummulative accuracy
 	print("FINAL\t{:4.6f}".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
-    ofile.write("FINAL\t{:4.6f}\n".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
+	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
 
 	# save per-class accuracy
 	np.save("class_accuracy.npy",  class_accuracy[:, 0] / class_accuracy[:, 1] )
