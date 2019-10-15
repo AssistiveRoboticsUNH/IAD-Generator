@@ -298,7 +298,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	print("aggregated_confidences:", aggregated_confidences.shape)
 
 	print("ensemble_prediction:", ensemble_prediction)
-	print("label:", label)
+	print("aggregated_labels:", aggregated_labels)
 
 	for i, label in enumerate(aggregated_labels):
 		if(ensemble_prediction[i] == label):
