@@ -516,13 +516,9 @@ def generate_activation_map(input_ph):
         spatial_squeeze=True,
         final_endpoint='Logits')(input_ph, is_training)
 
-  print("rank_out1: ", rank_out)
-
   gradients = tf.gradients(logits, input_ph)
   rank_out = rank_out[::-1]
 
-  print("rank_out2: ", rank_out)
-      
   return target_layers, rank_out
 
 ###################
