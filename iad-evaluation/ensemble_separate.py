@@ -294,11 +294,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	# generate wighted sum for ensemble of models 
 	aggregated_confidences = np.transpose(np.array(aggregated_confidences), [0, 3, 2, 1])
 	ensemble_prediction = model_consensus(aggregated_confidences)
-
-	print("aggregated_confidences:", class_accuracy)
-
-	print("ensemble_prediction:", ensemble_prediction)
-	print("aggregated_labels:", aggregated_labels)
+	aggregated_labels = np.array(aggregated_labels)
 
 	for i, label in enumerate(aggregated_labels):
 		if(ensemble_prediction[i] == label):
@@ -313,8 +309,8 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		ofile.write("{:d}\t{:4.6f}\n".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
 
 	# print ensemble cummulative accuracy
-	print("FINAL\t{:4.6f}".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
-	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(model_accuracy[:, 0]) / float(np.sum(model_accuracy[:, 1])) ) )
+	print("FINAL\t{:4.6f}".format( np.sum(ensemble_prediction == aggregated_labels) / float(np.sum(aggregated_labels)) ) )
+	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(ensemble_prediction == aggregated_labels) / float(np.sum(aggregated_labels)) ) )
 	ofile.close()
 
 	# save per-class accuracy
