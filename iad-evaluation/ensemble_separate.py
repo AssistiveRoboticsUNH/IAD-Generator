@@ -309,8 +309,8 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		ofile.write("{:d}\t{:4.6f}\n".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
 
 	# print ensemble cummulative accuracy
-	print("FINAL\t{:4.6f}".format( np.sum(ensemble_prediction == aggregated_labels) / float(np.sum(aggregated_labels)) ) )
-	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(ensemble_prediction == aggregated_labels) / float(np.sum(aggregated_labels)) ) )
+	print("FINAL\t{:4.6f}".format( np.sum(ensemble_prediction == aggregated_labels) / float(len(aggregated_labels)) ) )
+	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(ensemble_prediction == aggregated_labels) / float(len(aggregated_labels)) ) )
 	ofile.close()
 
 	# save per-class accuracy
