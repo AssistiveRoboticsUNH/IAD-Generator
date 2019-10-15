@@ -294,7 +294,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	# generate wighted sum for ensemble of models 
 	aggregated_confidences = np.transpose(np.array(aggregated_confidences), [0, 3, 2, 1])
 	ensemble_prediction = model_consensus(aggregated_confidences)
-	aggregated_labels = np.array(aggregated_labels)
+	aggregated_labels = np.array(aggregated_labels).reshape(-1)
 
 	print("ensemble_prediction", ensemble_prediction)
 	print("aggregated_labels", aggregated_labels)
