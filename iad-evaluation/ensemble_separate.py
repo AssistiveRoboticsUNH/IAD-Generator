@@ -344,7 +344,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	except:
 		print("Cannot open CSV file: "+ csv_filename)
 
-	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] > 0]
+	train_data = [ex for ex in csv_contents if ex['dataset_id'] >  0]
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
 
 	for ex in csv_contents:
@@ -354,11 +354,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
 			ex['iad_path_'+str(layer)] = iad_file
 
-	
-
-	#train_data = train_data[:5]
-	#test_data = test_data[:5]
-
+	train_data = train_data[:5]
+	test_data = test_data[:5]
 
 	# Determine features to prune
 	pruning_keep_indexes = None
