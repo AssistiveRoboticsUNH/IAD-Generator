@@ -295,7 +295,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	aggregated_confidences = np.transpose(np.array(aggregated_confidences), [0, 3, 2, 1])
 	ensemble_prediction = model_consensus(aggregated_confidences)
 
-	print(aggregated_confidences)
+	print("aggregated_confidences:", aggregated_confidences.shape)
 
 	print("ensemble_prediction:", ensemble_prediction)
 	print("label:", label)
