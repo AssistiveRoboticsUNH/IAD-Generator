@@ -296,9 +296,9 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	ensemble_prediction = model_consensus(aggregated_confidences)
 	aggregated_labels = np.array(aggregated_labels).reshape(-1)
 
-	print("ensemble_prediction", ensemble_prediction)
-	print("aggregated_labels", aggregated_labels)
-	print(np.sum(ensemble_prediction == aggregated_labels), len(aggregated_labels))
+	#print("ensemble_prediction", ensemble_prediction)
+	#print("aggregated_labels", aggregated_labels)
+	#print(np.sum(ensemble_prediction == aggregated_labels), len(aggregated_labels))
 
 	for i, label in enumerate(aggregated_labels):
 		if(ensemble_prediction[i] == label):
