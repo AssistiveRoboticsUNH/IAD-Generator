@@ -67,9 +67,7 @@ def read_csv(csv_file):
 					'length':int(row['length']) }
 			csv_contents.append(data)
 	
-	return csv_contents
-
-			
+	return csv_contents	
 
 if __name__ == '__main__':
 	import argparse

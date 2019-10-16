@@ -323,13 +323,13 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 					num_win = 1
 
 				for w_idx in range(num_win): # replace with len(data[0]) if using sliding window
-					print("input:", data[w_idx].shape, label.shape)
+					#print("input:", data[w_idx].shape, label.shape)
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
 
 					confidences, predictions = sess.run([ 
 							ops['model_sftmx'], ops['model_preds']], 
 							feed_dict=feed_dict)
-					print("output:", confidences.shape)
+					#print("output:", confidences.shape)
 
 					# append confidences for evaluating consensus model
 					aggregated_confidences[i][model_num].append(confidences)
