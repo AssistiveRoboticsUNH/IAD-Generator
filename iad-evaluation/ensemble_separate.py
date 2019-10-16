@@ -327,6 +327,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 					confidences, predictions = sess.run([ 
 							ops['model_sftmx'], ops['model_preds']], 
 							feed_dict=feed_dict)
+					print("output:", confidences.shape)
 
 					# append confidences for evaluating consensus model
 					aggregated_confidences[i].append(confidences)
