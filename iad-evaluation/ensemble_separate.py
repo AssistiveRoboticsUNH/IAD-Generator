@@ -68,6 +68,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 
 			# randomly select one of the windows in the data
 			if(sliding_window):
+				print("d.shape:", d.shape)
 				w_idx = random.randint(0, d[0].shape[0]-1)
 			else:
 				w_idx = 0 # replace if using sliding window: 
