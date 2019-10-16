@@ -7,8 +7,8 @@ import tf_utils
 
 #import c3d as model
 #import c3d_large as model
-import i3d_wrapper as model
-#import rank_i3d as model
+#import i3d_wrapper as model
+import rank_i3d as model
 
 import os, sys
 
@@ -37,7 +37,7 @@ batch_size = 1
 
 
 RAW_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'imgFiles')
-IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad_wrap')
+IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad_rank')
 
 UPDATE_MIN_MAXES = (FLAGS.min_max_file == None)
 
@@ -106,13 +106,11 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 			raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 			# generate activation map from model
-			#iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
-			iad_data = sess.run(activation_map, feed_dict={input_placeholder: raw_data})
-
+			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
 
 			# write the am_layers to file and get the minimum and maximum values for each feature row
 			convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio)
-	"""		
+
 			# add new ranks to cummulative sum
 			for j in range(csv_contents[i]['dataset_id']):
 				summed_ranks[j] = rank_data if summed_ranks[j] == None else np.add(summed_ranks[j], rank_data)
@@ -131,7 +129,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 			depth=np.concatenate(depth), 
 			index=np.concatenate(index), 
 			rank=np.concatenate(rank))
-	"""
+
 
 	#save min_max_vals
 	if(UPDATE_MIN_MAXES):
