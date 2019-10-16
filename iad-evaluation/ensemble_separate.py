@@ -309,7 +309,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 				data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window=sliding_window)
 				data = data[0]
 
-				#print("data_shape:", data.shape)
+				print("data_shape:", data.shape)
 
 				if(sliding_window):
 					num_win = len(data)
