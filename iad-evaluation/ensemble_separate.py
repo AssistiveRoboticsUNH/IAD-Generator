@@ -74,6 +74,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 				w_idx = 0 # replace if using sliding window: 
 
 			# add values to list
+			print("w_idx:", w_idx)
 			data.append(d[w_idx])
 			labels.append(l)
 
