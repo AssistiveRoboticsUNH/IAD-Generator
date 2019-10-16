@@ -333,7 +333,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 					# append confidences for evaluating consensus model
 					aggregated_confidences[i][model_num].append(confidences)
-					if(model_num == 0 and i == 0):
+					if(model_num == 0 and w_idx ==0):
 						aggregated_labels.append(label)
 
 					# update model accuracy
