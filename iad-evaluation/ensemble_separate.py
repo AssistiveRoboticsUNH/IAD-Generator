@@ -56,7 +56,7 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 	return d, ex['label']
 
-def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, batch_indexes=None):
+def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, batch_indexes=None, sliding_window=False):
 
 	def get_batch_at_layer(layer, batch_indexes):
 		data, labels = [],[]
@@ -67,10 +67,44 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 			d, l = get_data(dataset[b_idx], layer, pruning_indexes, input_shape[layer][1])
 
 			# randomly select one of the windows in the data
-			w_idx = 0 # replace if using sliding window: random.randint(0, d[0].shape[0]-1)
+			if(sliding_window):
+				w_idx = random.randint(0, d[0].shape[0]-1)
+			else:
+				w_idx = 0 # replace if using sliding window: 
 
 			# add values to list
 			data.append(d[w_idx])
+			labels.append(l)
+
+		return np.array(data), np.array(labels)
+
+	if(batch_indexes == None):
+		batch_indexes = np.random.randint(0, len(dataset), size=batch_size)
+
+	if (model_num < 5):
+		return get_batch_at_layer(model_num, batch_indexes)
+	else:
+		data = []
+		for layer in range(5):
+			d, labels = get_batch_at_layer(layer, batch_indexes)
+			w_idx = 0
+			d = d.reshape(batch_size, -1, 1)
+			data.append(d)
+		data = np.concatenate(data, axis=1)
+
+	return data, labels
+
+def get_stack_data(dataset, model_num, pruning_indexes, input_shape, batch_size, batch_indexes=None, sliding_window=False):
+	def get_batch_at_layer(layer, batch_indexes):
+		data, labels = [],[]
+
+		for b_idx in batch_indexes:
+
+			# open example and prepare data
+			d, l = get_data(dataset[b_idx], layer, pruning_indexes, input_shape[layer][1])
+
+			# add values to list
+			data.append(d)
 			labels.append(l)
 
 		return np.array(data), np.array(labels)
@@ -188,7 +222,7 @@ def model_consensus(confidences):
 # Train/Test Functions
 ##############################################
 
-def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs):
+def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs, sliding_window):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
@@ -212,7 +246,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			
 			# setup training batch
 
-				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size)
+				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
 				out = sess.run(ops["train"], feed_dict=feed_dict)
@@ -222,7 +256,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 					print("step: ", str(i) + '/' + str(num_iter))
 					
 					# evaluate test network
-					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size)
+					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
 					feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: False }
 
 					correct_prediction = sess.run([ops['model_preds']], feed_dict=feed_dict)
@@ -236,7 +270,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
-def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size):
+def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size, sliding_window):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
@@ -270,9 +304,14 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 			num_iter = len(test_data)
 			for i in range(num_iter):
 
-				data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i])
+				data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window)
 
-				for w_idx in range(1): # replace with len(data[0]) if using sliding window
+				if(sliding_window):
+					num_win = len(data[0])
+				else:
+					num_win = 1
+
+				for w_idx in range(num_win): # replace with len(data[0]) if using sliding window
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
 
 					confidences, predictions = sess.run([ 
@@ -323,7 +362,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
 		window_size, epochs, batch_size, alpha, 
-		feature_retain_count, gpu):
+		feature_retain_count, gpu, sliding_window):
 
 	# optional - specify the CUDA device to use for GPU computation
 	# comment this line out if you wish to use all CUDA-capable devices
@@ -372,9 +411,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Begin Training/Testing
 	if(operation == "train"):
 		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
-		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs)
+		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 	elif(operation == "test"):
-		test_model (iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size)
+		test_model (iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 	else:
 		print('Operation parameter must be either "train" or "test"')
 
@@ -397,6 +436,7 @@ if __name__ == "__main__":
 	parser.add_argument('dataset_id', nargs='?', type=int, help='the dataset_id used to train the network. Is used in determing feature rank file')
 	parser.add_argument('window_size', nargs='?', type=int, help='the maximum length video to convert into an IAD')
 
+	parser.add_argument('--sliding_window', type=bool, default=False, help='.list file containing the test files')
 	parser.add_argument('--model_filename', default="model", help='the checkpoint file to use with the model')
 	parser.add_argument('--epochs', nargs='?', type=int, default=30, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--batch_size', nargs='?', type=int, default=15, help='the maximum length video to convert into an IAD')
@@ -419,7 +459,8 @@ if __name__ == "__main__":
 		FLAGS.batch_size,
 		FLAGS.alpha,
 		FLAGS.feature_retain_count,
-		FLAGS.gpu)
+		FLAGS.gpu,
+		FLAGS.sliding_window)
 
 	
 
