@@ -309,7 +309,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 				data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window=sliding_window)
 				data = data[0]
 
-				print("data_shape:", data.shape)
+				#print("data_shape:", data.shape)
 
 				if(sliding_window):
 					num_win = len(data)
@@ -317,7 +317,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 					num_win = 1
 
 				for w_idx in range(num_win): # replace with len(data[0]) if using sliding window
-					print(w_idx, num_win)
+					#print(w_idx, num_win)
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
 
 					confidences, predictions = sess.run([ 
