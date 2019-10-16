@@ -342,8 +342,8 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 		tf.reset_default_graph()
 
-	for i in aggregated_confidences:
-		print(i.shape)
+	for ag in aggregated_confidences:
+		print(np.array(ag).shape)
 
 
 	# generate wighted sum for ensemble of models 
