@@ -120,8 +120,8 @@ def get_stack_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 		data = []
 		for layer in range(5):
 			d, labels = get_batch_at_layer(layer, batch_indexes)
-			w_idx = 0
-			d = d.reshape(batch_size, -1, 1)
+			num_win = len(d.shape[0])
+			d = d.reshape(batch_size, num_win, -1, 1)
 			data.append(d)
 		data = np.concatenate(data, axis=1)
 
