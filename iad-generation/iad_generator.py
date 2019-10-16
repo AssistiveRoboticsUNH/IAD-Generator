@@ -37,7 +37,7 @@ batch_size = 1
 
 
 RAW_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'imgFiles')
-IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad')
+IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad_rank')
 
 UPDATE_MIN_MAXES = (FLAGS.min_max_file == None)
 
@@ -172,7 +172,7 @@ if __name__ == '__main__':
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
 
-	#csv_contents = csv_contents[:3]
+	csv_contents = csv_contents[:1]
 
 	print("numIADs:", len(csv_contents))
 	print("max_frame_length:", max_frame_length)
