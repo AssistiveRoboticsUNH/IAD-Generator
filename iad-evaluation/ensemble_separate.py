@@ -343,6 +343,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		tf.reset_default_graph()
 
 	# generate wighted sum for ensemble of models 
+	print("aggregated_confidences", aggregated_confidences.shape)
 	aggregated_confidences = np.transpose(np.array(aggregated_confidences), [0, 3, 2, 1])
 	ensemble_prediction = model_consensus(aggregated_confidences)
 	aggregated_labels = np.array(aggregated_labels).reshape(-1)
