@@ -246,7 +246,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			
 			# setup training batch
 
-				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
+				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
 				out = sess.run(ops["train"], feed_dict=feed_dict)
@@ -256,7 +256,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 					print("step: ", str(i) + '/' + str(num_iter))
 					
 					# evaluate test network
-					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
+					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
 					feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: False }
 
 					correct_prediction = sess.run([ops['model_preds']], feed_dict=feed_dict)
