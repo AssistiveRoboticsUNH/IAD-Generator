@@ -129,7 +129,7 @@ def get_stack_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 
 		for i in data:
 			print(i.shape)
-		data = np.concatenate(data, axis=1)
+		data = np.concatenate(data, axis=2)
 
 	return data, labels
 
