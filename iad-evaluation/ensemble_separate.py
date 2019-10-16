@@ -312,7 +312,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 				print("data_shape:", data.shape)
 
 				if(sliding_window):
-					num_win = len(data[0])
+					num_win = len(data)
 				else:
 					num_win = 1
 
