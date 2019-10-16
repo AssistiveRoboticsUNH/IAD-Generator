@@ -304,7 +304,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 			num_iter = len(test_data)
 			for i in range(num_iter):
 
-				data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window)
+				data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window=sliding_window)
 
 				if(sliding_window):
 					num_win = len(data[0])
@@ -370,7 +370,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	# Setup file IO
 	iad_data_path = os.path.join(dataset_dir, 'iad')
-	model_id_path = os.path.join('iad_model', 'model_'+str(25*dataset_id))
+	model_id_path = os.path.join('iad_model_'+str(window_size), 'model_'+str(25*dataset_id))
 	iad_model_path = os.path.join(dataset_dir, model_id_path)
 
 	model_dirs = []
@@ -398,8 +398,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
 			ex['iad_path_'+str(layer)] = iad_file
 
-	#train_data = train_data[:5]
-	#test_data = test_data[:5]
+	train_data = train_data[:5]
+	test_data = test_data[:5]
 
 	# Determine features to prune
 	pruning_keep_indexes = None
