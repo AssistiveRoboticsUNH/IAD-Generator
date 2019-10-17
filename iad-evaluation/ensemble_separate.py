@@ -61,6 +61,7 @@ def get_data_merged(ex, pruning_indexes, window_size):
 
 	for layer in range(5):
 		d, l = get_data(ex, layer, pruning_indexes, window_size)
+		print("flat_d[layer].shape:", d.shape)
 		flat_d.append(d.reshape(d.shape[0], -1, 1))
 		print("flat_d[layer].shape:", flat_d[layer].shape)
 
