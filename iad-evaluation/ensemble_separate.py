@@ -62,9 +62,7 @@ def get_data_merged(ex, pruning_indexes, input_shape):
 	for layer in range(5):
 		window_size = input_shape[layer][1]
 		d, l = get_data(ex, layer, pruning_indexes, window_size)
-		print("data.shape:", d.shape)
 		flat_d.append(d.reshape(d.shape[0], -1, 1))
-		print("flat_d[layer].shape:", flat_d[layer].shape)
 
 	return np.concatenate(flat_d, axis=1), l
 
@@ -287,18 +285,11 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 				aggregated_confidences[i].append([])
 
-				#data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window=sliding_window)
 				data, label = get_test_data(test_data, model_num, pruning_indexes, input_shape, i)
-				#data = data[0]
 
-				print("data_shape:", data.shape)
+				num_win = len(data) if sliding_window else 1
 
-				if(sliding_window):
-					num_win = len(data)
-				else:
-					num_win = 1
-
-				for w_idx in range(num_win): # replace with len(data[0]) if using sliding window
+				for w_idx in range(num_win): 
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
 
 					confidences, predictions = sess.run([ 
@@ -321,14 +312,9 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		aggregated_confidences[i] = np.mean(aggregated_confidences[i], axis = 1)
 
 	# generate wighted sum for ensemble of models 
-	print("aggregated_confidences", np.array(aggregated_confidences).shape)
 	aggregated_confidences = np.transpose(np.array(aggregated_confidences), [0, 3, 2, 1])
 	ensemble_prediction = model_consensus(aggregated_confidences)
 	aggregated_labels = np.array(aggregated_labels).reshape(-1)
-
-	print("ensemble_prediction", ensemble_prediction)
-	print("aggregated_labels", aggregated_labels)
-	#print(np.sum(ensemble_prediction == aggregated_labels), len(aggregated_labels))
 
 	for i, label in enumerate(aggregated_labels):
 		if(ensemble_prediction[i] == label):
