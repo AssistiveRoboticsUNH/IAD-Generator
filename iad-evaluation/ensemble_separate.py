@@ -56,10 +56,11 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 	return d, ex['label']
 
-def get_data_merged(ex, pruning_indexes, window_size):
+def get_data_merged(ex, pruning_indexes, input_shape):
 	flat_d = []
 
 	for layer in range(5):
+		window_size = input_shape[layer][1]
 		d, l = get_data(ex, layer, pruning_indexes, window_size)
 		print("data.shape:", d.shape)
 		flat_d.append(d.reshape(d.shape[0], -1, 1))
@@ -70,15 +71,16 @@ def get_data_merged(ex, pruning_indexes, window_size):
 def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, sliding_window):
 
 	batch_data, batch_label = [], []
-	window_size = input_shape[model_num][1]
+	
 
 	for b_idx in np.random.randint(0, len(dataset), size=batch_size):
 		file_ex = dataset[b_idx]
 
 		if model_num < 5:
+			window_size = input_shape[model_num][1]
 			d, l = get_data(file_ex, model_num, pruning_indexes, window_size)
 		else:
-			d, l = get_data_merged(file_ex, pruning_indexes, window_size)
+			d, l = get_data_merged(file_ex, pruning_indexes, input_shape)
 
 		w_idx = random.randint(0, d.shape[0]-1) if sliding_window else 0
 
@@ -91,12 +93,12 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 def get_test_data(dataset, model_num, pruning_indexes, input_shape, idx):
 
 	file_ex = dataset[idx]
-	window_size = input_shape[model_num][1]
 
 	if model_num < 5:
+		window_size = input_shape[model_num][1]
 		return get_data(file_ex, model_num, pruning_indexes, window_size)
 	else:
-		return get_data_merged(file_ex, pruning_indexes, window_size)
+		return get_data_merged(file_ex, pruning_indexes, input_shape)
 
 
 """
