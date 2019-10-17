@@ -351,7 +351,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	for i in range(len(aggregated_confidences)):
 		print("aggregated_confidences.shape1", np.array(aggregated_confidences[i]).shape)
 		aggregated_confidences[i] = np.mean(aggregated_confidences[i], axis = 1)
-	print("aggregated_confidences.shape2", aggregated_confidences.shape)
+		print("aggregated_confidences.shape2", np.array(aggregated_confidences[i]).shape)
 
 
 	# generate wighted sum for ensemble of models 
