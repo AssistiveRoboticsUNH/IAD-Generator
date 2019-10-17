@@ -145,6 +145,8 @@ def model_def(num_classes, input_shape, model_num, alpha):
 		# input layers [batch_size, h, w, num_channels]
 		top = tf.reshape(top, [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
 
+		print("input_shape", top.get_shape())
+
 		# hidden layers
 		num_filters = 32
 		filter_width = 4
@@ -154,6 +156,8 @@ def model_def(num_classes, input_shape, model_num, alpha):
 			kernel_size=[1, filter_width],
 			padding="valid", 
 			activation=tf.nn.leaky_relu)
+
+		print("top_shape", top.get_shape())
 		top = tf.layers.flatten(top)
 		top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
 		top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
