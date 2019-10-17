@@ -148,7 +148,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 		print("input_shape", top.get_shape())
 
 		# hidden layers
-		num_filters = 32
+		num_filters = 8
 		filter_width = 4
 		top = tf.layers.conv2d(
 			inputs=top,
