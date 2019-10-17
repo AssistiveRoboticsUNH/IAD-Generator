@@ -142,11 +142,14 @@ def model_def(num_classes, input_shape, model_num, alpha):
 		"""Return a convolutional model."""
 		top = input_ph
 
+		# input layers [batch_size, h, w, num_channels]
+		top = tf.reshape(top, [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
+
 		# hidden layers
 		num_filters = 32
 		filter_width = 4
-		conv1 = tf.layers.conv2d(
-			inputs=input_layer,
+		top = tf.layers.conv2d(
+			inputs=top,
 			filters=num_filters,
 			kernel_size=[1, filter_width],
 			padding="valid", 
@@ -181,8 +184,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 	}
 
 	# Logits
-	# input layers [batch_size, h, w, num_channels]
-	input_layer = tf.reshape(ph["x_" + str(model_num)], [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
+	input_layer = ph["x_"+str(model_num)]
 	if(model_num < 3):
 		logits = conv_model(input_layer)
 	else:
@@ -250,12 +252,11 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			num_iter = epochs * len(train_data) / batch_size
 			for i in range(num_iter):
 			
-			# setup training batch
-
+				# setup training batch
 				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
-				out = sess.run(ops["train"], feed_dict=feed_dict)
+				sess.run(ops["train"], feed_dict=feed_dict)
 
 				# print out every 2K iterations
 				if i % 2000 == 0:
@@ -345,10 +346,11 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		tf.reset_default_graph()
 
 
-
+	print("aggregated_confidences.shape1", aggregated_confidences.shape)
 	for i in range(len(aggregated_confidences)):
 		aggregated_confidences[i] = np.mean(aggregated_confidences[i], axis = 1)
 
+	print("aggregated_confidences.shape2", aggregated_confidences.shape)
 
 
 
