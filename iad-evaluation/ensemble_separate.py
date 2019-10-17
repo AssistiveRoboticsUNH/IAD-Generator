@@ -35,6 +35,69 @@ get_input_shape = lambda num_features, pad_length: \
 					(min( 832, num_features), pad_length/4), 
 					(min(1024, num_features), pad_length/8)]
 
+
+def get_data(ex, layer, pruning_indexes, window_size):
+	# open the IAD
+	f = np.load(ex['iad_path_'+str(layer)])
+	d, z = f["data"], f["length"]
+
+	# prune unused indexes
+	if(pruning_indexes != None):
+		idx = pruning_indexes[layer]
+		d = d[idx]
+
+	# modify data to desired window size
+	pading_length = window_size - (z%window_size)
+	d = np.pad(d, [[0,0],[0,pading_length]], 'constant', constant_values=0)
+
+	# split the input into chunks of the given window size
+	d = np.split(d, d.shape[1]/window_size, axis=1)
+	d = np.stack(d)
+
+	return d, ex['label']
+
+def get_data_merged(ex, pruning_indexes, window_size):
+	flat_d = []
+
+	for layer in range(5):
+		d, l = get_data(ex, layer, pruning_indexes, window_size)
+		flat_d.append(d.reshape(d.shape[0], -1, 1))
+
+	return np.concatenate(flat_d, axis=1), l
+
+def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, sliding_window):
+
+	batch_data, batch_label = [], []
+	window_size = input_shape[model_num][1]
+
+	for b_idx in np.random.randint(0, len(dataset), size=batch_size):
+		file_ex = dataset[b_idx]
+
+		if model_num < 5:
+			d, l = get_data(file_ex, model_num, pruning_indexes, window_size)
+		else:
+			d, l = get_data_merged(file_ex, pruning_indexes, window_size)
+
+		w_idx = random.randint(0, d.shape[0]-1) if sliding_window else 0
+
+		batch_data.append(d[w_idx])
+		batch_label.append(l)
+
+	return np.array(batch_data), np.array(batch_label)
+		
+
+def get_test_data(dataset, model_num, pruning_indexes, input_shape, idx):
+
+	file_ex = dataset[idx]
+	window_size = input_shape[model_num][1]
+
+	if model_num < 5:
+		return get_data(file_ex, model_num, pruning_indexes, window_size)
+	else:
+		return get_data_merged(file_ex, pruning_indexes, window_size)
+
+
+"""
 def get_data(ex, layer, pruning_indexes, window_size):
 
 	# open the IAD
@@ -58,7 +121,7 @@ def get_data(ex, layer, pruning_indexes, window_size):
 
 def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, batch_indexes=None, sliding_window=False):
 
-	def get_batch_at_layer(layer, batch_indexes):
+	def get_batch_at_layer(layer, batch_indexes, w_idx):
 		data, labels = [],[]
 
 		for b_idx in batch_indexes:
@@ -66,15 +129,7 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 			# open example and prepare data
 			d, l = get_data(dataset[b_idx], layer, pruning_indexes, input_shape[layer][1])
 
-			# randomly select one of the windows in the data
-			if(sliding_window):
-				#print("d.shape:", d.shape)
-				w_idx = random.randint(0, d.shape[0]-1)
-			else:
-				w_idx = 0 # replace if using sliding window: 
-
 			# add values to list
-			#print("w_idx:", w_idx)
 			data.append(d[w_idx])
 			labels.append(l)
 
@@ -83,13 +138,17 @@ def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 	if(batch_indexes == None):
 		batch_indexes = np.random.randint(0, len(dataset), size=batch_size)
 
+	if(sliding_window):
+		w_idx = random.randint(0, d.shape[0]-1)
+	else:
+		w_idx = 0  
+
 	if (model_num < 5):
-		return get_batch_at_layer(model_num, batch_indexes)
+		return get_batch_at_layer(model_num, batch_indexes, w_idx)
 	else:
 		data = []
 		for layer in range(5):
-			d, labels = get_batch_at_layer(layer, batch_indexes)
-			w_idx = 0
+			d, labels = get_batch_at_layer(layer, batch_indexes, w_idx)
 			d = d.reshape(batch_size, -1, 1)
 			data.append(d)
 		data = np.concatenate(data, axis=1)
@@ -130,7 +189,7 @@ def get_stack_data(dataset, model_num, pruning_indexes, input_shape, batch_size,
 		data = np.concatenate(data, axis=2)
 
 	return data, labels
-
+"""
 ##############################################
 # Model Structure
 ##############################################
@@ -254,7 +313,8 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			for i in range(num_iter):
 			
 				# setup training batch
-				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
+				#data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
+				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
 				sess.run(ops["train"], feed_dict=feed_dict)
@@ -264,7 +324,9 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 					print("step: ", str(i) + '/' + str(num_iter))
 					
 					# evaluate test network
-					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
+					#data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
+					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
+				
 					feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: False }
 
 					correct_prediction = sess.run([ops['model_preds']], feed_dict=feed_dict)
@@ -315,10 +377,11 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 				aggregated_confidences[i].append([])
 
-				data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window=sliding_window)
-				data = data[0]
+				#data, label = get_stack_data(test_data, model_num, pruning_indexes, input_shape, 1, batch_indexes=[i], sliding_window=sliding_window)
+				data, label = get_test_data(dataset, model_num, pruning_indexes, input_shape, i)
+				#data = data[0]
 
-				#print("data_shape:", data.shape)
+				print("data_shape:", data.shape)
 
 				if(sliding_window):
 					num_win = len(data)
@@ -326,13 +389,11 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 					num_win = 1
 
 				for w_idx in range(num_win): # replace with len(data[0]) if using sliding window
-					#print("input:", data[w_idx].shape, label.shape)
 					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
 
 					confidences, predictions = sess.run([ 
 							ops['model_sftmx'], ops['model_preds']], 
 							feed_dict=feed_dict)
-					#print("output:", confidences.shape)
 
 					# append confidences for evaluating consensus model
 					aggregated_confidences[i][model_num].append(confidences)
@@ -346,13 +407,8 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 		tf.reset_default_graph()
 
-
-	
 	for i in range(len(aggregated_confidences)):
-		print("aggregated_confidences.shape1", np.array(aggregated_confidences[i]).shape)
 		aggregated_confidences[i] = np.mean(aggregated_confidences[i], axis = 1)
-		print("aggregated_confidences.shape2", np.array(aggregated_confidences[i]).shape)
-
 
 	# generate wighted sum for ensemble of models 
 	print("aggregated_confidences", np.array(aggregated_confidences).shape)
