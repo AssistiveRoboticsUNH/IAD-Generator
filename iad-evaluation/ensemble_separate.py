@@ -145,8 +145,6 @@ def model_def(num_classes, input_shape, model_num, alpha):
 		# input layers [batch_size, h, w, num_channels]
 		top = tf.reshape(top, [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
 
-		print("input_shape", top.get_shape())
-
 		# hidden layers
 		num_filters = 8
 		filter_width = 4
@@ -157,7 +155,6 @@ def model_def(num_classes, input_shape, model_num, alpha):
 			padding="valid", 
 			activation=tf.nn.leaky_relu)
 
-		print("top_shape", top.get_shape())
 		top = tf.layers.flatten(top)
 		top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
 		top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
@@ -350,8 +347,9 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		tf.reset_default_graph()
 
 
-	print("aggregated_confidences.shape1", aggregated_confidences.shape)
+	
 	for i in range(len(aggregated_confidences)):
+		print("aggregated_confidences.shape1", aggregated_confidences[0].shape)
 		aggregated_confidences[i] = np.mean(aggregated_confidences[i], axis = 1)
 	print("aggregated_confidences.shape2", aggregated_confidences.shape)
 
