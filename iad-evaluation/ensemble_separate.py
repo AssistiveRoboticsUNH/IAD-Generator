@@ -227,7 +227,7 @@ def model_consensus(confidences):
 ##############################################
 # Train/Test Functions
 ##############################################
-
+               #model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window
 def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs, sliding_window):
 
 	# get the shape of the flattened and merged IAD and append
@@ -276,6 +276,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
+              #iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window
 def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size, sliding_window):
 
 	# get the shape of the flattened and merged IAD and append
@@ -403,14 +404,12 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		if(not os.path.exists(separate_model_dir)):
 			os.makedirs(separate_model_dir)
 
-	
-
 	try:
 		csv_contents = read_csv(csv_filename)
 	except:
 		print("Cannot open CSV file: "+ csv_filename)
 
-	train_data = [ex for ex in csv_contents if ex['dataset_id'] >  0]
+	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] != 0]
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
 
 	for ex in csv_contents:
@@ -432,7 +431,6 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	# Begin Training/Testing
 	if(operation == "train"):
-		#model_filename, num_classes, train_data, test_data, pruning_indexes, window_size, batch_size
 		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 	elif(operation == "test"):
 		test_model (iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
@@ -483,6 +481,21 @@ if __name__ == "__main__":
 		FLAGS.feature_retain_count,
 		FLAGS.gpu,
 		FLAGS.sliding_window)
-
+	'''
+	model_type, 
+	dataset_dir, 
+	csv_filename, 
+	num_classes, 
+	operation, 
+	dataset_id, 
+	model_filename, 
+	window_size, 
+	epochs, 
+	batch_size, 
+	alpha, 
+	feature_retain_count, 
+	gpu, 
+	sliding_window
+	'''
 	
 
