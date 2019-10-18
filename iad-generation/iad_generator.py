@@ -37,7 +37,7 @@ batch_size = 1
 
 
 RAW_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'imgFiles')
-IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad_rank')
+IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad_tuned')
 
 UPDATE_MIN_MAXES = (FLAGS.min_max_file == None)
 
