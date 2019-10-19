@@ -346,7 +346,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 	# Setup file IO
-	iad_data_path = os.path.join(dataset_dir, 'iad')
+	iad_data_path = os.path.join(dataset_dir, 'iad_tuned')
 	model_id_path = os.path.join('iad_model_'+str(window_size), 'model_'+str(25*dataset_id))
 	iad_model_path = os.path.join(dataset_dir, model_id_path)
 
