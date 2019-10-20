@@ -47,7 +47,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_size):
 	
 	# define placeholder
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=pad_length)
@@ -71,7 +71,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		summed_ranks = [None]*4
+		summed_ranks = []#[None]*4
 
 		# process files
 		for i in range(len(csv_contents)):
@@ -89,23 +89,30 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 			convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio)
 
 			# add new ranks to cummulative sum
-			for j in range(csv_contents[i]['dataset_id']):
-				summed_ranks[j] = rank_data if summed_ranks[j] == None else np.add(summed_ranks[j], rank_data)
+			#for j in range(csv_contents[i]['dataset_id']):
+			#summed_ranks[j] = rank_data if summed_ranks[j] == None else np.add(summed_ranks[j], rank_data)
+			summed_ranks = rank_data if summed_ranks == None else np.add(summed_ranks, rank_data)
+
 
 	# save ranking files
-	for dataset_size in range(4):
-		depth, index, rank = [],[],[] 
+	#for dataset_size in range(4):
+	depth, index, rank = [],[],[] 
+	'''
+	for layer in range(len(summed_ranks[dataset_size])):
+		depth.append(np.full(len(summed_ranks[dataset_size][layer]), layer))
+		index.append(np.arange(len(summed_ranks[dataset_size][layer])))
+		rank.append(summed_ranks[dataset_size][layer])
+	'''
+	for layer in range(len(summed_ranks)):
+		depth.append(np.full(len(summed_ranks[layer]), layer))
+		index.append(np.arange(len(summed_ranks[layer])))
+		rank.append(summed_ranks[layer])
 
-		for layer in range(len(summed_ranks[dataset_size])):
-			depth.append(np.full(len(summed_ranks[dataset_size][layer]), layer))
-			index.append(np.arange(len(summed_ranks[dataset_size][layer])))
-			rank.append(summed_ranks[dataset_size][layer])
-
-		filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str((dataset_size+1)*25)+".npz")
-		np.savez(filename, 
-			depth=np.concatenate(depth), 
-			index=np.concatenate(index), 
-			rank=np.concatenate(rank))
+	filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str((dataset_size)*25)+".npz")
+	np.savez(filename, 
+		depth=np.concatenate(depth), 
+		index=np.concatenate(index), 
+		rank=np.concatenate(rank))
 
 
 	#save min_max_vals
@@ -182,7 +189,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length)
+	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_id)
 	normalize_dataset(csv_contents, min_max_vals)
 
 	#summarize operations
