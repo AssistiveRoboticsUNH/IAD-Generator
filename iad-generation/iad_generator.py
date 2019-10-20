@@ -17,6 +17,8 @@ import numpy as np
 
 batch_size = 1
 
+RAW_DATA_PATH, IAD_DATA_PATH, UPDATE_MIN_MAXES = "", "", ""
+
 def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 	#converts file to iad and extracts the max and min values for the given IAD
 
@@ -135,6 +137,8 @@ def normalize_dataset(csv_contents, min_max_vals):
 def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+
+
 
 	RAW_DATA_PATH = os.path.join(dataset_dir, 'imgFiles')
 	IAD_DATA_PATH = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id))
