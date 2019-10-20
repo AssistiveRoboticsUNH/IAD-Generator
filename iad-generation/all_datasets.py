@@ -1,17 +1,8 @@
 from multiprocessing import Process
-from ensemble_separate import main
+from iad_generator import main
 
-
-
-
-
-
-def f(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
-		window_size, epochs, batch_size, alpha, 
-		feature_retain_count, gpu):
-	main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
-		window_size, epochs, batch_size, alpha, 
-		feature_retain_count, gpu)
+def f(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu):
+	main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu)
 
 if __name__ == '__main__':
 
