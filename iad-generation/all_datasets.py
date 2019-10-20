@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	procs = []
 	for dataset_id in range(4, 0, -1):
 		p = Process(target=f, args=(FLAGS.model_type, 
-		"~/i3d/train_i3d/experiments/hmdb-51/icra_models/hmdb_i3d_pretrained_01_"+str(25*dataset_id), 
+		"/home/mbc2004/i3d/train_i3d/experiments/hmdb-51/icra_models/hmdb_i3d_pretrained_01_"+str(25*dataset_id), 
 		#FLAGS.model_filename, 
 		FLAGS.dataset_dir, 
 		FLAGS.csv_filename, 
