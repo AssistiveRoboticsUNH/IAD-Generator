@@ -71,7 +71,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		summed_ranks = []#[None]*4
+		summed_ranks = None#[]#[None]*4
 
 		# process files
 		for i in range(len(csv_contents)):
