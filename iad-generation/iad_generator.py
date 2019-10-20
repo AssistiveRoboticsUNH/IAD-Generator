@@ -15,33 +15,6 @@ import os, sys
 import tensorflow as tf
 import numpy as np
 
-import argparse
-parser = argparse.ArgumentParser(description='Generate IADs from input files')
-
-#required command line args
-parser.add_argument('model_type', help='the type of model to use: I3D')
-parser.add_argument('model_filename', help='the checkpoint file to use with the model')
-
-parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
-parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
-
-parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
-parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
-parser.add_argument('--gpu', default="0", help='gpu to run on')
-
-FLAGS = parser.parse_args()
-
-os.environ["CUDA_VISIBLE_DEVICES"] = FLAGS.gpu
-
-batch_size = 1
-
-
-RAW_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'imgFiles')
-IAD_DATA_PATH = os.path.join(FLAGS.dataset_dir, 'iad_tuned')
-
-UPDATE_MIN_MAXES = (FLAGS.min_max_file == None)
-
-
 def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 	#converts file to iad and extracts the max and min values for the given IAD
 
@@ -70,10 +43,10 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length):
 	
 	# define placeholder
-	input_placeholder = model.get_input_placeholder(batch_size, num_frames=FLAGS.pad_length)
+	input_placeholder = model.get_input_placeholder(batch_size, num_frames=pad_length)
 	
 	# define model
 	activation_map, rankings, saver = model.load_model(input_placeholder)
@@ -89,7 +62,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals):
 
 		# Restore model
 		sess.run(tf.global_variables_initializer())
-		tf_utils.restore_model(sess, saver, FLAGS.model_filename)
+		tf_utils.restore_model(sess, saver, model_filename)
 
 		# prevent further modification to the graph
 		sess.graph.finalize()
@@ -157,9 +130,17 @@ def normalize_dataset(csv_contents, min_max_vals):
 			# re-save file
 			np.savez(filename, data=data, label=label, length=length)
 
-if __name__ == '__main__':
-	
-	csv_contents = read_csv(FLAGS.csv_filename)
+def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu):
+
+	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+
+	RAW_DATA_PATH = os.path.join(dataset_dir, 'imgFiles')
+	IAD_DATA_PATH = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id)+)
+
+	UPDATE_MIN_MAXES = (min_max_file == None)
+
+	csv_contents = read_csv(csv_filename)
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -177,33 +158,63 @@ if __name__ == '__main__':
 	print("numIADs:", len(csv_contents))
 	print("max_frame_length:", max_frame_length)
 
-	if (FLAGS.pad_length < 0):
-		FLAGS.pad_length = max_frame_length
+	if (pad_length < 0):
+		pad_length = max_frame_length
 	print("padding iads to a length of {0} frames".format(max_frame_length))
 
 	if(not os.path.exists(IAD_DATA_PATH)):
 		os.makedirs(IAD_DATA_PATH)
 
 	# generate arrays to store the min and max values of each feature
-	UPDATE_MIN_MAXES = (FLAGS.min_max_file == None)
+	UPDATE_MIN_MAXES = (min_max_file == None)
 	if(UPDATE_MIN_MAXES):
 		min_max_vals = {"max": [],"min": []}
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
 			min_max_vals["max"].append([float("-inf")] * model.CNN_FEATURE_COUNT[layer])
 			min_max_vals["min"].append([float("inf")] * model.CNN_FEATURE_COUNT[layer])
 	else:
-		f = np.load(FLAGS.min_max_file, allow_pickle=True)
+		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(csv_contents, min_max_vals)
+	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length)
 	normalize_dataset(csv_contents, min_max_vals)
 
 	#summarize operations
 	print("--------------")
 	print("Summary")
 	print("--------------")
+	print("Dataset ID: {0}".format(dataset_id))
 	print("Number of videos into IADs: {0}".format(len(csv_contents)))
-	print("IADs are padded/pruned to a length of: {0}".format(FLAGS.pad_length))
+	print("IADs are padded/pruned to a length of: {0}".format(pad_length))
 	print("Longest video sequence in file list: {0}".format(max_frame_length))
 	print("Files place in: {0}".format(IAD_DATA_PATH))
 	print("Min/Max File was Saved: {0}".format(UPDATE_MIN_MAXES))
+
+
+if __name__ == '__main__':
+	import argparse
+	parser = argparse.ArgumentParser(description='Generate IADs from input files')
+	#required command line args
+	parser.add_argument('model_type', help='the type of model to use: I3D')
+	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
+
+	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
+	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
+
+	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
+
+	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
+	parser.add_argument('--gpu', default="0", help='gpu to run on')
+
+	FLAGS = parser.parse_args()
+
+	main(FLAGS.model_type, 
+		FLAGS.model_filename, 
+		FLAGS.dataset_dir, 
+		FLAGS.csv_filename, 
+		FLAGS.pad_length, 
+		FLAGS.min_max_file, 
+		FLAGS.gpu)
+
+	
