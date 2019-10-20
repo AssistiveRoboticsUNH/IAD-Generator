@@ -135,7 +135,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 	RAW_DATA_PATH = os.path.join(dataset_dir, 'imgFiles')
-	IAD_DATA_PATH = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id)+)
+	IAD_DATA_PATH = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id))
 
 	UPDATE_MIN_MAXES = (min_max_file == None)
 
