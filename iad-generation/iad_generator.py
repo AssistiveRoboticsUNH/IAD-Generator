@@ -15,6 +15,8 @@ import os, sys
 import tensorflow as tf
 import numpy as np
 
+batch_size = 1
+
 def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 	#converts file to iad and extracts the max and min values for the given IAD
 
