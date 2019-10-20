@@ -196,12 +196,12 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Generate IADs from input files')
 	#required command line args
 	parser.add_argument('model_type', help='the type of model to use: I3D')
-	#parser.add_argument('model_filename', help='the checkpoint file to use with the model')
+	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
 
 	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
 	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
 
-	#parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
+	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
 	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
