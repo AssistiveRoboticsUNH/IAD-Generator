@@ -17,13 +17,11 @@ import numpy as np
 
 batch_size = 1
 
-RAW_DATA_PATH, IAD_DATA_PATH, UPDATE_MIN_MAXES = "", "", ""
-
-def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
+def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes, iad_data_path):
 	#converts file to iad and extracts the max and min values for the given IAD
 
 	#update max and min values
-	if(UPDATE_MIN_MAXES and meta_data['dataset_id'] != 0):
+	if(update_min_maxes and meta_data['dataset_id'] != 0):
 		for layer in range(len(data)):
 			local_max_values = np.max(data[layer], axis=1)
 			local_min_values = np.min(data[layer], axis=1)
@@ -37,7 +35,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 
 	#save to disk
 	for layer in range(len(data)):
-		label_path = os.path.join(IAD_DATA_PATH, meta_data['label_name'])
+		label_path = os.path.join(iad_data_path, meta_data['label_name'])
 		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
 
@@ -47,7 +45,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio):
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_size):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_size, update_min_maxes, iad_data_path):
 	
 	# define placeholder
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=pad_length)
@@ -86,7 +84,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
 
 			# write the am_layers to file and get the minimum and maximum values for each feature row
-			convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio)
+			convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio, update_min_maxes, iad_data_path)
 
 			# add new ranks to cummulative sum
 			#for j in range(csv_contents[i]['dataset_id']):
@@ -108,7 +106,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 		index.append(np.arange(len(summed_ranks[layer])))
 		rank.append(summed_ranks[layer])
 
-	filename = os.path.join(IAD_DATA_PATH, "feature_ranks_"+str((dataset_size)*25)+".npz")
+	filename = os.path.join(iad_data_path, "feature_ranks_"+str((dataset_size)*25)+".npz")
 	np.savez(filename, 
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
@@ -116,8 +114,8 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 
 
 	#save min_max_vals
-	if(UPDATE_MIN_MAXES):
-		np.savez(os.path.join(IAD_DATA_PATH, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
+	if(update_min_maxes):
+		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
 	
 def normalize_dataset(csv_contents, min_max_vals):
 	for i in range(len(csv_contents)):
@@ -145,16 +143,12 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
-
-
-	RAW_DATA_PATH = os.path.join(dataset_dir, 'imgFiles')
-	IAD_DATA_PATH = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id))
-
-	UPDATE_MIN_MAXES = (min_max_file == None)
+	raw_data_path = os.path.join(dataset_dir, 'imgFiles')
+	iad_data_path = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id))
 
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id]
-	#csv_contents = csv_contents[:3]
+	csv_contents = csv_contents[:3]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -162,7 +156,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 	filenames, labels = [],[]
 	for ex in csv_contents:
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
-		ex['raw_path'] = os.path.join(RAW_DATA_PATH, file_location)
+		ex['raw_path'] = os.path.join(raw_data_path, file_location)
 
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
@@ -176,12 +170,12 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 		pad_length = max_frame_length
 	print("padding iads to a length of {0} frames".format(max_frame_length))
 
-	if(not os.path.exists(IAD_DATA_PATH)):
-		os.makedirs(IAD_DATA_PATH)
+	if(not os.path.exists(iad_data_path)):
+		os.makedirs(iad_data_path)
 
 	# generate arrays to store the min and max values of each feature
-	UPDATE_MIN_MAXES = (min_max_file == None)
-	if(UPDATE_MIN_MAXES):
+	update_min_maxes = (min_max_file == None)
+	if(update_min_maxes):
 		min_max_vals = {"max": [],"min": []}
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
 			min_max_vals["max"].append([float("-inf")] * model.CNN_FEATURE_COUNT[layer])
@@ -190,7 +184,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_id)
+	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_id, update_min_maxes, iad_data_path)
 	normalize_dataset(csv_contents, min_max_vals)
 
 	#summarize operations
@@ -201,8 +195,8 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 	print("Number of videos into IADs: {0}".format(len(csv_contents)))
 	print("IADs are padded/pruned to a length of: {0}".format(pad_length))
 	print("Longest video sequence in file list: {0}".format(max_frame_length))
-	print("Files place in: {0}".format(IAD_DATA_PATH))
-	print("Min/Max File was Saved: {0}".format(UPDATE_MIN_MAXES))
+	print("Files place in: {0}".format(iad_data_path))
+	print("Min/Max File was Saved: {0}".format(update_min_maxes))
 
 
 if __name__ == '__main__':
