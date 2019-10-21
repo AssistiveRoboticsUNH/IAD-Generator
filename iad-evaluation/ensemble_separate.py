@@ -365,12 +365,15 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] != 0]
 	train_data = train_data[:5]
-	for i in train_data:
-		print(i['example_id'], i['dataset_id'])
+	for ex in train_data:
+		file_location = os.path.join(ex['label_name'], ex['example_id'])
+		for layer in range(5):
+			iad_file = os.path.join(iad_data_path, file_location+"_"+str(layer)+".npz")
+			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
+			ex['iad_path_'+str(layer)] = iad_file
 
-	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0] 
-
-	for ex in csv_contents:
+	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0]
+	for ex in test_data:
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
 		for layer in range(5):
 			iad_file = os.path.join(iad_data_path, file_location+"_"+str(layer)+".npz")
