@@ -53,6 +53,7 @@ if __name__ == '__main__':
 		FLAGS.alpha,
 		FLAGS.feature_retain_count,
 		FLAGS.gpu,
+		FLAGS.sliding_window,
 		 ))
 		p.start()
 		p.join()
