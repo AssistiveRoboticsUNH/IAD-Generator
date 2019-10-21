@@ -337,7 +337,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	np.save(os.path.join(iad_model_path, "class_accuracy.npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 
-def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, model_filename, 
+def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, 
 		window_size, epochs, batch_size, alpha, 
 		feature_retain_count, gpu, sliding_window):
 
@@ -414,7 +414,6 @@ if __name__ == "__main__":
 	parser.add_argument('window_size', nargs='?', type=int, help='the maximum length video to convert into an IAD')
 
 	parser.add_argument('--sliding_window', type=bool, default=False, help='.list file containing the test files')
-	parser.add_argument('--model_filename', default="model", help='the checkpoint file to use with the model')
 	parser.add_argument('--epochs', nargs='?', type=int, default=30, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--batch_size', nargs='?', type=int, default=15, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--alpha', nargs='?', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
@@ -430,7 +429,6 @@ if __name__ == "__main__":
 		FLAGS.num_classes, 
 		FLAGS.operation, 
 		FLAGS.dataset_id, 
-		FLAGS.model_filename, 
 		FLAGS.window_size, 
 		FLAGS.epochs,
 		FLAGS.batch_size,
