@@ -35,7 +35,6 @@ get_input_shape = lambda num_features, pad_length: \
 					(min( 832, num_features), pad_length/4), 
 					(min(1024, num_features), pad_length/8)]
 
-
 def get_data(ex, layer, pruning_indexes, window_size):
 	# open the IAD
 	f = np.load(ex['iad_path_'+str(layer)])
@@ -69,7 +68,6 @@ def get_data_merged(ex, pruning_indexes, input_shape):
 def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, sliding_window):
 
 	batch_data, batch_label = [], []
-	
 
 	for b_idx in np.random.randint(0, len(dataset), size=batch_size):
 		file_ex = dataset[b_idx]
@@ -197,7 +195,7 @@ def model_consensus(confidences):
 ##############################################
 # Train/Test Functions
 ##############################################
-               #model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window
+
 def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs, sliding_window):
 
 	# get the shape of the flattened and merged IAD and append
@@ -221,7 +219,6 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			for i in range(num_iter):
 			
 				# setup training batch
-				#data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
 				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
@@ -232,7 +229,6 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 					print("step: ", str(i) + '/' + str(num_iter))
 					
 					# evaluate test network
-					#data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window=sliding_window)
 					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
 				
 					feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: False }
@@ -248,14 +244,11 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
-              #iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window
 def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size, sliding_window):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
-
-
 
 	#variables for determining model accuracy
 	model_accuracy = np.zeros([ 6, 2], dtype=np.int32)
@@ -267,8 +260,6 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	aggregated_confidences, aggregated_labels = [], []
 	for i in range(len(test_data)):
 		aggregated_confidences.append([])
-
-
 
 	for model_num in range(6):
 
@@ -443,21 +434,3 @@ if __name__ == "__main__":
 		FLAGS.feature_retain_count,
 		FLAGS.gpu,
 		FLAGS.sliding_window)
-	'''
-	model_type, 
-	dataset_dir, 
-	csv_filename, 
-	num_classes, 
-	operation, 
-	dataset_id, 
-	model_filename, 
-	window_size, 
-	epochs, 
-	batch_size, 
-	alpha, 
-	feature_retain_count, 
-	gpu, 
-	sliding_window
-	'''
-	
-
