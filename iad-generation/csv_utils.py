@@ -54,7 +54,7 @@ def split_trainlist_to_percent_chunks(csv_filename, trainlist_filename, testlist
 							'dataset_id':dataset_id,
 							'length':length})
 
-def convert_listfiles_to_csv(csv_filename, test_filename, train_filename):
+def convert_listfiles_to_csv(csv_filename, file_list):
 	with open(csv_filename, 'w') as csvfile:
 		writer = csv.DictWriter(csvfile, 
 			fieldnames=['label_name', 'example_id', 'label', 'dataset_id', 'length'])
