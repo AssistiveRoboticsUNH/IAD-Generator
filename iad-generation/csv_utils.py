@@ -85,7 +85,7 @@ def convert_listfiles_to_csv(dataset_dir, csv_filename, file_list):
 				data_rows[example_id]['dataset_id'] = dataset_id
 
 		# write data to csv
-		for k in data_rows.values():
+		for v in data_rows.values():
 			writer.writerow(v)
 
 def read_csv(csv_file):
