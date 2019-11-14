@@ -76,7 +76,7 @@ def convert_listfiles_to_csv(dataset_dir, csv_filename, file_list):
 				# determine length
 				length = len(os.listdir( os.path.join(dataset_dir, filename) ))
 
-				if(line not in data_rows):
+				if(example_id not in data_rows):
 					data_rows[example_id] = {
 						'label_name': label_name, 
 						'example_id': example_id, 
