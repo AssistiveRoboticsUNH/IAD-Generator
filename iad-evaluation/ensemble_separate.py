@@ -111,7 +111,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 
 		# input layers [batch_size, h, w, num_channels]
 		top = tf.reshape(top, [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
-
+		'''
 		# hidden layers
 		num_filters = 8
 		filter_width = 4
@@ -121,7 +121,7 @@ def model_def(num_classes, input_shape, model_num, alpha):
 			kernel_size=[1, filter_width],
 			padding="valid", 
 			activation=tf.nn.leaky_relu)
-
+		'''
 		top = tf.layers.flatten(top)
 		top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
 		top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
@@ -364,7 +364,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		print("Cannot open CSV file: "+ csv_filename)
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] != 0]
-	train_data = train_data[:5]
+	#train_data = train_data[:5]
 	for ex in train_data:
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
 		for layer in range(5):
