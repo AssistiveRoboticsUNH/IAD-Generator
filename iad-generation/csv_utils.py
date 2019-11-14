@@ -54,7 +54,7 @@ def split_trainlist_to_percent_chunks(csv_filename, trainlist_filename, testlist
 							'dataset_id':dataset_id,
 							'length':length})
 
-def convert_listfiles_to_csv(csv_filename, file_list):
+def convert_listfiles_to_csv(dataset_dir, csv_filename, file_list):
 	with open(csv_filename, 'w') as csvfile:
 		writer = csv.DictWriter(csvfile, 
 			fieldnames=['label_name', 'example_id', 'label', 'dataset_id', 'length'])
@@ -74,7 +74,7 @@ def convert_listfiles_to_csv(csv_filename, file_list):
 				label_name = filename.split('/')[-2]
 
 				# determine length
-				length = len(os.listdir(filename))
+				length = len(os.listdir( os.path.join(dataset_dir, filename) ))
 
 				if(line not in data_rows):
 					data_rows[example_id] = {
@@ -108,6 +108,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Convert a .list file into a .csv file')
 
 	#required command line args
+	parser.add_argument('dataset_dir', help='the directory where the dataset is located')
 	parser.add_argument('csv_filename', help='the name of the .csv file to generate')
 	parser.add_argument('list_files', nargs='+', help=
 		'''a list of .list files to add to the CSV. It is recommended to start 
@@ -122,4 +123,4 @@ if __name__ == '__main__':
 	print("FLAGS.list_files:")
 	print(FLAGS.list_files)
 
-	convert_listfiles_to_csv(FLAGS.csv_filename, FLAGS.list_files)
+	convert_listfiles_to_csv(FLAGS.dataset_dir, FLAGS.csv_filename, FLAGS.list_files)
