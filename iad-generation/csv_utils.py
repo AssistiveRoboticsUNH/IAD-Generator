@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
 	#required command line args
 	parser.add_argument('csv_filename', help='the name of the .csv file to generate')
-	parser.add_argument('list_files', type=argparse.FileType('r'), nargs='+', help=
+	parser.add_argument('list_files', nargs='+', help=
 		'''a list of .list files to add to the CSV. It is recommended to start 
 		with the test dataset, followed by the largest training dataset and 
 		then decrementing to the smallest training dataset''')
