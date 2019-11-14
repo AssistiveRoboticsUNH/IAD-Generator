@@ -119,4 +119,7 @@ if __name__ == '__main__':
 	#parser.add_argument('csv_filename', help='the name of the .csv file to generate')
 	FLAGS = parser.parse_args()
 
+	print("FLAGS.list_files:")
+	print(FLAGS.list_files)
+
 	convert_listfiles_to_csv(FLAGS.csv_filename, FLAGS.list_files)
