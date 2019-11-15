@@ -615,9 +615,9 @@ def read_file_flow(file, input_placeholder):
     img_data = []
     for r, d, f in os.walk(file):
 
-      f.sort()
       limit = min(int(num_frames), len(f)/2)
-      
+      print('limit:', limit)
+
       for i in range(limit):
         img_full = []
         for ax in ['x', 'y']:
