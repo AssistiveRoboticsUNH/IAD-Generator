@@ -78,6 +78,10 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 			print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
 			# read data into placeholders
+			print("file:", file)
+			print("input_placeholder:", input_placeholder)
+			print("isRGB:", isRGB)
+
 			raw_data, length_ratio = model.read_file(file, input_placeholder, isRGB)
 
 			# generate activation map from model
