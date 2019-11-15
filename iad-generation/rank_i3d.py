@@ -635,6 +635,7 @@ def read_file_flow(file, input_placeholder):
           crop_y = int((img.shape[1] - w)/2)
           img_full.append( img[crop_x:crop_x+w, crop_y:crop_y+h,:] )
 
+        print("img_full:", len(img_full) )
         img_data.append(np.array(img_full))
 
     img_data = np.array(img_data).astype(np.float32)
