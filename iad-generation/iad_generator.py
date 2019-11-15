@@ -106,7 +106,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 		index.append(np.arange(len(summed_ranks[layer])))
 		rank.append(summed_ranks[layer])
 
-	filename = os.path.join(iad_data_path, "feature_ranks_"+str((dataset_size)*25)+".npz")
+	filename = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_size)+".npz")
 	np.savez(filename, 
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
@@ -144,7 +144,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 	raw_data_path = os.path.join(dataset_dir, 'imgFiles')
-	iad_data_path = os.path.join(dataset_dir, 'iad_'+str(25 * dataset_id))
+	iad_data_path = os.path.join(dataset_dir, 'iad_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id]
@@ -221,6 +221,7 @@ if __name__ == '__main__':
 		FLAGS.model_filename, 
 		FLAGS.dataset_dir, 
 		FLAGS.csv_filename, 
+		FLAGS.dataset_id,
 		FLAGS.pad_length, 
 		FLAGS.min_max_file, 
 		FLAGS.gpu)
