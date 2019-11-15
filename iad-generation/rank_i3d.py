@@ -510,7 +510,7 @@ def generate_activation_map(input_ph, isRGB):
   rank_out = []
 
 
-  scope_name = 'RGB' is isRGB else 'Flow'
+  scope_name = 'RGB' if isRGB else 'Flow'
 
 
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
