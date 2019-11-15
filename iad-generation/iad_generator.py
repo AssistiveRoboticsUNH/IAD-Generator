@@ -51,7 +51,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=pad_length)
 	
 	# define model
-	activation_map, rankings, saver = model.load_model(input_placeholder)
+	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
 	#print("rank3", rankings[0].get_shape())
 	
 	#collapse the spatial dimensions of the activation map

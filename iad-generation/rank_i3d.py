@@ -504,14 +504,17 @@ class InceptionI3d(snt.AbstractModule):
     end_points[end_point] = predictions
     return predictions, end_points, target_layers
 
-def generate_activation_map(input_ph):
+def generate_activation_map(input_ph, isRGB):
 
   global rank_out
   rank_out = []
 
 
+  scope_name = 'RGB' is isRGB else 'Flow'
+
+
   is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
-  with tf.variable_scope('RGB'):
+  with tf.variable_scope(scope_name):
     logits, _, target_layers = InceptionI3d( num_classes=101,
         spatial_squeeze=True,
         final_endpoint='Logits')(input_ph, is_training)
@@ -635,6 +638,7 @@ def read_file_flow(file, input_placeholder):
         img_data.append(np.array(img_full))
 
     img_data = np.array(img_data).astype(np.float32)
+    print("img_data_shape:", img_data.shape)
 
     # pad file to appropriate length
     buffer_len = int(num_frames) - len(img_data)
@@ -708,8 +712,8 @@ def generate_activation_map(input_ph):
   return target_layers
 """
 
-def load_model(input_ph):
-  activation_maps, rankings = generate_activation_map(input_ph)
+def load_model(input_ph, isRGB):
+  activation_maps, rankings = generate_activation_map(input_ph, isRGB)
 
   for v in rankings:
     print("v: ", v.get_shape())
