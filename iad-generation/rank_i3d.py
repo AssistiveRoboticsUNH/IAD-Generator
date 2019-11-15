@@ -548,7 +548,12 @@ def obtain_files(directory_file):
 
   return zip(filenames, labels), max_length
 
-def read_file(file, input_placeholder):
+def read_file(file, input_placeholder, isRGB):
+  if(isRGB):
+    return read_file_frames(file, input_placeholder)
+  return read_file_flow(file, input_placeholder)
+
+def read_file_frames(file, input_placeholder):
   # read a file and concatenate all of the frames
   # pad or prune the video to the given length
 
@@ -562,16 +567,13 @@ def read_file(file, input_placeholder):
       print(file, r)
       print("num_files:", len(f))
 
-      f.sort()
       limit = min(int(num_frames), len(f))
       
       for i in range(limit):
-        filename = os.path.join(r, f[i])
+        filename = os.path.join(r, 'image_{0}.jpg'.format( str(i).zfill(5) ))
         img = Image.open(filename)
 
         # resize and crop to fit input size
-        #print(img.height, img.width)
-
         if(img.width > img.height):
           img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
         else:
@@ -582,6 +584,55 @@ def read_file(file, input_placeholder):
         img = img[crop_x:crop_x+w, crop_y:crop_y+h,:] 
 
         img_data.append(np.array(img))
+
+    img_data = np.array(img_data).astype(np.float32)
+
+    # pad file to appropriate length
+    buffer_len = int(num_frames) - len(img_data)
+    img_data = np.pad(np.array(img_data), 
+          ((0,buffer_len), (0,0), (0,0),(0,0)), 
+          'constant', 
+          constant_values=(0,0))
+    length_ratio = float(limit) / len(img_data)
+    img_data = np.expand_dims(img_data, axis=0)
+
+    return img_data, length_ratio 
+  except:
+    print("Cannot open file: "+ file)
+
+def read_file_flow(file, input_placeholder):
+  # read a file and concatenate all of the frames
+  # pad or prune the video to the given length
+
+  try:
+    # input_shape
+    _, num_frames, h, w, ch = input_placeholder.get_shape()
+
+    # read available frames in file
+    img_data = []
+    for r, d, f in os.walk(file):
+
+      f.sort()
+      limit = min(int(num_frames), len(f)/2)
+      
+      for i in range(limit):
+        img_full = []
+        for ax in ['x', 'y']:
+
+          filename = os.path.join(r, 'flow_{0}_{1}.jpg'.format( ax, str(i).zfill(5) ))
+          img = Image.open(filename)
+
+          # resize and crop to fit input size
+          if(img.width > img.height):
+            img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
+          else:
+            img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
+      
+          crop_x = int((img.shape[0] - h)/2)
+          crop_y = int((img.shape[1] - w)/2)
+          img_full.append( img[crop_x:crop_x+w, crop_y:crop_y+h,:] )
+
+        img_data.append(np.array(img_full))
 
     img_data = np.array(img_data).astype(np.float32)
 

@@ -45,7 +45,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_size, update_min_maxes, iad_data_path):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
 	
 	# define placeholder
 	input_placeholder = model.get_input_placeholder(batch_size, num_frames=pad_length)
@@ -78,6 +78,8 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 			print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
 			# read data into placeholders
+			raw_data, length_ratio = model.read_file(file, input_placeholder, isRGB)
+
 			raw_data, length_ratio = model.read_file(file, input_placeholder)
 
 			# generate activation map from model
@@ -139,7 +141,7 @@ def normalize_dataset(csv_contents, min_max_vals):
 			# re-save file
 			np.savez(filename, data=data, label=label, length=length)
 
-def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu):
+def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu, isRGB):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
@@ -184,7 +186,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_id, update_min_maxes, iad_data_path)
+	convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
 	normalize_dataset(csv_contents, min_max_vals)
 
 	#summarize operations
@@ -214,6 +216,7 @@ if __name__ == '__main__':
 	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
+	parser.add_argument('--rgb', type=bool, default=False, help='run on RGB as opposed to flow data')
 
 	FLAGS = parser.parse_args()
 
@@ -224,6 +227,7 @@ if __name__ == '__main__':
 		FLAGS.dataset_id,
 		FLAGS.pad_length, 
 		FLAGS.min_max_file, 
-		FLAGS.gpu)
+		FLAGS.gpu,
+		FLAGS.rgb)
 
 	
