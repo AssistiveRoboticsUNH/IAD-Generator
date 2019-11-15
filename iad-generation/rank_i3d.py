@@ -628,15 +628,18 @@ def read_file_flow(file, input_placeholder):
           except:
             print("Cannot open file named: "+ filename)
 
+          print("t0")
           # resize and crop to fit input size
           if(img.width > img.height):
             img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
           else:
             img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
       
+          print("t1")
           crop_x = int((img.shape[0] - h)/2)
           crop_y = int((img.shape[1] - w)/2)
           img_full.append( img[crop_x:crop_x+w, crop_y:crop_y+h,:] )
+          print("t2")
 
         print("img_full:", len(img_full) )
         img_data.append(np.array(img_full))
