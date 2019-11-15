@@ -147,7 +147,9 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
-	raw_data_path = os.path.join(dataset_dir, 'imgFiles')
+	file_loc = 'frames' if isRGB else 'flow'
+
+	raw_data_path = os.path.join(dataset_dir, file_loc)
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
