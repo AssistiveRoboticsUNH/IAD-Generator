@@ -663,10 +663,12 @@ def read_file_flow(file, input_placeholder):
 INPUT_DATA_SIZE = {"t": 64, "h":224, "w":224, "c":3}
 CNN_FEATURE_COUNT = [64, 192, 480, 832, 1024]
 
-def get_input_placeholder(batch_size, num_frames=INPUT_DATA_SIZE["t"]):
+def get_input_placeholder(isRGB, batch_size, num_frames=INPUT_DATA_SIZE["t"]):
   # returns a placeholder for the C3D input
+  num_channels = INPUT_DATA_SIZE["c"] if isRGB else 2
+
   return tf.placeholder(tf.float32, 
-      shape=(batch_size, num_frames, INPUT_DATA_SIZE["h"], INPUT_DATA_SIZE["w"], INPUT_DATA_SIZE["c"]),
+      shape=(batch_size, num_frames, INPUT_DATA_SIZE["h"], INPUT_DATA_SIZE["w"], num_channels),
       name="c3d_input_ph")
 
 

@@ -48,7 +48,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
 	
 	# define placeholder
-	input_placeholder = model.get_input_placeholder(batch_size, num_frames=pad_length)
+	input_placeholder = model.get_input_placeholder(isRGB, batch_size, num_frames=pad_length)
 	
 	# define model
 	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
