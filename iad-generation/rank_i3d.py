@@ -635,7 +635,7 @@ def read_file_flow(file, input_placeholder):
           else:
             img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
       
-          print("t1")
+          print("t1: ", img.shape, h, w)
           crop_x = int((img.shape[0] - h)/2)
           crop_y = int((img.shape[1] - w)/2)
           img_full.append( img[crop_x:crop_x+w, crop_y:crop_y+h,:] )
