@@ -677,40 +677,18 @@ def get_output_placeholder(batch_size):
       name="c3d_label_ph")
 
 
-def get_variables(num_classes=-1):
+def get_variables(isRGB):
   '''Define all of the variables for the convolutional layers of the C3D model. 
   We ommit the FC layers as these layers are used to perform reasoning and do 
   not contain feature information '''
+  scope_name = 'RGB' if isRGB else 'Flow'
 
   variable_map = {}
   for variable in tf.global_variables():
-    if variable.name.split('/')[0] == 'RGB' and 'Adam' not in variable.name.split('/')[-1] and variable.name.split('/')[2] != 'Logits':
+    if variable.name.split('/')[0] == scope_name and 'Adam' not in variable.name.split('/')[-1] and variable.name.split('/')[2] != 'Logits':
       variable_map[variable.name.replace(':0', '')] = variable
 
   return variable_map
-
-"""
-def generate_activation_map(input_ph):
-  '''Generates the activation map for a given input from a specific depth
-        -input_ph: the input placeholder, should have been defined using the 
-          "get_input_placeholder" function
-        -_weights: weights used to convolve the input, defined in the 
-          "get_variables" function
-        -_biases: biases used to convolve the input, defined in the 
-          "get_variables" function
-        -depth: the depth at which the activation map should be extracted (an 
-          int between 0 and 4)
-  '''
-
-  # build I3D model
-  is_training = tf.placeholder_with_default(False, shape=(), name="is_training_ph")
-  with tf.variable_scope('RGB'):
-    _, _, target_layers = i3d.InceptionI3d( num_classes=101,
-                                  spatial_squeeze=True,
-                                  final_endpoint='Logits')(input_ph, is_training)
-
-  return target_layers
-"""
 
 def load_model(input_ph, isRGB):
   activation_maps, rankings = generate_activation_map(input_ph, isRGB)
@@ -718,7 +696,7 @@ def load_model(input_ph, isRGB):
   for v in rankings:
     print("v: ", v.get_shape())
 
-  variable_name_list = get_variables()
+  variable_name_list = get_variables(isRGB)
   saver = tf.train.Saver(variable_name_list.values(), reshape=True)
 
   return activation_maps, rankings, saver
