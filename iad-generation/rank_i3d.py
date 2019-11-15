@@ -637,7 +637,9 @@ def read_file_flow(file, input_placeholder):
       
           print("t1: ", img.shape, h, w)
           crop_x = int((img.shape[0] - h)/2)
+          print("t1.5: ", img.shape, h, w)
           crop_y = int((img.shape[1] - w)/2)
+          print("t1.75: ", img.shape, h, w)
           img_full.append( img[crop_x:crop_x+w, crop_y:crop_y+h,:] )
           print("t2")
 
