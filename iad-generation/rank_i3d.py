@@ -623,7 +623,10 @@ def read_file_flow(file, input_placeholder):
         for ax in ['x', 'y']:
 
           filename = os.path.join(r, 'flow_{0}_{1}.jpg'.format( ax, str(i).zfill(5) ))
-          img = Image.open(filename)
+          try:
+            img = Image.open(filename)
+          except:
+            print("Cannot open file named: "+ filename)
 
           # resize and crop to fit input size
           if(img.width > img.height):
@@ -652,7 +655,7 @@ def read_file_flow(file, input_placeholder):
 
     return img_data, length_ratio 
   except:
-    print("Cannot open file: "+ file)
+    print("Cannot open file directory: "+ file)
 
 
 ###################
