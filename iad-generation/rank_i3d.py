@@ -646,7 +646,7 @@ def read_file_flow(file, input_placeholder):
         print("img_full:", len(img_full) )
         img_data.append(np.array(img_full))
 
-    img_data = np.array(img_data).astype(np.float32)
+    img_data = np.array(img_data).astype(np.float32).transpose([0, 2, 3, 1])
     print("img_data_shape:", img_data.shape)
 
     # pad file to appropriate length
