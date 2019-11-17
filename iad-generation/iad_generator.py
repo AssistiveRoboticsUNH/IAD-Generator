@@ -154,7 +154,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id]
-	#csv_contents = csv_contents[:3]
+	csv_contents = csv_contents[:3]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -167,7 +167,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
 
-	#csv_contents = csv_contents[:1]
+	#csv_contents = csv_contents[:5]
 
 	print("numIADs:", len(csv_contents))
 	print("max_frame_length:", max_frame_length)
