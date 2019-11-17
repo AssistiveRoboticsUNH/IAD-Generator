@@ -82,7 +82,12 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_filename, pad_lengt
 			print("input_placeholder:", input_placeholder)
 			print("isRGB:", isRGB)
 
+
+
 			raw_data, length_ratio = model.read_file(file, input_placeholder, isRGB)
+
+			print("raw_data:", raw_data.shape)
+			print("length_ratio:", length_ratio)
 
 			# generate activation map from model
 			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
