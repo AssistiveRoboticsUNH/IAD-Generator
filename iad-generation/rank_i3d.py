@@ -574,7 +574,10 @@ def read_file_frames(file, input_placeholder):
       
       for i in range(limit):
         filename = os.path.join(r, 'image_{0}.jpg'.format( str(i).zfill(5) ))
-        img = Image.open(filename)
+        try:
+          img = Image.open(filename)
+        except:
+          print("Cannot open file named: "+ filename)
 
         # resize and crop to fit input size
         if(img.width > img.height):
