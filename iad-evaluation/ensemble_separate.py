@@ -328,7 +328,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	np.save(os.path.join(iad_model_path, "class_accuracy.npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 
-def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, 
+def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, dataset_type
 		window_size, epochs, batch_size, alpha, 
 		feature_retain_count, gpu, sliding_window):
 
@@ -337,8 +337,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 	# Setup file IO
-	iad_data_path = os.path.join(dataset_dir, 'iad_'+str(25*dataset_id))
-	model_id_path = os.path.join('iad_model_'+str(window_size), 'model_'+str(25*dataset_id))
+	iad_data_path = os.path.join(dataset_dir, 'iad_'dataset_type+'_'+str(dataset_id))
+	model_id_path = os.path.join('iad_model_'+str(window_size), 'model_'+str(dataset_id))
 	iad_model_path = os.path.join(dataset_dir, model_id_path)
 
 	model_dirs = []
@@ -380,7 +380,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Determine features to prune
 	pruning_keep_indexes = None
 	if(feature_retain_count and dataset_id):
-		ranking_file = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_id * 25)+".npz")
+		ranking_file = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_id)+".npz")
 		assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
 		pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
 
@@ -408,14 +408,15 @@ if __name__ == "__main__":
 
 	parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
 	parser.add_argument('operation', help='"train" or "test"')
-	parser.add_argument('dataset_id', nargs='?', type=int, help='the dataset_id used to train the network. Is used in determing feature rank file')
-	parser.add_argument('window_size', nargs='?', type=int, help='the maximum length video to convert into an IAD')
+	parser.add_argument('dataset_id', type=int, help='the dataset_id used to train the network. Is used in determing feature rank file')
+	parser.add_argument('dataset_type', help='"frames" or "flow"')
+	parser.add_argument('window_size', type=int, help='the maximum length video to convert into an IAD')
 
 	parser.add_argument('--sliding_window', type=bool, default=False, help='.list file containing the test files')
-	parser.add_argument('--epochs', nargs='?', type=int, default=30, help='the maximum length video to convert into an IAD')
-	parser.add_argument('--batch_size', nargs='?', type=int, default=15, help='the maximum length video to convert into an IAD')
-	parser.add_argument('--alpha', nargs='?', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
-	parser.add_argument('--feature_retain_count', nargs='?', type=int, default=10000, help='the number of features to remove')
+	parser.add_argument('--epochs', type=int, default=30, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--batch_size', type=int, default=15, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--alpha', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--feature_retain_count', type=int, default=10000, help='the number of features to remove')
 	
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
 
@@ -427,6 +428,7 @@ if __name__ == "__main__":
 		FLAGS.num_classes, 
 		FLAGS.operation, 
 		FLAGS.dataset_id, 
+		FLAGS.dataset_type,
 		FLAGS.window_size, 
 		FLAGS.epochs,
 		FLAGS.batch_size,
