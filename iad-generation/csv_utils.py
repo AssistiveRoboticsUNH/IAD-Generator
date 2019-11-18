@@ -67,7 +67,7 @@ def convert_listfiles_to_csv(dataset_dir, csv_filename, file_list):
 			for line in list(open(filename, 'r')):
 
 				line = line.split(' ')
-				filename, label = line[0], int(line[1])
+				filename, label = line[0], int(line[2])
 
 				# extract file label info
 				example_id = filename.split('/')[-1]
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Convert a .list file into a .csv file')
 
 	#required command line args
-	parser.add_argument('dataset_dir', help='the directory where the dataset is located')
+	parser.add_argument('dataset_dir', help='the directory where the RGB frames for the dataset are located')
 	parser.add_argument('csv_filename', help='the name of the .csv file to generate')
 	parser.add_argument('list_files', nargs='+', help=
 		'''a list of .list files to add to the CSV. It is recommended to start 
