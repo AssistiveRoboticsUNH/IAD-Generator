@@ -354,7 +354,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	except:
 		print("Cannot open CSV file: "+ csv_filename)
 
-	train_data = [ex for ex in csv_contents if ex['dataset_id'] <= dataset_id and ex['dataset_id'] != 0]
+	train_data = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id and ex['dataset_id'] != 0]
 	#train_data = train_data[:5]
 	for ex in train_data:
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
