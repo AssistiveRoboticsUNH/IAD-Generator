@@ -328,7 +328,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	np.save(os.path.join(iad_model_path, "class_accuracy.npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 
-def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, dataset_type
+def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, dataset_type,
 		window_size, epochs, batch_size, alpha, 
 		feature_retain_count, gpu, sliding_window):
 
