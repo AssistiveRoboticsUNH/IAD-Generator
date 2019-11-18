@@ -572,7 +572,7 @@ def read_file_frames(file, input_placeholder):
 
       limit = min(int(num_frames), len(f))
       
-      for i in range(limit):
+      for i in range(1, limit+1):
         filename = os.path.join(r, 'image_{0}.jpg'.format( str(i).zfill(5) ))
         try:
           img = Image.open(filename)
