@@ -567,8 +567,8 @@ def read_file_frames(file, input_placeholder):
     # read available frames in file
     img_data = []
     for r, d, f in os.walk(file):
-      print(file, r)
-      print("num_files:", len(f))
+      #print(file, r)
+      #print("num_files:", len(f))
 
       limit = min(int(num_frames), len(f))
       
@@ -619,7 +619,7 @@ def read_file_flow(file, input_placeholder):
     for r, d, f in os.walk(file):
 
       limit = min(int(num_frames), len(f)/2)
-      print('limit:', limit)
+      #print('limit:', limit)
 
       for i in range(1, limit+1):
         img_full = []
@@ -631,26 +631,26 @@ def read_file_flow(file, input_placeholder):
           except:
             print("Cannot open file named: "+ filename)
 
-          print("t0")
+          #print("t0")
           # resize and crop to fit input size
           if(img.width > img.height):
             img = np.array(cv2.resize(np.array(img),(int((256.0/img.height) * img.width+1), 256))).astype(np.float32)
           else:
             img = np.array(cv2.resize(np.array(img),(256, int((256.0/img.width) * img.height+1)))).astype(np.float32)
       
-          print("t1: ", img.shape, h, w)
+          #print("t1: ", img.shape, h, w)
           crop_x = int((img.shape[0] - h)/2)
-          print("t1.5: ", img.shape, h, w)
+          #print("t1.5: ", img.shape, h, w)
           crop_y = int((img.shape[1] - w)/2)
-          print("t1.75: ", img.shape, h, w)
+          #print("t1.75: ", img.shape, h, w)
           img_full.append( img[crop_x:crop_x+w, crop_y:crop_y+h] )
-          print("t2")
+          #print("t2")
 
-        print("img_full:", len(img_full) )
+        #print("img_full:", len(img_full) )
         img_data.append(np.array(img_full))
 
     img_data = np.array(img_data).astype(np.float32).transpose([0, 2, 3, 1])
-    print("img_data_shape:", img_data.shape)
+    #print("img_data_shape:", img_data.shape)
 
     # pad file to appropriate length
     buffer_len = int(num_frames) - len(img_data)
