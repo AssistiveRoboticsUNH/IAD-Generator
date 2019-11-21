@@ -432,17 +432,18 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 			results = np.stack((frame_results, flow_results))
 			print("results1:",  results.shape)
-			results = np.mean(results, axis = 0).reshape([results.shape[0], results.shape[1], results.shape[3]])
+			results = np.mean(results, axis = 0)
+			results = np.squeeze(results)
 			print("results2:",  results.shape)
 			pred = np.argmax(results, axis=1)
 
 
-			for model_num in range(6):
-				print("{:d}\t{:4.6f}".format(model_num, results[model_num, 0] / float(results[model_num, 1])) )
+			#for model_num in range(6):
+			#	print("{:d}\t{:4.6f}".format(model_num, results[model_num, 0] / float(results[model_num, 1])) )
 
 
 
-
+			
 
 			confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
 
@@ -468,7 +469,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			print("pred:",  pred.shape, pred)
 
 			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
-
+			
 
 
 
