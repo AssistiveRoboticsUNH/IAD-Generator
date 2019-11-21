@@ -426,8 +426,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 	
-			print("flow:", frame_labels.shape)
-			print("frame:", flow_labels.shape)
+			print("frame:", frame_results.shape, frame_labels.shape)
+			print("flow:", flow_results.shape, flow_labels.shape)
 
 
 
