@@ -467,7 +467,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 			print("pred:",  pred.shape, pred)
 
-			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels))
+			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
 
 
 
