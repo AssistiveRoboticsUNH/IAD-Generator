@@ -327,6 +327,25 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	# save per-class accuracy
 	np.save(os.path.join(iad_model_path, "class_accuracy.npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
+	return aggregated_confidences, aggregated_labels
+
+def prepare_filenames(dataset_dir, dataset_type, file_list):
+	iad_data_path_frames = os.path.join(dataset_dir, 'iad_frames_'+str(dataset_id))
+	iad_data_path_flow   = os.path.join(dataset_dir, 'iad_flow_'+str(dataset_id))
+
+	for ex in file_list:
+		file_location = os.path.join(ex['label_name'], ex['example_id'])
+		for layer in range(5):
+
+			if(dataset_type == 'frames' or dataset_type == 'both'):
+				iad_frames = os.path.join(iad_data_path_frames, file_location+"_"+str(layer)+".npz")
+				assert os.path.exists(iad_frames), "Cannot locate IAD file: "+ iad_frames
+				ex['iad_path_'+str(layer)] = iad_frames
+
+			if(dataset_type == 'flow' or dataset_type == 'both'):
+				iad_flow = os.path.join(iad_data_path_flow, file_location+"_"+str(layer)+".npz")
+				assert os.path.exists(iad_flow), "Cannot locate IAD file: "+ iad_flow
+				ex['iad_path_'+str(layer)] = iad_flow
 
 def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, dataset_type,
 		window_size, epochs, batch_size, alpha, 
@@ -337,40 +356,41 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 	# Setup file IO
-	iad_data_path = os.path.join(dataset_dir, 'iad_'+dataset_type+'_'+str(dataset_id))
-	model_id_path = os.path.join('iad_model_'+str(window_size), 'model_'+str(dataset_id))
-	iad_model_path = os.path.join(dataset_dir, model_id_path)
+	model_id_path_frames = os.path.join('iad_model_'+str(window_size), 'model_frames'+str(dataset_id))
+	iad_model_path_frames = os.path.join(dataset_dir, model_id_path_frames)
 
-	model_dirs = []
+	model_id_path_flow = os.path.join('iad_model_'+str(window_size), 'model_flow'+str(dataset_id))
+	iad_model_path_flow = os.path.join(dataset_dir, model_id_path_flow)
+
+	model_dirs_frames, model_dirs_flow = [], []
 	for model_num in range(6):
-		separate_model_dir = os.path.join(iad_model_path, 'model_'+str(model_num))
-		model_dirs.append(separate_model_dir)
+
+		# setup directory for frames
+		separate_model_dir = os.path.join(iad_model_path_frames, 'model_'+str(model_num))
+		model_dirs_frames.append(separate_model_dir)
 
 		if(not os.path.exists(separate_model_dir)):
 			os.makedirs(separate_model_dir)
 
+		# setup directory for flow
+		separate_model_dir = os.path.join(iad_model_path_flow, 'model_'+str(model_num))
+		model_dirs_flow.append(separate_model_dir)
+
+		if(not os.path.exists(separate_model_dir)):
+			os.makedirs(separate_model_dir)
+
+	# setup train and test file lists
 	try:
 		csv_contents = read_csv(csv_filename)
 	except:
 		print("Cannot open CSV file: "+ csv_filename)
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id and ex['dataset_id'] != 0]
-	#train_data = train_data[:5]
-	for ex in train_data:
-		file_location = os.path.join(ex['label_name'], ex['example_id'])
-		for layer in range(5):
-			iad_file = os.path.join(iad_data_path, file_location+"_"+str(layer)+".npz")
-			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
-			ex['iad_path_'+str(layer)] = iad_file
-
+	prepare_filenames(dataset_dir, dataset_type, train_data)
+	
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0]
-	for ex in test_data:
-		file_location = os.path.join(ex['label_name'], ex['example_id'])
-		for layer in range(5):
-			iad_file = os.path.join(iad_data_path, file_location+"_"+str(layer)+".npz")
-			assert os.path.exists(iad_file), "Cannot locate IAD file: "+ iad_file
-			ex['iad_path_'+str(layer)] = iad_file
-
+	prepare_filenames(dataset_dir, dataset_type, test_data)
+	
 	print("Number Training Examples:", len(train_data))
 	print("Number Testing Examples:",  len(test_data))
 
@@ -380,15 +400,39 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Determine features to prune
 	pruning_keep_indexes = None
 	if(feature_retain_count and dataset_id):
-		ranking_file = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_id)+".npz")
-		assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
-		pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+		if(dataset_type == 'frames' or dataset_type == 'both'):
+			iad_data_path_frames = os.path.join(dataset_dir, 'iad_frames_'+str(dataset_id))
+			ranking_file = os.path.join(iad_data_path_frames, "feature_ranks_"+str(dataset_id)+".npz")
+			assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
+			pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+
+		if(dataset_type == 'flow' or dataset_type == 'both'):
+			iad_data_path_flow = os.path.join(dataset_dir, 'iad_flow_'+str(dataset_id))
+			ranking_file = os.path.join(iad_data_path_flow, "feature_ranks_"+str(dataset_id)+".npz")
+			assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
+			pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
 
 	# Begin Training/Testing
 	if(operation == "train"):
-		train_model(model_dirs, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
+		if(dataset_type == 'frames'):
+			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window, data)
+		elif(dataset_type == 'flow'):
+			train_model(model_dirs_flow,   num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window, data)
+	
 	elif(operation == "test"):
-		test_model (iad_model_path, model_dirs, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+		if(dataset_type == 'frames'):
+			test_model (iad_model_path, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+		if(dataset_type == 'flow'):
+			test_model (iad_model_path, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+		if(dataset_type == 'both'):
+			frame_results, frame_labels = test_model (iad_model_path, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			flow_results,  flow_labels  = test_model (iad_model_path, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+	
+			print("flow:", frame_labels.shape)
+			print("frame:", flow_labels.shape)
+
+
+
 	else:
 		print('Operation parameter must be either "train" or "test"')
 
@@ -407,9 +451,9 @@ if __name__ == "__main__":
 	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
 
 	parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
-	parser.add_argument('operation', help='"train" or "test"')
+	parser.add_argument('operation', help='"train" or "test"', choices=['train', 'test'])
 	parser.add_argument('dataset_id', type=int, help='the dataset_id used to train the network. Is used in determing feature rank file')
-	parser.add_argument('dataset_type', help='"frames" or "flow"')
+	parser.add_argument('dataset_type', help='"frames", "flow", or "both" (only usable for test)', choices=['frames', 'flow', 'both'])
 	parser.add_argument('window_size', type=int, help='the maximum length video to convert into an IAD')
 
 	parser.add_argument('--sliding_window', type=bool, default=False, help='.list file containing the test files')
