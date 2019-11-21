@@ -441,6 +441,21 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			print("frame:", frame_results.shape)
 			print("flow:",  flow_results.shape)
 
+			results = np.stack((frame_results, flow_results))
+
+			print("results1:",  results.shape)
+
+			results = np.mean(results, axis = 0)
+
+			print("results2:",  results.shape)
+
+			pred = np.argmax(confidences, axis=1)
+
+			print("pred:",  pred.shape, pred)
+
+
+
+
 			#return np.argmax(confidences, axis=1)
 
 
