@@ -417,9 +417,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	# Begin Training/Testing
 	if(operation == "train"):
 		if(dataset_type == 'frames'):
-			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window, data)
+			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 		elif(dataset_type == 'flow'):
-			train_model(model_dirs_flow,   num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window, data)
+			train_model(model_dirs_flow,   num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 	
 	elif(operation == "test"):
 		if(dataset_type == 'frames'):
