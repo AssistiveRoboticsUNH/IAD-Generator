@@ -394,8 +394,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	print("Number Training Examples:", len(train_data))
 	print("Number Testing Examples:",  len(test_data))
 
-	#train_data = train_data[:5]
-	#test_data = test_data[:5]
+	train_data = train_data[:5]
+	test_data = test_data[:5]
 
 	# Determine features to prune
 	pruning_keep_indexes = None
