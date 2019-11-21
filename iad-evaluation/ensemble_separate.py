@@ -242,7 +242,7 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			print("Final model saved in %s" % save_name)
 		tf.reset_default_graph()
 
-def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size, sliding_window):
+def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size, sliding_window, dataset_type):
 
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
@@ -311,7 +311,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 		class_accuracy[label, 1] += 1    
 				
 	# print partial model's cummulative accuracy
-	ofile = open(os.path.join(iad_model_path, "model_accuracy.txt"), 'w')
+	ofile = open(os.path.join(iad_model_path, "model_accuracy_"+dataset_type+".txt"), 'w')
 	print("Model accuracy: ")
 	for model_num in range(6):
 		print("{:d}\t{:4.6f}".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
@@ -323,7 +323,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 	ofile.close()
 
 	# save per-class accuracy
-	np.save(os.path.join(iad_model_path, "class_accuracy.npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
+	np.save(os.path.join(iad_model_path, "class_accuracy_"+dataset_type+".npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
 
 	return aggregated_confidences, aggregated_labels
 
@@ -392,8 +392,8 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	print("Number Training Examples:", len(train_data))
 	print("Number Testing Examples:",  len(test_data))
 
-	train_data = train_data[:5]
-	test_data = test_data[:5]
+	#train_data = train_data[:5]
+	#test_data = test_data[:5]
 
 	# Determine features to prune
 	pruning_keep_indexes = None
@@ -419,23 +419,26 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	
 	elif(operation == "test"):
 		if(dataset_type == 'frames'):
-			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
 		if(dataset_type == 'flow'):
-			test_model (iad_model_path_flow, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			test_model (iad_model_path_flow, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
 		if(dataset_type == 'both'):
-			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
-			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "frames")
+			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "flow")
 	
+			#Get Individual accuracy
 			results = np.stack((frame_results, flow_results))
 			results = np.mean(results, axis = 0)
 			results = np.squeeze(results)
 			pred = np.argmax(results, axis=1)
 
+			ofile = open(os.path.join(iad_model_path, "model_accuracy_both.txt"), 'w')
 			for model_num in range(6):
 				pred = np.argmax(results[:, :, model_num], axis=1)
 				print("{:d}\t{:4.6f}".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) ))
+				ofile.write("{:d}\t{:4.6f}\n".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) ))
 
-
+			#Get Ensemble accuracy
 			confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
 
 			frame_results = frame_results * confidence_discount_layer
@@ -444,11 +447,13 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			flow_results = flow_results * confidence_discount_layer
 			flow_results = np.sum(flow_results, axis=(2,3))
 
-
 			results = np.stack((frame_results, flow_results))
 			results = np.mean(results, axis = 0)
 			pred = np.argmax(results, axis=1)
+
 			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
+			ofile.write("FINAL\t{:4.6f}\n".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ) )
+			ofile.close()
 			
 
 	else:
