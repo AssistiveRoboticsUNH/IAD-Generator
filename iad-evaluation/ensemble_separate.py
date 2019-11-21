@@ -430,6 +430,25 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			print("flow:", flow_results.shape, flow_labels.shape)
 
 
+			confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
+
+			frame_results = frame_results * confidence_discount_layer
+			frame_results = np.sum(frame_results, axis=(2,3))
+
+			flow_results = flow_results * confidence_discount_layer
+			flow_results = np.sum(flow_results, axis=(2,3))
+
+			print("frame:", frame_results.shape)
+			print("flow:",  flow_results.shape)
+
+			#return np.argmax(confidences, axis=1)
+
+
+
+			#results = np.stack(frame_results, flow_results)
+			#results = np.mean(np.stack(frame_results, flow_results))
+
+
 
 	else:
 		print('Operation parameter must be either "train" or "test"')
