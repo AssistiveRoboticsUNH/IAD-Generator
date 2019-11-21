@@ -426,25 +426,15 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 	
-			print("frame:", frame_results.shape, frame_labels.shape)
-			print("flow:", flow_results.shape, flow_labels.shape)
-
-
 			results = np.stack((frame_results, flow_results))
-			print("results1:",  results.shape)
 			results = np.mean(results, axis = 0)
 			results = np.squeeze(results)
-			print("results2:",  results.shape)
 			pred = np.argmax(results, axis=1)
-
 
 			for model_num in range(6):
 				pred = np.argmax(results[:, :, model_num], axis=1)
-				print("{:d}\t{:4.6f}".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) )
+				print("{:d}\t{:4.6f}".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) ))
 
-
-
-			
 
 			confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
 
@@ -454,34 +444,12 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			flow_results = flow_results * confidence_discount_layer
 			flow_results = np.sum(flow_results, axis=(2,3))
 
-			print("frame:", frame_results.shape)
-			print("flow:",  flow_results.shape)
 
 			results = np.stack((frame_results, flow_results))
-
-			print("results1:",  results.shape)
-
 			results = np.mean(results, axis = 0)
-
-			print("results2:",  results.shape)
-
 			pred = np.argmax(results, axis=1)
-
-			print("pred:",  pred.shape, pred)
-
 			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
 			
-
-
-
-			#return np.argmax(confidences, axis=1)
-
-
-
-			#results = np.stack(frame_results, flow_results)
-			#results = np.mean(np.stack(frame_results, flow_results))
-
-
 
 	else:
 		print('Operation parameter must be either "train" or "test"')
