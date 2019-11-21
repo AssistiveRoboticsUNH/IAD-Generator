@@ -432,7 +432,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 			results = np.stack((frame_results, flow_results))
 			print("results1:",  results.shape)
-			results = np.mean(results, axis = 0)
+			results = np.mean(results, axis = 0).reshape([results.shape[0], results.shape[1], results.shape[3]])
 			print("results2:",  results.shape)
 			pred = np.argmax(results, axis=1)
 
