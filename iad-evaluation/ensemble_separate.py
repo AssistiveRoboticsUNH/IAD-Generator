@@ -197,8 +197,6 @@ def model_consensus(confidences):
 ##############################################
 
 def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs, sliding_window):
-
-	print("t0")
 	# get the shape of the flattened and merged IAD and append
 	input_shape = get_input_shape(num_features, window_size)
 	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
@@ -210,7 +208,6 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 		saver = tf.train.Saver()
 		
 		with tf.Session() as sess:
-			print("t1")
 			sess.run(tf.global_variables_initializer())
 			sess.run(tf.local_variables_initializer())
 
@@ -219,7 +216,6 @@ def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes,
 			# train the network
 			num_iter = epochs * len(train_data) / batch_size
 			for i in range(num_iter):
-				print("t2")
 				# setup training batch
 				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
 				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
@@ -423,12 +419,12 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	
 	elif(operation == "test"):
 		if(dataset_type == 'frames'):
-			test_model (iad_model_path, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 		if(dataset_type == 'flow'):
-			test_model (iad_model_path, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			test_model (iad_model_path_flow, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 		if(dataset_type == 'both'):
-			frame_results, frame_labels = test_model (iad_model_path, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
-			flow_results,  flow_labels  = test_model (iad_model_path, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
+			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window)
 	
 			print("flow:", frame_labels.shape)
 			print("frame:", flow_labels.shape)
