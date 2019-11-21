@@ -329,7 +329,7 @@ def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_index
 
 	return aggregated_confidences, aggregated_labels
 
-def prepare_filenames(dataset_dir, dataset_type, file_list):
+def prepare_filenames(dataset_dir, dataset_type, dataset_id, file_list):
 	iad_data_path_frames = os.path.join(dataset_dir, 'iad_frames_'+str(dataset_id))
 	iad_data_path_flow   = os.path.join(dataset_dir, 'iad_flow_'+str(dataset_id))
 
@@ -386,10 +386,10 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		print("Cannot open CSV file: "+ csv_filename)
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id and ex['dataset_id'] != 0]
-	prepare_filenames(dataset_dir, dataset_type, train_data)
+	prepare_filenames(dataset_dir, dataset_type, dataset_id, train_data)
 	
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0]
-	prepare_filenames(dataset_dir, dataset_type, test_data)
+	prepare_filenames(dataset_dir, dataset_type, dataset_id, test_data)
 	
 	print("Number Training Examples:", len(train_data))
 	print("Number Testing Examples:",  len(test_data))
