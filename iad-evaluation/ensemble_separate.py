@@ -449,7 +449,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 			print("results2:",  results.shape)
 
-			pred = np.argmax(confidences, axis=1)
+			pred = np.argmax(results, axis=1)
 
 			print("pred:",  pred.shape, pred)
 
