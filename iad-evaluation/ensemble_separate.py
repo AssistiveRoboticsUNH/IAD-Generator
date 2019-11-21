@@ -438,8 +438,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			pred = np.argmax(results, axis=1)
 
 
-			#for model_num in range(6):
-			#	print("{:d}\t{:4.6f}".format(model_num, results[model_num, 0] / float(results[model_num, 1])) )
+			for model_num in range(6):
+				pred = np.argmax(results[:, :, model_num], axis=1)
+				print("{:d}\t{:4.6f}".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) )
 
 
 
