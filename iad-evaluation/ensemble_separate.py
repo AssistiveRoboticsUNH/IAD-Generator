@@ -471,7 +471,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			results = np.mean(results, axis = 0)
 			pred = np.argmax(results, axis=1)
 
-			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
+			print("FINAL\t{:4.6f}".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ))
 			ofile.write("FINAL\t{:4.6f}\n".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ) )
 			ofile.close()
 			
