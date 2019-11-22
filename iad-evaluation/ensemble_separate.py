@@ -394,10 +394,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		print("Cannot open CSV file: "+ csv_filename)
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id and ex['dataset_id'] != 0]
-	prepare_filenames(dataset_dir, dataset_type, dataset_id, train_data)
-	
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0]
-	prepare_filenames(dataset_dir, dataset_type, dataset_id, test_data)
 	
 	print("Number Training Examples:", len(train_data))
 	print("Number Testing Examples:",  len(test_data))
@@ -422,6 +419,9 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 
 	# Begin Training/Testing
 	if(operation == "train"):
+		prepare_filenames(dataset_dir, dataset_type, dataset_id, train_data)
+		prepare_filenames(dataset_dir, dataset_type, dataset_id, test_data)
+
 		if(dataset_type == 'frames'):
 			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 		elif(dataset_type == 'flow'):
@@ -429,10 +429,14 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	
 	elif(operation == "test"):
 		if(dataset_type == 'frames'):
+			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
 			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
-		if(dataset_type == 'flow'):
+		
+		elif(dataset_type == 'flow'):
+			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
 			test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
-		if(dataset_type == 'both'):
+		
+		elif(dataset_type == 'both'):
 			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
 			print("\n\n\nframes_out:", test_data[0]['iad_path_0'])
 			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "frames")
