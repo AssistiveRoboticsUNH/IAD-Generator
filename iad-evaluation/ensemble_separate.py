@@ -441,7 +441,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
 			print("\n\n\nframes_out:", test_data[0]['iad_path_0'])
 			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, sliding_window, "frames")
-			'''
+			
 			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
 			print("\n\n\nflow_out:",test_data[0]['iad_path_0'])
 			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, sliding_window, "flow")
@@ -474,7 +474,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
 			ofile.write("FINAL\t{:4.6f}\n".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ) )
 			ofile.close()
-			'''
+			
 
 	else:
 		print('Operation parameter must be either "train" or "test"')
