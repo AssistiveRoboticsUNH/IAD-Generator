@@ -434,8 +434,11 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
 		if(dataset_type == 'both'):
 			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
+			print(test_data[0]['iad_path_0'])
 			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "frames")
-			prepare_filenames(dataset_dir, 'flow', dataset_id, test_data)
+			
+			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
+			print(test_data[0]['iad_path_0'])
 			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "flow")
 	
 			#Get Individual accuracy
