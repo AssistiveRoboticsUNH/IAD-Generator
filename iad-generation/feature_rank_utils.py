@@ -14,9 +14,9 @@ def open_feature_files(file):
 	f = np.load(file, allow_pickle=True)
 	return f["depth"], f["index"], f["rank"]
 
-def get_top_n_feature_indexes(files, n):
+def get_top_n_feature_indexes(file, n):
 	# open file
-	depth, index, rank = open_feature_files(files)
+	depth, index, rank = open_feature_files(file)
 
 	keep_indexes = []
 	for d in np.unique(depth):
@@ -30,6 +30,38 @@ def get_top_n_feature_indexes(files, n):
 		keep_indexes.append(i_sub[:n].reshape(-1))
 
 	return keep_indexes
+
+def get_top_n_feature_indexes_combined(frames_file, flow_file, n):
+	# open files
+	depth_rgb, index_rgb, rank_rgb = open_feature_files(frames_file)
+	depth_flo, index_flo, rank_flo = open_feature_files(flow_file)
+
+	# combine frame and flow data together
+	source = np.concatenate((np.zeros_like(depth_rgb), np.ones_like(depth_flo)))
+	depth = np.concatenate((depth_rgb, depth_flo))
+	index = np.concatenate((index_rgb, index_flo))
+	rank = np.concatenate((rank_rgb, rank_flo))
+
+	pruning_indexes = {"frames": [], "flow":[]}
+	for d in np.unique(depth):
+
+		# get only those ranks for the given depth
+		locs = np.argwhere(depth == d)
+		s_sub, d_sub, i_sub, r_sub = source[locs], depth[locs], index[locs], rank[locs]
+
+		# order the ranks according to descending order from highest rank to lowest
+		order = r_sub.reshape(-1).argsort()
+		s_sub, d_sub, i_sub, r_sub = s_sub[order], d_sub[order], i_sub[order], r_sub[order]
+
+		# get the indexes of the top ranked features
+		idx = i_sub[:n].reshape(-1)
+
+		# organize the ranks depending on whether they came from the frames dataset or 
+		# the flow dataset
+		pruning_indexes["frames"].append(idx[ np.where(s_sub[:n] ==  0) ])
+		pruning_indexes["flow"].append(idx[ np.where(s_sub[:n] ==  1) ])
+
+	return keep_sources, keep_indexes
 
 
 def view_feature_rankings(file):
