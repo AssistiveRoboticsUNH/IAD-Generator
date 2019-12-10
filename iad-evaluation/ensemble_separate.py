@@ -394,10 +394,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 		print("Cannot open CSV file: "+ csv_filename)
 
 	train_data = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id and ex['dataset_id'] != 0]
-	prepare_filenames(dataset_dir, dataset_type, dataset_id, train_data)
-	
 	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0]
-	prepare_filenames(dataset_dir, dataset_type, dataset_id, test_data)
 	
 	print("Number Training Examples:", len(train_data))
 	print("Number Testing Examples:",  len(test_data))
@@ -406,35 +403,48 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 	#test_data = test_data[:5]
 
 	# Determine features to prune
-	pruning_keep_indexes = None
+	pruning_keep_indexes_frame, pruning_keep_indexes_flow = None, None
 	if(feature_retain_count and dataset_id):
 		if(dataset_type == 'frames' or dataset_type == 'both'):
 			iad_data_path_frames = os.path.join(dataset_dir, 'iad_frames_'+str(dataset_id))
 			ranking_file = os.path.join(iad_data_path_frames, "feature_ranks_"+str(dataset_id)+".npz")
 			assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
-			pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+			pruning_keep_indexes_frame = get_top_n_feature_indexes(ranking_file, feature_retain_count)
 
 		if(dataset_type == 'flow' or dataset_type == 'both'):
 			iad_data_path_flow = os.path.join(dataset_dir, 'iad_flow_'+str(dataset_id))
 			ranking_file = os.path.join(iad_data_path_flow, "feature_ranks_"+str(dataset_id)+".npz")
 			assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
-			pruning_keep_indexes = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+			pruning_keep_indexes_flow = get_top_n_feature_indexes(ranking_file, feature_retain_count)
 
 	# Begin Training/Testing
 	if(operation == "train"):
+		prepare_filenames(dataset_dir, dataset_type, dataset_id, train_data)
+		prepare_filenames(dataset_dir, dataset_type, dataset_id, test_data)
+
 		if(dataset_type == 'frames'):
-			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
+			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 		elif(dataset_type == 'flow'):
-			train_model(model_dirs_flow,   num_classes, train_data, test_data, pruning_keep_indexes, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
+			train_model(model_dirs_flow,   num_classes, train_data, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
 	
 	elif(operation == "test"):
 		if(dataset_type == 'frames'):
-			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
-		if(dataset_type == 'flow'):
-			test_model (iad_model_path_flow, model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, dataset_type)
-		if(dataset_type == 'both'):
-			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "frames")
-			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes, feature_retain_count, window_size, sliding_window, "flow")
+			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
+			print("\n\n\nframes_out:", test_data[0]['iad_path_0'])
+			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, sliding_window, dataset_type)
+			
+		elif(dataset_type == 'flow'):
+			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
+			test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, sliding_window, dataset_type)
+		
+		elif(dataset_type == 'both'):
+			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
+			print("\n\n\nframes_out:", test_data[0]['iad_path_0'])
+			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, sliding_window, "frames")
+			
+			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
+			print("\n\n\nflow_out:",test_data[0]['iad_path_0'])
+			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, sliding_window, "flow")
 	
 			#Get Individual accuracy
 			results = np.stack((frame_results, flow_results))
@@ -461,7 +471,7 @@ def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_
 			results = np.mean(results, axis = 0)
 			pred = np.argmax(results, axis=1)
 
-			print("FINAL:",  np.sum(pred == frame_labels) / float(len(frame_labels)))
+			print("FINAL\t{:4.6f}".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ))
 			ofile.write("FINAL\t{:4.6f}\n".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ) )
 			ofile.close()
 			
