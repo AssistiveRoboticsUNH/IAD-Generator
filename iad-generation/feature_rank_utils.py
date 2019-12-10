@@ -58,6 +58,7 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n):
 
 		# organize the ranks depending on whether they came from the frames dataset or 
 		# the flow dataset
+		print( (s_sub[:n]))
 		print( np.where(s_sub[:n] ==  0))
 		pruning_indexes["frames"].append(idx[ np.where(s_sub[:n] ==  0) ])
 		pruning_indexes["flow"].append(idx[ np.where(s_sub[:n] ==  1) ])
