@@ -11,8 +11,7 @@ def order_feature_ranks(file):
 	return depth[order], index[order], rank[order]
 
 def open_feature_files(filenames):
-	print("type:", type(filenames))
-	if(type(filenames) not list):
+	if(type(filenames) not is list):
 		filenames = [filenames]
 
 	depth, index, rank = None, None, None
