@@ -10,25 +10,9 @@ def order_feature_ranks(file):
 
 	return depth[order], index[order], rank[order]
 
-def open_feature_files(filenames):
-	#if filenames is a string then change it to a list
-	if(type(filenames) == str):
-		filenames = [filenames]
-
-	depth, index, rank = None, None, None
-	for file in filenames:
-		f = np.load(file, allow_pickle=True)
-		d, i, r = f["depth"], f["index"], f["rank"]
-
-		if(depth == None):
-			depth = d
-			index = i
-			index = r
-		else:
-			depth = np.concatenate((depth, d))
-			index = np.concatenate((index, i))
-			rank = np.concatenate((rank, r))
-	return depth, index, rank
+def open_feature_files(file):
+	f = np.load(file, allow_pickle=True)
+	return f["depth"], f["index"], f["rank"]
 
 def get_top_n_feature_indexes(files, n):
 	# open file
@@ -41,7 +25,7 @@ def get_top_n_feature_indexes(files, n):
 		d_sub, i_sub, r_sub = depth[locs], index[locs], rank[locs]
 
 		order = r_sub.reshape(-1).argsort()
-		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
+		d_sub, i_sub, r_sub = _sub[order], i_sub[order], r_sub[order]
 
 		keep_indexes.append(i_sub[:n].reshape(-1))
 
