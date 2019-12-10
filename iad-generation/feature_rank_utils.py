@@ -61,6 +61,8 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n):
 		pruning_indexes["frames"].append(idx[ np.where(s_sub[:n] ==  0)[0] ])
 		pruning_indexes["flow"].append(idx[ np.where(s_sub[:n] ==  1)[0] ])
 
+		print(len(pruning_indexes["frames"][-1]), len(pruning_indexes["flow"][-1]))
+
 	return pruning_indexes
 
 
