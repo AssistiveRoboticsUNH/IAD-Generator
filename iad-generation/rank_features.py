@@ -40,30 +40,21 @@ def convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_siz
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		summed_ranks = None#[]#[None]*4
+		summed_ranks = None
 
 		# process files
 		for i in range(len(csv_contents)):
-			file, label = csv_contents[i]['raw_path'], csv_contents[i]['label']
+			file = csv_contents[i]['raw_path']
 
 			print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
-
-			# read data into placeholders
-			print("file:", file)
-			print("input_placeholder:", input_placeholder)
-			print("isRGB:", isRGB)
-
-
-
 			raw_data, length_ratio = model.read_file(file, input_placeholder, isRGB)
-
-			print("raw_data:", raw_data.shape)
-			print("length_ratio:", length_ratio)
 
 			# generate activation map from model
 			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
 
-			summed_ranks = rank_data if summed_ranks == None else np.add(summed_ranks, rank_data)
+			print("rank_data:", rank_data)
+
+			#summed_ranks = rank_data if summed_ranks == None else np.add(summed_ranks, rank_data)
 
 	# save ranking files
 	depth, index, rank = [],[],[] 
