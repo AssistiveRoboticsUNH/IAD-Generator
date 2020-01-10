@@ -24,7 +24,7 @@ def get_top_n_feature_indexes(file, n):
 		locs = np.argwhere(depth == d)
 		d_sub, i_sub, r_sub = depth[locs], index[locs], rank[locs]
 
-		order = r_sub.reshape(-1).argsort()
+		order = r_sub.reshape(-1).argsort()[::-1]
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
 
 		keep_indexes.append(i_sub[:n].reshape(-1))
