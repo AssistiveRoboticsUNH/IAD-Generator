@@ -50,8 +50,8 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n):
 		s_sub, d_sub, i_sub, r_sub = source[locs], depth[locs], index[locs], rank[locs]
 
 		# order the ranks according to descending order from highest rank to lowest
-		#order = r_sub.reshape(-1).argsort()#[::-1]
-		#s_sub, d_sub, i_sub, r_sub = s_sub[order], d_sub[order], i_sub[order], r_sub[order]
+		order = r_sub.reshape(-1).argsort()#[::-1]
+		s_sub, d_sub, i_sub, r_sub = s_sub[order], d_sub[order], i_sub[order], r_sub[order]
 
 		# get the indexes of the top ranked features
 		idx = i_sub[:n].reshape(-1)
