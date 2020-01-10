@@ -18,6 +18,8 @@ def rank_layer(x):
     global rank_out
 
     #calculate the rank
+    print("x.get_shape():", x.get_shape())
+    print("dy.get_shape():", dy.get_shape())
     ranks = tf.math.multiply(x, dy)
     print("ranks.get_shape():", ranks.get_shape())
     ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3)) #combine spatial and temporal points together
