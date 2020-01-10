@@ -17,34 +17,6 @@ import numpy as np
 
 batch_size = 1
 
-def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes, iad_data_path):
-	#converts file to iad and extracts the max and min values for the given IAD
-
-	#update max and min values
-	if(update_min_maxes and meta_data['dataset_id'] != 0):
-		for layer in range(len(data)):
-			local_max_values = np.max(data[layer], axis=1)
-			local_min_values = np.min(data[layer], axis=1)
-
-			for i in range(len(local_max_values)):
-				if(local_max_values[i] > min_max_vals["max"][layer][i]):
-					min_max_vals["max"][layer][i] = local_max_values[i]
-
-				if(local_min_values[i] < min_max_vals["min"][layer][i]):
-					min_max_vals["min"][layer][i] = local_min_values[i]
-
-	#save to disk
-	for layer in range(len(data)):
-		label_path = os.path.join(iad_data_path, meta_data['label_name'])
-		if(not os.path.exists(label_path)):
-			os.makedirs(label_path)
-
-		meta_data['iad_path_'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
-
-		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
-
-		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
-
 def convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_size, iad_data_path, isRGB):
 	
 	# define placeholder
@@ -101,7 +73,7 @@ def convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_siz
 		index.append(np.arange(len(summed_ranks[layer])))
 		rank.append(summed_ranks[layer])
 
-	filename = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_size)+".npz")
+	filename = os.path.join(iad_data_path, "feature_ranks2_"+str(dataset_size)+".npz")
 	np.savez(filename, 
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
@@ -146,7 +118,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 
 	# generate arrays to store the min and max values of each feature
 	
-	convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
+	convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_id, iad_data_path, isRGB)
 
 if __name__ == '__main__':
 	import argparse
