@@ -21,6 +21,8 @@ def rank_layer(x):
     ranks = tf.math.multiply(x, dy)
     ranks = tf.reduce_sum(ranks, axis=(0, 1, 2, 3)) #combine spatial and temporal points together
 
+    print("ranks.get_shape():", ranks.get_shape())
+
     #normalize the rank by the input size
     norm_term = tf.cast(tf.reduce_prod(tf.shape(x)[:-1]), tf.float32)
     ranks = tf.math.divide(ranks, norm_term) 
