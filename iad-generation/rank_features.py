@@ -52,7 +52,7 @@ def convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_siz
 			# generate activation map from model
 			iad_data, rank_data = sess.run([activation_map, rankings], feed_dict={input_placeholder: raw_data})
 
-			print("rank_data:", rank_data)
+			print("rank_data:", rank_data.shape)
 
 			#summed_ranks = rank_data if summed_ranks == None else np.add(summed_ranks, rank_data)
 
