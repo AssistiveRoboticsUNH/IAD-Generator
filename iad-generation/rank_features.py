@@ -94,7 +94,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 
 	all_w = []
 
-	for i, end_point in enumerate(weights[:2]):
+	for i, end_point in enumerate(weights):
 		all_w.append([])
 
 		for element in end_point:
