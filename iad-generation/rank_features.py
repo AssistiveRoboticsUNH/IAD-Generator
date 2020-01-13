@@ -80,9 +80,11 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 
 	for v in activation_map:
 
+		s = tf.reduce_sum(v, axis = [0,1,2,3])
+
 		#if (v in check_w):
 
-		print(v)
+		print(s.get_shape())
 
 	'''
 
