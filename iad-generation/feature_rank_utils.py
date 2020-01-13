@@ -37,11 +37,15 @@ def get_top_n_feature_indexes(file, n):
 		print(o.reshape(-1))
 		print(order)
 		print(o[order].reshape(-1))
+		'''
 		print('')
-
 		rd = rankdata(p.reshape(-1), 'ordinal') - 1
 		print(rd)
 		print(p.reshape(-1)[rd])
+		'''
+		print(i_sub[order].reshape(-1))
+		print(i_sub[:n].reshape(-1))
+
 		print('---------')
 
 
