@@ -32,7 +32,7 @@ def get_top_n_feature_indexes(file, n):
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
 		d_sub, i_sub, r_sub = d_sub[::-1], i_sub[::-1], r_sub[::-1]
 
-		print(r_sub)
+		print(r_sub.reshape(-1))
 
 		keep_indexes.append(i_sub[:n].reshape(-1))
 
