@@ -103,7 +103,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 				if(element in str(v)):
 					all_w[i].append(v)
 
-		#print(w)
+	print(all_w)
 
 
 	with tf.Session() as sess:
