@@ -30,7 +30,7 @@ def get_top_n_feature_indexes(file, n):
 
 		print(r_sub.reshape(-1))
 		print(order)
-		print(r_sub[order])
+		print(r_sub[order].reshape(-1))
 		print('')
 
 
