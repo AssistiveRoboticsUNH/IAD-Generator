@@ -115,7 +115,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		w0 = sess.run(all_w[0])
+		w0 = sess.run(variables[all_w[0]])
 		print(w0)#, w0.shape)
 	
 
