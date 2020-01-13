@@ -79,7 +79,8 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
 	variables = model.get_variables(isRGB)
 
-	print(variables)
+	for v in variables:
+		print("v:", v.name)
 
 	'''
 
