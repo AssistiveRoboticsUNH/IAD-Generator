@@ -38,10 +38,13 @@ def get_top_n_feature_indexes(file, n):
 
 	return keep_indexes
 
-def get_top_n_feature_indexes_combined(frames_file, flow_file, n):
+def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.ones((2,5))):
 	# open files
 	depth_rgb, index_rgb, rank_rgb = open_feature_files(frames_file)
 	depth_flo, index_flo, rank_flo = open_feature_files(flow_file)
+
+	rank_rgb*=weights[0]
+	rank_flo*=weights[1]
 
 	# combine frame and flow data together
 	source = np.concatenate((np.zeros_like(depth_rgb), np.ones_like(depth_flo)))
