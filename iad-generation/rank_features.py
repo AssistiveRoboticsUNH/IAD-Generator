@@ -141,7 +141,7 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 	# save ranking files
 	file_loc = 'frames' if isRGB else 'flow'
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
-	filename = os.path.join(iad_data_path, "feature_ranks_l2_"+str(dataset_id)+".npz")
+	filename = os.path.join(iad_data_path, "feature_ranks_l1_"+str(dataset_id)+".npz")
 	np.savez(filename, 
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
