@@ -78,15 +78,14 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 	# define model
 	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
 
+
+	l1_weights = []
 	for v in activation_map:
+		l1_weights.append( tf.reduce_sum(tf.math.abs(v), axis = [0,1,2,3]) )
 
-		s = tf.reduce_sum(tf.math.abs(v), axis = [0,1,2,3])
+		
 
-		#if (v in check_w):
-
-		print(s.get_shape())
-
-	'''
+	
 
 	with tf.Session() as sess:
 
@@ -96,9 +95,10 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 
 		# prevent further modification to the graph
 		sess.graph.finalize()
-	'''
 
-	'''
+		l1_out = sess.run(l1_weights)
+		for v in l1_out:
+			print(v, v.shape)
 
 
 
