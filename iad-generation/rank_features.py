@@ -78,7 +78,7 @@ def group_vars(group):
 
 
 
-def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
+def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, gpu, isRGB):
 
 	input_placeholder = model.get_input_placeholder(isRGB, batch_size, num_frames=pad_length)
 	
@@ -117,25 +117,22 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		for i, w in enumerate(all_w):
+		depth, index, rank = [],[],[] 
+
+		for layer, w in enumerate(all_w):
 
 			w0 = sess.run(w)
-			print(w0, w0[0].shape)
-	
+			#print(w0, w0[0].shape)
+
+			depth.append(np.full(len(w0[0]), layer))
+			index.append(np.arange(len(w0[0])))
+			rank.append(w0[0])
 
 
-
-	'''
 
 	# save ranking files
-	depth, index, rank = [],[],[] 
-
-	for layer in range(len(summed_ranks)):
-		depth.append(np.full(len(summed_ranks[layer]), layer))
-		index.append(np.arange(len(summed_ranks[layer])))
-		rank.append(summed_ranks[layer])
-
-	filename = os.path.join(iad_data_path, "feature_ranks2_"+str(dataset_size)+".npz")
+	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
+	filename = os.path.join(iad_data_path, "feature_ranks_l1_"+str(dataset_size)+".npz")
 	np.savez(filename, 
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
@@ -143,7 +140,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 	
 
 
-	'''
+	
 
 
 
@@ -209,9 +206,12 @@ if __name__ == '__main__':
 
 	weight_magnitudes(FLAGS.model_type, 
 		FLAGS.model_filename, 
-		FLAGS.pad_length,
-		FLAGS.rgb, 
-		FLAGS.gpu)
+		FLAGS.dataset_dir, 
+		FLAGS.csv_filename, 
+		FLAGS.dataset_id,
+		FLAGS.pad_length, 
+		FLAGS.gpu,
+		FLAGS.rgb)
 	'''
 	main(FLAGS.model_type, 
 		FLAGS.model_filename, 
