@@ -27,10 +27,10 @@ def get_top_n_feature_indexes(file, n):
 		locs = np.argwhere(depth == d)
 		d_sub, i_sub, r_sub = depth[locs], index[locs], rank[locs]
 
-		order = r_sub.reshape(-1).argsort()#[::-1]
+		order = r_sub.reshape(-1).argsort()
 
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
-		d_sub, i_sub, r_sub = d_sub[::-1], i_sub[::-1], r_sub[::-1]
+		#d_sub, i_sub, r_sub = d_sub[::-1], i_sub[::-1], r_sub[::-1]
 
 		print(r_sub.reshape(-1))
 
