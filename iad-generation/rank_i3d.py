@@ -9,7 +9,7 @@ import PIL.Image as Image
 
 import sonnet as snt
 
-
+#https://towardsdatascience.com/pruning-deep-neural-network-56cae1ec5505
 
 @tf.custom_gradient
 def rank_layer(x):

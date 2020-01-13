@@ -17,7 +17,7 @@ import numpy as np
 
 batch_size = 1
 
-def convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_size, iad_data_path, isRGB):
+def taylor_expansion(csv_contents, model_filename, pad_length, dataset_size, iad_data_path, isRGB):
 	
 	# define placeholder
 	input_placeholder = model.get_input_placeholder(isRGB, batch_size, num_frames=pad_length)
@@ -71,6 +71,55 @@ def convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_siz
 		index=np.concatenate(index), 
 		rank=np.concatenate(rank))
 
+def weight_magnitudes(model_type, model_filename, isRGB, gpu):
+
+	input_placeholder = model.get_input_placeholder(isRGB, batch_size, num_frames=pad_length)
+	
+	# define model
+	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
+	variables = model.get_variables(isRGB)
+
+	print(variables)
+
+	'''
+
+	with tf.Session() as sess:
+
+		# Restore model
+		sess.run(tf.global_variables_initializer())
+		tf_utils.restore_model(sess, saver, model_filename)
+
+		# prevent further modification to the graph
+		sess.graph.finalize()
+	'''
+
+	'''
+
+
+
+
+
+
+	# save ranking files
+	depth, index, rank = [],[],[] 
+
+	for layer in range(len(summed_ranks)):
+		depth.append(np.full(len(summed_ranks[layer]), layer))
+		index.append(np.arange(len(summed_ranks[layer])))
+		rank.append(summed_ranks[layer])
+
+	filename = os.path.join(iad_data_path, "feature_ranks2_"+str(dataset_size)+".npz")
+	np.savez(filename, 
+		depth=np.concatenate(depth), 
+		index=np.concatenate(index), 
+		rank=np.concatenate(rank))
+	
+
+
+	'''
+
+
+
 def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, gpu, isRGB):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -83,7 +132,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
 	
-	#csv_contents = csv_contents[:3]
+	csv_contents = csv_contents[:3]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -110,7 +159,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 
 	# generate arrays to store the min and max values of each feature
 	
-	convert_dataset_to_iad(csv_contents, model_filename, pad_length, dataset_id, iad_data_path, isRGB)
+	taylor_expansion(csv_contents, model_filename, pad_length, dataset_id, iad_data_path, isRGB)
 
 if __name__ == '__main__':
 	import argparse
@@ -130,6 +179,12 @@ if __name__ == '__main__':
 
 	FLAGS = parser.parse_args()
 
+
+	weight_magnitudes(FLAGS.model_type, 
+		FLAGS.model_filename, 
+		FLAGS.isRGB, 
+		FLAGS.gpu)
+	'''
 	main(FLAGS.model_type, 
 		FLAGS.model_filename, 
 		FLAGS.dataset_dir, 
@@ -138,5 +193,5 @@ if __name__ == '__main__':
 		FLAGS.pad_length, 
 		FLAGS.gpu,
 		FLAGS.rgb)
-
+	'''
 	
