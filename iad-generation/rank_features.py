@@ -96,6 +96,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 		w = []
 
 		for v in variables:
+			print(v, end_point)
 			if(v in end_point):
 				w.append(v)
 
