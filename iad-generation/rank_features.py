@@ -103,6 +103,9 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 				if(element in str(v)):
 					all_w[i].append(variables[v])
 
+		all_w[i] = [tf.reduce_sum(v, axis=[0,1,2,3]) for v in all_w[i]]
+		#all_w[i] = tf.concat(all_w[i])
+
 		print(all_w[i])
 		#all_w[i] = np.concatenate(all_w)
 
