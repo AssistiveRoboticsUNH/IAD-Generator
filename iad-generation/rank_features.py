@@ -107,9 +107,6 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 		all_w[i] = tf.concat(all_w[i], axis=0)
 
 		print(all_w[i])
-		#all_w[i] = np.concatenate(all_w)
-
-
 
 	with tf.Session() as sess:
 
@@ -120,8 +117,10 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		w0 = sess.run(all_w[0])
-		#print(w0, w0[0].shape)
+		for i, w in enumerate(all_w):
+
+			w0 = sess.run(w)
+			print(w0, w0[0].shape)
 	
 
 
