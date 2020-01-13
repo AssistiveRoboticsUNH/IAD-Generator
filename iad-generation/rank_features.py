@@ -128,7 +128,7 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 		for layer, w in enumerate(all_w):
 
 			w0 = sess.run(w)
-			print(w0)
+			#print(w0)
 			print(len(w0))
 			print(w0[0].shape)
 
