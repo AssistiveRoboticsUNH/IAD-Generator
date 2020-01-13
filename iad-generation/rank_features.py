@@ -80,7 +80,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 	variables = model.get_variables(isRGB)
 
 	for v in variables:
-		print("v:", v.name)
+		print(v)
 
 	'''
 
