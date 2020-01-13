@@ -103,7 +103,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 
 
 
-
+	'''
 
 	# save ranking files
 	depth, index, rank = [],[],[] 
