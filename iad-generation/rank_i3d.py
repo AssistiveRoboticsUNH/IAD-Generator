@@ -35,6 +35,8 @@ def rank_layer(x):
     return dy
   return tf.identity(x), grad
 
+
+
 class Unit3D(snt.AbstractModule):
   """Basic unit containing Conv3D + BatchNorm + non-linearity."""
 

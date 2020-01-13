@@ -77,11 +77,8 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 	
 	# define model
 	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
-	variables = model.get_variables(isRGB)
 
-	check_w = []
-
-	for v in sorted(variables.keys()):
+	for v in activation_map:
 
 		#if (v in check_w):
 
