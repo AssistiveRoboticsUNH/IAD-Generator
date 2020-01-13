@@ -30,6 +30,10 @@ def get_top_n_feature_indexes(file, n):
 
 		print(r_sub.reshape(-1))
 		print(order)
+		print(r_sub[order])
+		print('')
+
+
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
 
 		keep_indexes.append(i_sub[:n].reshape(-1))
