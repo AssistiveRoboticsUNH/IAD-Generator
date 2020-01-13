@@ -15,6 +15,8 @@ import os, sys
 import tensorflow as tf
 import numpy as np
 
+
+
 batch_size = 1
 
 def taylor_expansion(csv_contents, model_filename, pad_length, dataset_size, iad_data_path, isRGB):

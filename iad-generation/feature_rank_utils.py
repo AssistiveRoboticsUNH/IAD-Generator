@@ -1,5 +1,7 @@
 import numpy as np 
 
+from scipy.stats import rankdata
+
 def order_feature_ranks(file):
 	# open file
 	f = np.load(file, allow_pickle=True)
@@ -32,6 +34,11 @@ def get_top_n_feature_indexes(file, n):
 		print(order)
 		print(r_sub[order].reshape(-1))
 		print('')
+
+		rd = rankdata(r_sub.reshape(-1), 'dense')
+		print(rd)
+		print(r_sub[rd].reshape(-1))
+		print('---------')
 
 
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
