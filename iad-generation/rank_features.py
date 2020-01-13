@@ -182,7 +182,7 @@ if __name__ == '__main__':
 
 	weight_magnitudes(FLAGS.model_type, 
 		FLAGS.model_filename, 
-		FLAGS.isRGB, 
+		FLAGS.rgb, 
 		FLAGS.gpu)
 	'''
 	main(FLAGS.model_type, 
