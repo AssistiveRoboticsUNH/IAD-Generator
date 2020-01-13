@@ -103,7 +103,13 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 				if(element in str(v)):
 					all_w[i].append(variables[v])
 
+
+		# L1-norm
 		all_w[i] = [tf.reduce_sum(tf.math.abs( v ), axis=[0,1,2,3]) for v in all_w[i]]
+		
+		# L2-norm
+		#all_w[i] = [tf.reduce_sum(tf.math.abs( v ), axis=[0,1,2,3]) for v in all_w[i]]
+
 		all_w[i] = tf.concat(all_w[i], axis=0)
 
 		print(all_w[i])
@@ -122,14 +128,16 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 		for layer, w in enumerate(all_w):
 
 			w0 = sess.run(w)
-			#print(w0, w0[0].shape)
+			print(w0)
+			print(len(w0))
+			print(w0[0].shape)
 
-			depth.append(np.full(len(w0[0]), layer))
-			index.append(np.arange(len(w0[0])))
-			rank.append(w0[0])
+			depth.append(np.full(len(w0), layer))
+			index.append(np.arange(len(w0)))
+			rank.append(w0)
 
 
-
+	'''
 	# save ranking files
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 	filename = os.path.join(iad_data_path, "feature_ranks_l1_"+str(dataset_size)+".npz")
@@ -137,7 +145,7 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
 		rank=np.concatenate(rank))
-	
+	'''
 
 
 	
