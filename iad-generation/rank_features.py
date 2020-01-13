@@ -74,7 +74,7 @@ def taylor_expansion(csv_contents, model_filename, pad_length, dataset_size, iad
 
 def group_vars(group):
 	ends = ['Branch_0/Conv3d_0a_1x1', 'Branch_1/Conv3d_0b_3x3', 'Branch_2/Conv3d_0b_3x3', 'Branch_3/Conv3d_0b_1x1']
-	return [group+'/'+e for e in ends]
+	return [group+'/'+e+'/conv_3d/w' for e in ends]
 
 
 
@@ -86,8 +86,8 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 	activation_map, rankings, saver = model.load_model(input_placeholder, isRGB)
 	variables = model.get_variables(isRGB)
 
-	weights = [ ['Conv3d_1a_7x7'],
-				['Conv3d_2c_3x3'],
+	weights = [ ['Conv3d_1a_7x7/conv_3d/w'],
+				['Conv3d_2c_3x3/conv_3d/w'],
 				group_vars('Mixed_3c'), #['Branch_0/Conv3d_0a_1x1', 'Branch_1/Conv3d_0b_3x3', 'Branch_2/Conv3d_0b_3x3', 'Branch_3/Conv3d_0b_1x1'],
 				group_vars('Mixed_4f'), #['Branch_0/Conv3d_0a_1x1', 'Branch_1/Conv3d_0b_3x3', 'Branch_2/Conv3d_0b_3x3', 'Branch_3/Conv3d_0b_1x1'],
 				group_vars('Mixed_5c')] #['Branch_0/Conv3d_0a_1x1', 'Branch_1/Conv3d_0b_3x3', 'Branch_2/Conv3d_0b_3x3', 'Branch_3/Conv3d_0b_1x1'],
