@@ -31,14 +31,17 @@ def get_top_n_feature_indexes(file, n):
 
 		order = r_sub.reshape(-1).argsort()#[::-1]
 
-		print(r_sub.reshape(-1))
+		o = np.copy(r_sub)
+		p = np.copy(r_sub)
+
+		print(o.reshape(-1))
 		print(order)
-		print(r_sub[order].reshape(-1))
+		print(o[order].reshape(-1))
 		print('')
 
-		rd = rankdata(r_sub.reshape(-1), 'ordinal') - 1
+		rd = rankdata(p.reshape(-1), 'ordinal') - 1
 		print(rd)
-		print(r_sub[rd].reshape(-1))
+		print(p[rd].reshape(-1))
 		print('---------')
 
 
