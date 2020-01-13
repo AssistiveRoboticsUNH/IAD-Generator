@@ -43,6 +43,8 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 	depth_rgb, index_rgb, rank_rgb = open_feature_files(frames_file)
 	depth_flo, index_flo, rank_flo = open_feature_files(flow_file)
 
+	print(rank_rgb.shape, np.array(weight[0]).shape)
+
 	rank_rgb*=weights[0]
 	rank_flo*=weights[1]
 
