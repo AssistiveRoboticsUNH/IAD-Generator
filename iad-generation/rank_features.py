@@ -105,10 +105,10 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 
 
 		# L1-norm
-		#all_w[i] = [tf.reduce_sum(tf.math.abs( v ), axis=[0,1,2,3]) for v in all_w[i]]
+		all_w[i] = [tf.reduce_sum(tf.math.abs( v ), axis=[0,1,2,3]) for v in all_w[i]]
 		
 		# L2-norm
-		all_w[i] = [tf.reduce_sum(tf.math.l2_normalize( v ), axis=[0,1,2,3]) for v in all_w[i]]
+		#all_w[i] = [tf.reduce_sum(tf.math.l2_normalize( v ), axis=[0,1,2,3]) for v in all_w[i]]
 
 		all_w[i] = tf.concat(all_w[i], axis=0)
 
