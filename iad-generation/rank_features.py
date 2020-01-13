@@ -92,27 +92,20 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 				group_vars('Mixed_4f'), #['Branch_0/Conv3d_0a_1x1', 'Branch_1/Conv3d_0b_3x3', 'Branch_2/Conv3d_0b_3x3', 'Branch_3/Conv3d_0b_1x1'],
 				group_vars('Mixed_5c')] #['Branch_0/Conv3d_0a_1x1', 'Branch_1/Conv3d_0b_3x3', 'Branch_2/Conv3d_0b_3x3', 'Branch_3/Conv3d_0b_1x1'],
 
-	for end_point in weights:
-		w = []
+	all_w = []
+
+	for i, end_point in enumerate(weights[:2]):
+		all_w.append([])
 
 		for element in end_point:
 			for v in variables:
 				#print(str(v), element)
 				if(element in str(v)):
-					w.append(v)
+					all_w[i].append(v)
 
-		print(w)
+		#print(w)
 
 
-
-	#l1_weights = []
-	#for v in activation_map:
-	#l1_weights.append( tf.reduce_sum(tf.math.abs(v), axis = [0,1,2,3]) )
-
-		
-
-	
-	'''
 	with tf.Session() as sess:
 
 		# Restore model
@@ -122,10 +115,9 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 		# prevent further modification to the graph
 		sess.graph.finalize()
 
-		l1_out = sess.run(l1_weights)
-		for v in l1_out:
-			print(v, v.shape)
-	'''
+		w0 = sess.run(all_w[0])
+		print(w0, w0.shape)
+	
 
 
 
