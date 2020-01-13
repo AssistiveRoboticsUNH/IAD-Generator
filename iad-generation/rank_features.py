@@ -71,7 +71,7 @@ def taylor_expansion(csv_contents, model_filename, pad_length, dataset_size, iad
 		index=np.concatenate(index), 
 		rank=np.concatenate(rank))
 
-def weight_magnitudes(model_type, model_filename, isRGB, gpu):
+def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 
 	input_placeholder = model.get_input_placeholder(isRGB, batch_size, num_frames=pad_length)
 	
@@ -182,6 +182,7 @@ if __name__ == '__main__':
 
 	weight_magnitudes(FLAGS.model_type, 
 		FLAGS.model_filename, 
+		FLAGS.pad_length,
 		FLAGS.rgb, 
 		FLAGS.gpu)
 	'''
