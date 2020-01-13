@@ -43,11 +43,6 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 	depth_rgb, index_rgb, rank_rgb = open_feature_files(frames_file)
 	depth_flo, index_flo, rank_flo = open_feature_files(flow_file)
 
-	print(rank_rgb.shape, np.array(weights[0]).shape)
-
-	rank_rgb*=weights[0]
-	rank_flo*=weights[1]
-
 	# combine frame and flow data together
 	source = np.concatenate((np.zeros_like(depth_rgb), np.ones_like(depth_flo)))
 	depth = np.concatenate((depth_rgb, depth_flo))
@@ -64,6 +59,14 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		# order the ranks according to descending order from highest rank to lowest
 		order = r_sub.reshape(-1).argsort()#[::-1]
 		s_sub, d_sub, i_sub, r_sub = s_sub[order], d_sub[order], i_sub[order], r_sub[order]
+		s_sub, d_sub, i_sub, r_sub = s_sub[::-1],  d_sub[::-1],  i_sub[::-1],  r_sub[::-1]
+
+		print(r_sub[np.argwhere(s_sub==0)].shape, np.array(weights[0][d]).shape)
+
+		r_sub[np.argwhere(s_sub==0)] *= weights[0][d]
+		r_sub[np.argwhere(s_sub==1)] *= weights[1][d]
+
+
 
 		# get the indexes of the top ranked features
 		idx = i_sub[:n].reshape(-1)
