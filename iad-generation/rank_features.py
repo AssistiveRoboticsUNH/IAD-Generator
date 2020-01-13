@@ -137,7 +137,7 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 			rank.append(w0)
 
 
-	'''
+	
 	# save ranking files
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 	filename = os.path.join(iad_data_path, "feature_ranks_l1_"+str(dataset_size)+".npz")
@@ -145,7 +145,7 @@ def weight_magnitudes(model_type, model_filename, dataset_dir, csv_filename, dat
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
 		rank=np.concatenate(rank))
-	'''
+	
 
 
 	
