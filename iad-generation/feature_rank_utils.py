@@ -27,29 +27,12 @@ def get_top_n_feature_indexes(file, n):
 		locs = np.argwhere(depth == d)
 		d_sub, i_sub, r_sub = depth[locs], index[locs], rank[locs]
 
-
-
 		order = r_sub.reshape(-1).argsort()#[::-1]
 
-		o = np.copy(r_sub)
-		p = np.copy(r_sub)
-
-		print(o.reshape(-1))
-		print(order)
-		print(o[order].reshape(-1))
-		'''
-		print('')
-		rd = rankdata(p.reshape(-1), 'ordinal') - 1
-		print(rd)
-		print(p.reshape(-1)[rd])
-		'''
-		print(i_sub[order].reshape(-1))
-		print(i_sub[:n].reshape(-1))
-
-		print('---------')
-
-
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
+		d_sub, i_sub, r_sub = d_sub[::-1], i_sub[::-1], r_sub[::-1]
+
+		print(r_sub)
 
 		keep_indexes.append(i_sub[:n].reshape(-1))
 
