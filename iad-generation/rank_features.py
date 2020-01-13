@@ -81,7 +81,7 @@ def weight_magnitudes(model_type, model_filename, pad_length, isRGB, gpu):
 
 	check_w = []
 
-	for v in variables.keys():
+	for v in sorted(variables.keys()):
 
 		#if (v in check_w):
 
