@@ -28,6 +28,7 @@ def get_top_n_feature_indexes(file, n):
 
 		order = r_sub.reshape(-1).argsort()#[::-1]
 
+		print(r_sub.reshape(-1))
 		print(order)
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
 
