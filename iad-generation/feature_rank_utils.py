@@ -57,9 +57,7 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		s_sub, d_sub, i_sub, r_sub = source[locs], depth[locs], index[locs], rank[locs]
 
 		# order the ranks according to descending order from highest rank to lowest
-		order = r_sub.reshape(-1).argsort()#[::-1]
-		s_sub, d_sub, i_sub, r_sub = s_sub[order], d_sub[order], i_sub[order], r_sub[order]
-		s_sub, d_sub, i_sub, r_sub = s_sub[::-1],  d_sub[::-1],  i_sub[::-1],  r_sub[::-1]
+		
 
 		#print(weights[0][d])
 		#print(r_sub[np.argwhere(s_sub==0)][:10].reshape(-1))
@@ -96,7 +94,9 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		#print(r_sub[np.argwhere(s_sub==0)][:10].reshape(-1))
 		#print('==============')
 
-
+		order = r_sub.reshape(-1).argsort()#[::-1]
+		s_sub, d_sub, i_sub, r_sub = s_sub[order], d_sub[order], i_sub[order], r_sub[order]
+		s_sub, d_sub, i_sub, r_sub = s_sub[::-1],  d_sub[::-1],  i_sub[::-1],  r_sub[::-1]
 
 		# get the indexes of the top ranked features
 		idx = i_sub[:n].reshape(-1)
@@ -105,6 +105,8 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		# the flow dataset
 
 		print( idx )
+		print( idx )
+		print( r_sub )
 
 		pruning_indexes["frames"].append(idx[ np.where(s_sub[:n] ==  0)[0] ])
 		pruning_indexes["flow"].append(idx[ np.where(s_sub[:n] ==  1)[0] ])
