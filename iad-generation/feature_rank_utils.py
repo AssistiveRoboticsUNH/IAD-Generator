@@ -64,14 +64,14 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		#print(weights[0][d])
 		#print(r_sub[np.argwhere(s_sub==0)][:10].reshape(-1))
 
-		print(r_sub[np.where(s_sub==0)][:10])
-		print(r_sub[np.where(s_sub==1)][:10])
+		#print(r_sub[np.where(s_sub==0)][:10])
+		#print(r_sub[np.where(s_sub==1)][:10])
 
 		rgb_max, rgb_min = np.max(r_sub[np.where(s_sub==0)]), np.min(r_sub[np.where(s_sub==0)])
 		flow_max, flow_min = np.max(r_sub[np.where(s_sub==1)]), np.min(r_sub[np.where(s_sub==1)])
 
-		print(rgb_max, rgb_min)
-		print(flow_max, flow_min)
+		#print(rgb_max, rgb_min)
+		#print(flow_max, flow_min)
 
 		r_sub[np.where(s_sub==0)] -= rgb_min
 		r_sub[np.where(s_sub==0)] /= (rgb_max - rgb_min)
@@ -79,22 +79,22 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		r_sub[np.where(s_sub==1)] -= flow_min
 		r_sub[np.where(s_sub==1)] /= (flow_max - flow_min)
 
-		print('--------')
+		#print('--------')
 
-		print(r_sub[np.where(s_sub==0)][:10])
-		print(r_sub[np.where(s_sub==1)][:10])
+		#print(r_sub[np.where(s_sub==0)][:10])
+		#print(r_sub[np.where(s_sub==1)][:10])
 
 
 		r_sub[np.where(s_sub==0)] *= weights[0][d]
 		r_sub[np.where(s_sub==1)] *= weights[1][d]
 
-		print('--------')
+		#print('--------')
 
-		print(r_sub[np.where(s_sub==0)][:10])
-		print(r_sub[np.where(s_sub==1)][:10])
+		#print(r_sub[np.where(s_sub==0)][:10])
+		#print(r_sub[np.where(s_sub==1)][:10])
 
 		#print(r_sub[np.argwhere(s_sub==0)][:10].reshape(-1))
-		print('==============')
+		#print('==============')
 
 
 
