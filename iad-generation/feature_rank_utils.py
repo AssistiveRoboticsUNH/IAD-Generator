@@ -73,11 +73,11 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		print(rgb_max, rgb_min)
 		print(flow_max, flow_min)
 
-		r_sub[np.where(s_sub==0)] += rgb_min
-		r_sub[np.where(s_sub==0)] /= (rgb_max + rgb_min)
+		r_sub[np.where(s_sub==0)] -= rgb_min
+		r_sub[np.where(s_sub==0)] /= (rgb_max - rgb_min)
 
-		r_sub[np.where(s_sub==1)] += flow_min
-		r_sub[np.where(s_sub==1)] /= (flow_max + flow_min)
+		r_sub[np.where(s_sub==1)] -= flow_min
+		r_sub[np.where(s_sub==1)] /= (flow_max - flow_min)
 
 		print('--------')
 
