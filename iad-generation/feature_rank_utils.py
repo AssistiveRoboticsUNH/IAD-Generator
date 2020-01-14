@@ -65,8 +65,12 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 
 
 
+
 		r_sub[np.argwhere(s_sub==0)] *= weights[0][d]
 		r_sub[np.argwhere(s_sub==1)] *= weights[1][d]
+
+		print(r_sub[np.argwhere(s_sub==0)])
+		print('--------')
 
 
 
