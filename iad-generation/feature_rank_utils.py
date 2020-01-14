@@ -32,7 +32,7 @@ def get_top_n_feature_indexes(file, n):
 		d_sub, i_sub, r_sub = d_sub[order], i_sub[order], r_sub[order]
 		d_sub, i_sub, r_sub = d_sub[::-1], i_sub[::-1], r_sub[::-1]
 
-		print(r_sub)
+		#print(r_sub)
 
 		keep_indexes.append(i_sub[:n].reshape(-1))
 
@@ -64,7 +64,7 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 		#print(weights[0][d])
 		#print(r_sub[np.argwhere(s_sub==0)][:10].reshape(-1))
 
-		print(r_sub.reshape(-1))
+		print(r_sub)
 
 
 		r_sub[np.argwhere(s_sub==0)] *= weights[0][d]
