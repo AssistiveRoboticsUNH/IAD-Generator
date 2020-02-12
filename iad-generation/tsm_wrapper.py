@@ -2,7 +2,7 @@
 from backbone_wrapper import BackBone
 
 import sys, math
-sys.path.append("~/temporal-shift-module")
+sys.path.append("~/temporal-shift-module/")
 
 
 from ops.dataset import TSNDataSet
