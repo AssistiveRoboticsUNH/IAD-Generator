@@ -47,14 +47,14 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filename, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filename, num_classes, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
 	
 	# define the model with the provided checkpoint information
 	if(model_type == 'i3d'):
 		from i3d_wrapper import I3DBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename)
+	model = bb(model_filename, num_classes)
 
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
@@ -62,6 +62,8 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filenam
 	# process files
 	for i in range(len(csv_contents)):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
+
+		rst = model.predict(csv_contents[i])
 
 		# generate activation map and rankings from model
 		iad_data, rank_data, length_ratio = model.process(csv_contents[i])
@@ -112,7 +114,7 @@ def normalize_dataset(csv_contents, min_max_vals):
 			# re-save file
 			np.savez(filename, data=data, label=label, length=length)
 
-def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_length, min_max_file, gpu, isRGB):
+def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, isRGB):
 
 
 	
@@ -164,7 +166,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, dataset_id, pad_
 		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filename, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
+	convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filename, num_classes, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
 	normalize_dataset(csv_contents, min_max_vals)
 
 	#summarize operations
@@ -183,11 +185,12 @@ if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser(description='Generate IADs from input files')
 	#required command line args
-	parser.add_argument('model_type', help='the type of model to use: I3D')
+	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
 
 	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
 	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
+	parser.add_argument('num_classes', type=int, help='number of classes')
 
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
@@ -202,6 +205,7 @@ if __name__ == '__main__':
 		FLAGS.model_filename, 
 		FLAGS.dataset_dir, 
 		FLAGS.csv_filename, 
+		FLAGS.num_classes,
 		FLAGS.dataset_id,
 		FLAGS.pad_length, 
 		FLAGS.min_max_file, 

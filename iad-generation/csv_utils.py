@@ -15,8 +15,13 @@ def split_trainlist_to_percent_chunks(csv_filename, trainlist_filename, testlist
 			filename, label = line[0], int(line[1])
 
 			# extract file label info
-			example_id = filename.split('/')[-1]
-			label_name = filename.split('/')[-2]
+			f_split = filename.split('/')
+			if(len(f_split) == 2):
+				example_id = f_split[-1]
+				label_name = f_split[-2]
+			elif(len(f_split) == 1):
+				example_id = f_split[-1]
+				label_name = ''
 			
 			# assign dataset_id
 			dataset_id = 4-(i%4)
@@ -70,8 +75,13 @@ def convert_listfiles_to_csv(dataset_dir, csv_filename, file_list):
 				filename, label = line[0], int(line[2])
 
 				# extract file label info
-				example_id = filename.split('/')[-1]
-				label_name = filename.split('/')[-2]
+				f_split = filename.split('/')
+				if(len(f_split) == 2):
+					example_id = f_split[-1]
+					label_name = f_split[-2]
+				elif(len(f_split) == 1):
+					example_id = f_split[-1]
+					label_name = ''
 
 				# determine length
 				length = len(os.listdir( os.path.join(dataset_dir, filename) ))

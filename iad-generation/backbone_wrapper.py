@@ -1,6 +1,6 @@
 class BackBone():
 
-    def open_model(checkpoint_file):
+    def open_model(checkpoint_file, num_classes):
         pass
 
     def predict(csv_input):
