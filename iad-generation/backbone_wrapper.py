@@ -1,12 +1,16 @@
 class BackBone():
 
-    def open_model(pretrained_file):
+    def open_model(checkpoint_file):
         pass
 
-    def prime_training_data(dataset_dir, training_dataset_filename):
+    def predict(csv_input):
         pass
 
-    def predict():
+    def process(csv_input):
         pass
+        #return iad_data, rank_data, length_ratio
 
-class TensorflowBackBone(BackBone):
+    def __init__(self):
+		pass
+
+	

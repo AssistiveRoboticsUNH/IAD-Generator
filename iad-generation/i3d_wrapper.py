@@ -5,6 +5,22 @@ import os, cv2
 
 import PIL.Image as Image
 
+from backbone_wrapper import BackBone
+
+
+class I3DBackBone(BackBone):
+
+    def predict(csv_input):
+        pass
+
+    def process(csv_input):
+
+        pass
+
+    def __init__(self, checkpoint_file):
+      pass
+      # store sess info here 
+
 ###################
 # FILE IO         #
 ###################
