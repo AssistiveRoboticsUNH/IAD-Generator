@@ -12,7 +12,3 @@ class BackBone():
 
     def __init__(self):
 		self.CNN_FEATURE_COUNT = []
-
-        pass
-
-	
