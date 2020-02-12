@@ -150,6 +150,13 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
 
+	#define the model
+	if(model_type == 'i3d'):
+		from i3d_wrapper import I3DBackBone as bb
+	if(model_type == 'tsm'):
+		from tsm_wrapper import TSMBackBone as bb
+	model = bb(model_filename, num_classes)
+
 	# generate arrays to store the min and max values of each feature
 	update_min_maxes = (min_max_file == None)
 	if(update_min_maxes):
@@ -160,13 +167,6 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	else:
 		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
-
-	#define the model
-	if(model_type == 'i3d'):
-		from i3d_wrapper import I3DBackBone as bb
-	if(model_type == 'tsm'):
-		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes)
 
 	#generate IADs
 	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
