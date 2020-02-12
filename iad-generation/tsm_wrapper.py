@@ -1,14 +1,5 @@
 
-class BackBone():
-
-    def open_model(pretrained_file):
-        pass
-
-    def prime_training_data(dataset_dir, training_dataset_filename):
-        pass
-
-    def predict():
-        pass
+from backbone_wrapper import BackBone
 
 from ops.dataset import TSNDataSet
 from ops.models import TSN

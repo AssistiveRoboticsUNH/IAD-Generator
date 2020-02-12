@@ -11,6 +11,8 @@ class BackBone():
         #return iad_data, rank_data, length_ratio
 
     def __init__(self):
-		pass
+		self.CNN_FEATURE_COUNT = []
+
+        pass
 
 	
