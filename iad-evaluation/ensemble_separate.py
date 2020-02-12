@@ -7,414 +7,525 @@
 #   if train is specified, the model name will be the name of the saved model
 #   if test is specified, the model name will be the name of the loaded model
 
-import argparse
-import csv
-import numpy as np
-import os
-import sys
+
+
+
+
+
+import os, random
+
 import tensorflow as tf
+import numpy as np
 
-import time
-import random
+import sys
+sys.path.append("../iad-generation/")
+from feature_rank_utils import get_top_n_feature_indexes
+from csv_utils import read_csv
+import tf_utils
 
-parser = argparse.ArgumentParser(description="Ensemble model processor")
-parser.add_argument('model', help='model to save (when training) or to load (when testing)')
-parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
-parser.add_argument('iad_dir', help='location of the generated IADs')
-parser.add_argument('prefix', help='"train" or "test"')
+#import c3d as model
+#import c3d_large as model
+#import i3d_wrapper as model
+import rank_i3d as model
 
-parser.add_argument('window_length', type=int, help='the size of the window. If left unset then the entire IAD is fed in at once. \
-                                                                    If the window is longer than the video then we pad to the IADs to that length')
+get_input_shape = lambda num_features, pad_length: \
+				   [(min(  64, num_features), pad_length/2), 
+					(min( 192, num_features), pad_length/2), 
+					(min( 480, num_features), pad_length/2), 
+					(min( 832, num_features), pad_length/4), 
+					(min(1024, num_features), pad_length/8)]
 
-parser.add_argument('--gpu', default="0", help='gpu to run on')
-parser.add_argument('--v', default=False, help='verbose')
+def get_data(ex, layer, pruning_indexes, window_size):
+	# open the IAD
+	f = np.load(ex['iad_path_'+str(layer)])
+	d, z = f["data"], f["length"]
 
-args = parser.parse_args()
+	# prune unused indexes
+	if(pruning_indexes != None):
+		idx = pruning_indexes[layer]
+		d = d[idx]
 
-input_shape_c3d = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (256, args.window_length/4), (256, args.window_length/8)]
-input_shape_c3d_large = [(64, args.window_length), (128, args.window_length), (256, args.window_length/2), (512, args.window_length/4), (512, args.window_length/8)]
-input_shape_i3d = [(64, args.window_length/2), (192, args.window_length/2), (480, args.window_length/2), (832, args.window_length/4), (1024, args.window_length/8)]
-input_shape = input_shape_i3d#input_shape_c3d_large
+	# modify data to desired window size
+	pading_length = window_size - (z%window_size)
+	d = np.pad(d, [[0,0],[0,pading_length]], 'constant', constant_values=0)
 
-print(np.sum([x[0]*x[1] for x in input_shape_c3d]), np.sum([x[0]*x[1] for x in input_shape_c3d_large]))
+	# split the input into chunks of the given window size
+	d = np.split(d, d.shape[1]/window_size, axis=1)
+	d = np.stack(d)
 
-# optional - specify the CUDA device to use for GPU computation
-# comment this line out if you wish to use all CUDA-capable devices
-os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+	return d, ex['label']
 
-##############################################
-# Parameters
-##############################################
+def get_data_merged(ex, pruning_indexes, input_shape):
+	flat_d = []
 
-# trial-specific parameters
-# EPOCHS is the number of training epochs to complete
-# ALPHA is the learning rate
+	for layer in range(5):
+		window_size = input_shape[layer][1]
+		d, l = get_data(ex, layer, pruning_indexes, window_size)
+		flat_d.append(d.reshape(d.shape[0], -1, 1))
 
-EPOCHS = 30
-ALPHA = 1e-4
 
-TRAIN_PREFIX = "train"
-TEST_PREFIX = "test"
+	return np.concatenate(flat_d, axis=1), l
 
-##############################################
-# File IO
-##############################################
+def get_batch_data(dataset, model_num, pruning_indexes, input_shape, batch_size, sliding_window):
 
-def parse_iadlist(iad_dir, prefix):
-    '''Opena dn parse a .iadlist file'''
 
-    iadlist_filename = os.path.join(iad_dir, prefix+".iadlist")
+	batch_data, batch_label = [], []
 
-    try:
-        ifile = open (iadlist_filename, 'r')
-    except:
-        print("File doesn't exist: "+ iadlist_filename)
-        sys.exit(1)
-    
-    iad_groups = []
+	for b_idx in np.random.randint(0, len(dataset), size=batch_size):
+		file_ex = dataset[b_idx]
 
-    line = ifile.readline()
-    while(len(line) > 0):
-        filename_group = [os.path.join(iad_dir, f) for f in line.split()]
-        iad_groups.append(filename_group)
-        line = ifile.readline()
-    return iad_groups
+		if model_num < 5:
+			window_size = input_shape[model_num][1]
+			d, l = get_data(file_ex, model_num, pruning_indexes, window_size)
+		else:
+			d, l = get_data_merged(file_ex, pruning_indexes, input_shape)
 
-def open_and_org_file(filename_group):
-    '''Open all of the files in the filename_group (an array of filenames). Then format and shape the IADs within'''
-    file_data = []
+		w_idx = random.randint(0, d.shape[0]-1) if sliding_window else 0
 
-    #join the separate IAD layers
-    for layer, filename in enumerate(filename_group):
-        
-        f = np.load(filename)
-        d, label, z = f["data"], f["label"], f["length"]
+		batch_data.append(d[w_idx])
+		batch_label.append(l)
 
-        #break d in to chuncks of window size
-        window_size = input_shape[layer][1]
-        pad_length = window_size - (z%window_size)
-        d = np.pad(d, [[0,0],[0,pad_length]], 'constant', constant_values=0)
-        d = np.split(d, d.shape[1]/window_size, axis=1)
-        d = np.stack(d)
-        file_data.append(d)
+	return np.array(batch_data), np.array(batch_label)
+		
 
-    #append the flattened and merged IAD
-    
-    flat_data = np.concatenate([x.reshape(x.shape[0], -1, 1) for x in file_data], axis = 1)
-    file_data.append(flat_data)
+def get_test_data(dataset, model_num, pruning_indexes, input_shape, idx):
 
-    return file_data, np.array([int(label)])
+	file_ex = dataset[idx]
 
-def get_data_train(iad_list):
-    '''Randomly select a batch of IADs, if using windows smaller than the input the select a window that will capture the data'''
-    
-    batch_data = []
-    for i in range(6):
-        batch_data.append([])
-    batch_label = []
-
-    #select files randomly
-    batch_indexs = np.random.randint(0, len(iad_list), size=BATCH_SIZE)
-
-    for index in batch_indexs:
-        file_data, label = open_and_org_file(iad_list[index])
-        
-        #randomly select a window from the example
-        win_index = random.randint(0, file_data[0].shape[0]-1)
-        for layer in range(len(file_data)):
-            batch_data[layer].append(file_data[layer][win_index])
-
-        batch_label.append(label)
-
-    for i in range(6):
-        batch_data[i] = np.array(batch_data[i])
-
-    return batch_data, np.array(batch_label).reshape(-1)
-
-def get_data_test(iad_list, index):
-    return open_and_org_file(iad_list[index])
+	if model_num < 5:
+		window_size = input_shape[model_num][1]
+		return get_data(file_ex, model_num, pruning_indexes, window_size)
+	else:
+		return get_data_merged(file_ex, pruning_indexes, input_shape)
 
 ##############################################
 # Model Structure
 ##############################################
 
-def model_def(num_classes, data_shapes, layer=-1):
-    """Create the tensor operations to be used in training and testing, stored in a dictionary."""
+def model_def(num_classes, input_shape, model_num, alpha):
+	"""Create the tensor operations to be used in training and testing, stored in a dictionary."""
 
-    def conv_model(input_ph):
-        """Return a convolutional model."""
-        top = input_ph
+	def conv_model(input_ph):
+		"""Return a convolutional model."""
+		top = input_ph
 
-        # hidden layers
-        num_filters = 32
-        filter_width = 4
-        conv1 = tf.layers.conv2d(
-            inputs=input_layer,
-            filters=num_filters,
-            kernel_size=[1, filter_width],
-            padding="valid", 
-            activation=tf.nn.leaky_relu)
-        top = tf.layers.flatten(top)
-        top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
-        top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
+		# input layers [batch_size, h, w, num_channels]
+		top = tf.reshape(top, [-1, input_shape[model_num][0], input_shape[model_num][1], 1])
 
-        # output layers
-        return tf.layers.dense(inputs=top, units=num_classes)
+		'''
+		# hidden layers (1x1 conv)
+		num_filters = 16
+		top = tf.layers.conv1d(
+			inputs=top,
+			filters=num_filters,
+			padding="valid", 
+			activation=tf.nn.leaky_relu)
 
-    def dense_model(input_ph):
-        """Return a single layer softmax model."""
-        top = input_ph
+		
+		# hidden layers (1x4 conv)
+		num_filters = 8
+		filter_width = 4
+		top = tf.layers.conv2d(
+			inputs=top,
+			filters=num_filters,
+			kernel_size=[1, filter_width],
+			padding="valid", 
+			activation=tf.nn.leaky_relu)
+		'''
+		top = tf.layers.flatten(top)
+		top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
+		top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
 
-        # hidden layers
-        top = tf.layers.flatten(top)
-        top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
-        top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
+		# output layers
+		return tf.layers.dense(inputs=top, units=num_classes)
 
-        # output layers
-        return tf.layers.dense(inputs=top, units=num_classes)
+	def dense_model(input_ph):
+		"""Return a single layer softmax model."""
+		top = input_ph
 
-    # Placeholders
-    ph = {
-        "y": tf.placeholder(tf.int32, shape=(None)),
-        "train": tf.placeholder(tf.bool)
-    }
+		# hidden layers
+		top = tf.layers.flatten(top)
+		top = tf.layers.dense(inputs=top, units=2048, activation=tf.nn.leaky_relu)
+		top = tf.layers.dropout(top, rate=0.5, training=ph["train"])
 
-    for c3d_depth in range(6):
-        ph["x_" + str(c3d_depth)] = tf.placeholder(
-            tf.float32, shape=(None, data_shapes[c3d_depth][0], data_shapes[c3d_depth][1])
-        )
+		# output layers
+		return tf.layers.dense(inputs=top, units=num_classes)
 
-    # for each model generate tensor ops
+	# Placeholders
+	print("Model Shape:", model_num, input_shape[model_num][0], input_shape[model_num][1])
 
-    # Logits
-    # input layers [batch_size, h, w, num_channels]
-    input_layer = tf.reshape(ph["x_" + str(layer)], [-1, data_shapes[layer][0], data_shapes[layer][1], 1])
-    if(c3d_depth < 3):
-        logits = conv_model(input_layer)
-    else:
-        logits = dense_model(input_layer)
+	ph = {
+		"x_"+str(model_num): tf.placeholder(tf.float32, 
+			shape=(None, input_shape[model_num][0], input_shape[model_num][1])),
+		"y": tf.placeholder(tf.int32, shape=(None)),
+		"train": tf.placeholder(tf.bool)
+	}
 
-    # Predict
-    softmax = tf.nn.softmax(logits, name="softmax_tensor")
-    class_pred = tf.argmax(input=logits, axis=1, output_type=tf.int32)
+	# Logits
+	input_layer = ph["x_"+str(model_num)]
+	if(model_num < 3):
+		logits = conv_model(input_layer)
+	else:
+		logits = dense_model(input_layer)
 
-    # Train
-    loss = tf.losses.sparse_softmax_cross_entropy(labels=ph["y"], logits=logits)
-    train_op = tf.train.AdamOptimizer(learning_rate=ALPHA).minimize(
-        loss=loss,
-        global_step=tf.train.get_global_step()
-    )
+	# Predict
+	softmax = tf.nn.softmax(logits, name="softmax_tensor")
+	class_pred = tf.argmax(input=logits, axis=1, output_type=tf.int32)
 
-    # Test
-    correct_pred = tf.equal(class_pred, ph["y"])
-    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+	# Train
+	loss = tf.losses.sparse_softmax_cross_entropy(labels=ph["y"], logits=logits)
+	train_op = tf.train.AdamOptimizer(learning_rate=alpha).minimize(
+		loss=loss,
+		global_step=tf.train.get_global_step()
+	)
 
-    # the softmax values across all of the models
-    print("softmax.get_shape(): ", softmax.get_shape())
-    #all_sftmx = tf.transpose(softmax, [1, 2, 0])
+	# Test
+	correct_pred = tf.equal(class_pred, ph["y"])
+	accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-    # the class predictions across all of the models
-    #all_pred = tf.transpose(all_sftmx, [0, 2, 1])
-    all_pred = tf.squeeze(tf.argmax(softmax, axis=1, output_type=tf.int32))
+	# the class predictions across all of the models
+	all_pred = tf.squeeze(tf.argmax(softmax, axis=1, output_type=tf.int32))
 
-    ops = {
-        'train': [train_op , loss, accuracy],
-        'model_sftmx': softmax,
-        'model_preds': all_pred
-    }
-    
-    return ph, ops
+	ops = {
+		'train': [train_op, loss, accuracy],
+		'model_sftmx': softmax,
+		'model_preds': all_pred
+	}
+	
+	return ph, ops
 
 def model_consensus(confidences):
-    """Generate a weighted average over the composite models"""
-    confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
-    print("conf_strt:", confidences.shape)
+	"""Generate a weighted average over the composite models"""
+	confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
 
-    confidences = confidences * confidence_discount_layer
-    print("conf_shape:", confidences.shape)
+	confidences = confidences * confidence_discount_layer
 
-    confidences = np.sum(confidences, axis=(2,3))
-    print("conf_sum:", confidences.shape)
+	confidences = np.sum(confidences, axis=(2,3))
 
-    maxes = np.argmax(confidences, axis=1)
-    print("conf_max:", maxes.shape)
-    return maxes
+	return np.argmax(confidences, axis=1)
 
 ##############################################
 # Train/Test Functions
 ##############################################
 
-def train_model(model_name, num_classes, train_data, test_data):
+def train_model(model_dirs, num_classes, train_data, test_data, pruning_indexes, num_features, window_size, batch_size, alpha, epochs, sliding_window):
+	# get the shape of the flattened and merged IAD and append
+	input_shape = get_input_shape(num_features, window_size)
+	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
 
-    # get the shape of the flattened and merged IAD and append
-    data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
+	for model_num in range(6):
 
-    for layer in range(6):
+		#define network
+		ph, ops = model_def(num_classes, input_shape, model_num, alpha)
+		saver = tf.train.Saver()
+		
+		with tf.Session() as sess:
+			sess.run(tf.global_variables_initializer())
+			sess.run(tf.local_variables_initializer())
 
-        #define network
-        ph, ops = model_def(num_classes, data_shape, layer=layer)
-        saver = tf.train.Saver()
-        
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
-            sess.run(tf.local_variables_initializer())
+			sess.graph.finalize()
 
-            sess.graph.finalize()
+			# train the network
+			num_iter = epochs * len(train_data) / batch_size
+			for i in range(num_iter):
+				# setup training batch
+				data, label = get_batch_data(train_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
+				feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: True }
 
-            # train the network
-            num_iter = EPOCHS * len(train_data) / BATCH_SIZE
-            for i in range(num_iter):
-            # setup training batch
+				sess.run(ops["train"], feed_dict=feed_dict)
 
-                data, label = get_data_train(train_data)
-            
-                batch_data = {}
-                for d in range(6):
-                    batch_data[ph["x_" + str(d)]] = data[d]
+				# print out every 2K iterations
+				if i % 2000 == 0:
+					print("step: ", str(i) + '/' + str(num_iter))
+					
+					# evaluate test network
+					data, label = get_batch_data(test_data, model_num, pruning_indexes, input_shape, batch_size, sliding_window)
+				
+					feed_dict = { ph["x_"+str(model_num)]: data, ph["y"]: label,  ph["train"]: False }
 
-                batch_data[ph["y"]] = label
-                batch_data[ph["train"]] = True
+					correct_prediction = sess.run([ops['model_preds']], feed_dict=feed_dict)
+					correct, total = np.sum(correct_prediction[0] == label), len(correct_prediction[0] == label)
 
-                # combine training operations into one variable
-                start = time.time()
+					print("model_num: {0}, test_accuracy: {1}, correct: {2}, total: {3}".format(model_num, correct / float(total), correct, total))
 
-                out = sess.run(ops["train"], feed_dict=batch_data)
-
-                if(args.v):
-                    print("execution time: {:6.3f}".format(time.time() - start))
-
-                # print out every 2K iterations
-                if i % 2000 == 0:
-                    print("step: ", str(i) + '/' + str(num_iter))
-                    #for x in range(6):
-                    #    print("depth: ", str(x), "loss: ", out[6 + x], "train_accuracy: ", out[12 + x])
-
-                    # evaluate test network
-                    data, label = get_data_train(test_data)
-                
-                    batch_data = {}
-                    for d in range(6):
-                        batch_data[ph["x_" + str(d)]] = data[d]
-
-                    batch_data[ph["y"]] = label
-                    batch_data[ph["train"]] = False
-
-                    correct_prediction = sess.run([ops['model_preds']], feed_dict=batch_data)
-                    correct, total = np.sum(correct_prediction), len(correct_prediction[0])
-
-                    print("test_accuracy: {0}, correct: {1}, total: {2}".format(correct / float(total), correct, total))
-
-            # save the model
-            print("Final model saved in %s" % saver.save(sess, model_name+'_'+str(layer)))
-        tf.reset_default_graph()
-
-def test_model(model_name, num_classes, test_data):
-
-    # get the shape of the flattened and merged IAD and append
-    test_batch_size = 1
-    data_shape = input_shape + [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
-
-    correct, total = 0, 0
-    model_correct, model_total = [0]*6, [0]*6
-
-    correct_class = np.zeros(num_classes, dtype=np.float32)
-    total_class = np.zeros(num_classes, dtype=np.float32)
-
-    aggregated_confidences = []
-    aggregated_labels = []
-
-    for layer in range(6):
-
-        #define network
-        ph, ops = model_def(num_classes, data_shape, layer=layer)
-        saver = tf.train.Saver()
-
-        with tf.Session() as sess:
-            # restore the model
-            try:
-                saver.restore(sess, model_name+"_"+str(layer))
-                print("Model restored from %s" % model_name+"_"+str(layer))
-            except:
-                print("Failed to load model")
-
-            num_iter = len(test_data)
-            for i in range(num_iter):
-                data, label = get_data_test(test_data, i)
-                label = int(label[0])
-                
-                if(layer == 0):
-                    aggregated_confidences.append([])
-
-                batch_data = {}
-                batch_data[ph["y"]] = label
-                batch_data[ph["train"]] = False
-
-                for j in range(1):#len(data[0])):
-                    for d in range(6):
-                        batch_data[ph["x_" + str(d)]] = np.expand_dims(data[d][j], axis = 0)
-
-                    confidences, predictions = sess.run([
-                        ops['model_sftmx'], 
-                        ops['model_preds'], 
-                    ], feed_dict=batch_data)
-
-                    aggregated_confidences[i].append(confidences)
-                    if(layer == 0):
-                    	aggregated_labels.append(label)
-
-                    #print("predictions:", predictions)
-
-                    if(predictions == label):
-                        model_correct[layer] += 1
-                    model_total[layer] += 1
-        tf.reset_default_graph()
-
-    aggregated_confidences=np.array(aggregated_confidences)
-    aggregated_confidences = np.transpose(aggregated_confidences, [0, 3, 2, 1])
-    ensemble_prediction = model_consensus(aggregated_confidences)
-
-    print("aggregated_labels: ", aggregated_labels)
-    print("aggregated_confidences: ", aggregated_confidences.shape)
-
-    for i in range(len(aggregated_confidences)):
-    	label = aggregated_labels[i]
+			# save the model
+			save_name = model_dirs[model_num]+'/model'
+			saver.save(sess, save_name)
+			print("Final model saved in %s" % save_name)
+		tf.reset_default_graph()
 
 
-    	if(ensemble_prediction[i] == label):
-            correct_class[label] += 1
-        total_class[label] += 1    
-                
-    # print partial model's cummulative accuracy
-    print("Model accuracy: ")
-    for i in range(6):
-        print("%s: %s" % (i, model_correct[i] / float(model_total[i])))
-           
+def test_model(iad_model_path, model_dirs, num_classes, test_data, pruning_indexes, num_features, window_size, sliding_window, dataset_type):
+
+	# get the shape of the flattened and merged IAD and append
+	input_shape = get_input_shape(num_features, window_size)
+	input_shape += [(np.sum([shape[0]*shape[1] for shape in input_shape]), 1)]
+
+	#variables for determining model accuracy
+	model_accuracy = np.zeros([ 6, 2], dtype=np.int32)
+
+	#variables for determining class accuracy
+	class_accuracy = np.zeros([ num_classes, 2], dtype=np.int32)
+
+	#variables used to generate consensus value
+	aggregated_confidences, aggregated_labels = [], []
+	for i in range(len(test_data)):
+		aggregated_confidences.append([])
+
+	for model_num in range(6):
+
+		#define network
+		ph, ops = model_def(num_classes, input_shape, model_num, 1e-4)
+		saver = tf.train.Saver()
 
 
+		with tf.Session() as sess:
+			# restore the model
+			tf_utils.restore_model(sess, saver, model_dirs[model_num])
 
-    # print ensemble cummulative accuracy
-    print("FINAL - accuracy:", np.sum(correct_class) / np.sum(total_class))
 
-    total_class[np.where(total_class == 0)] = 1
+			num_iter = len(test_data)
+			for i in range(num_iter):
 
-    np.save("classes.npy",  correct_class / total_class)
+				aggregated_confidences[i].append([])
+
+
+				data, label = get_test_data(test_data, model_num, pruning_indexes, input_shape, i)
+
+				num_win = len(data) if sliding_window else 1
+
+				for w_idx in range(num_win): 
+					feed_dict = { ph["x_"+str(model_num)]: np.expand_dims(data[w_idx], axis = 0), ph["y"]: label,  ph["train"]: False }
+
+					confidences, predictions = sess.run([ 
+							ops['model_sftmx'], ops['model_preds']], 
+							feed_dict=feed_dict)
+
+					# append confidences for evaluating consensus model
+					aggregated_confidences[i][model_num].append(confidences)
+					if(model_num == 0 and w_idx ==0):
+						aggregated_labels.append(label)
+
+					# update model accuracy
+					if(predictions == label):
+						model_accuracy[model_num, 0] += 1
+					model_accuracy[model_num, 1] += 1
+
+		tf.reset_default_graph()
+
+	for i in range(len(aggregated_confidences)):
+		aggregated_confidences[i] = np.mean(aggregated_confidences[i], axis = 1)
+
+	# generate wighted sum for ensemble of models 
+	aggregated_confidences = np.transpose(np.array(aggregated_confidences), [0, 3, 2, 1])
+	ensemble_prediction = model_consensus(aggregated_confidences)
+	aggregated_labels = np.array(aggregated_labels).reshape(-1)
+
+	for i, label in enumerate(aggregated_labels):
+		if(ensemble_prediction[i] == label):
+			class_accuracy[label, 0] += 1
+		class_accuracy[label, 1] += 1    
+				
+	# print partial model's cummulative accuracy
+	ofile = open(os.path.join(iad_model_path, "model_accuracy_"+dataset_type+".txt"), 'w')
+	print("Model accuracy: ")
+	for model_num in range(6):
+		print("{:d}\t{:4.6f}".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
+		ofile.write("{:d}\t{:4.6f}\n".format(model_num, model_accuracy[model_num, 0] / float(model_accuracy[model_num, 1])) )
+
+	# print ensemble cummulative accuracy
+	print("FINAL\t{:4.6f}".format( np.sum(ensemble_prediction == aggregated_labels) / float(len(aggregated_labels)) ) )
+	ofile.write("FINAL\t{:4.6f}\n".format( np.sum(ensemble_prediction == aggregated_labels) / float(len(aggregated_labels)) ) )
+	ofile.close()
+
+	# save per-class accuracy
+	np.save(os.path.join(iad_model_path, "class_accuracy_"+dataset_type+".npy"),  class_accuracy[:, 0] / class_accuracy[:, 1] )
+
+	return aggregated_confidences, aggregated_labels
+
+def prepare_filenames(dataset_dir, dataset_type, dataset_id, file_list):
+	iad_data_path_frames = os.path.join(dataset_dir, 'iad_frames_'+str(dataset_id))
+	iad_data_path_flow   = os.path.join(dataset_dir, 'iad_flow_'+str(dataset_id))
+
+	for ex in file_list:
+		file_location = os.path.join(ex['label_name'], ex['example_id'])
+		for layer in range(5):
+
+			if(dataset_type == 'frames' or dataset_type == 'both'):
+				iad_frames = os.path.join(iad_data_path_frames, file_location+"_"+str(layer)+".npz")
+				assert os.path.exists(iad_frames), "Cannot locate IAD file: "+ iad_frames
+				ex['iad_path_'+str(layer)] = iad_frames
+
+			if(dataset_type == 'flow' or dataset_type == 'both'):
+				iad_flow = os.path.join(iad_data_path_flow, file_location+"_"+str(layer)+".npz")
+				assert os.path.exists(iad_flow), "Cannot locate IAD file: "+ iad_flow
+				ex['iad_path_'+str(layer)] = iad_flow
+
+def main(model_type, dataset_dir, csv_filename, num_classes, operation, dataset_id, dataset_type,
+		window_size, epochs, batch_size, alpha, 
+		feature_retain_count, gpu, sliding_window):
+
+	# optional - specify the CUDA device to use for GPU computation
+	# comment this line out if you wish to use all CUDA-capable devices
+	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
+
+	# Setup file IO
+	model_id_path_frames = os.path.join('iad_model_'+str(window_size), 'model_frames'+str(dataset_id))
+	iad_model_path_frames = os.path.join(dataset_dir, model_id_path_frames)
+
+	model_id_path_flow = os.path.join('iad_model_'+str(window_size), 'model_flow'+str(dataset_id))
+	iad_model_path_flow = os.path.join(dataset_dir, model_id_path_flow)
+
+	model_dirs_frames, model_dirs_flow = [], []
+	for model_num in range(6):
+
+		# setup directory for frames
+		separate_model_dir = os.path.join(iad_model_path_frames, 'model_'+str(model_num))
+		model_dirs_frames.append(separate_model_dir)
+
+		if(not os.path.exists(separate_model_dir)):
+			os.makedirs(separate_model_dir)
+
+		# setup directory for flow
+		separate_model_dir = os.path.join(iad_model_path_flow, 'model_'+str(model_num))
+		model_dirs_flow.append(separate_model_dir)
+
+		if(not os.path.exists(separate_model_dir)):
+			os.makedirs(separate_model_dir)
+
+	# setup train and test file lists
+	try:
+		csv_contents = read_csv(csv_filename)
+	except:
+		print("Cannot open CSV file: "+ csv_filename)
+
+	train_data = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id and ex['dataset_id'] != 0]
+	test_data  = [ex for ex in csv_contents if ex['dataset_id'] == 0]
+	
+	print("Number Training Examples:", len(train_data))
+	print("Number Testing Examples:",  len(test_data))
+
+	#train_data = train_data[:5]
+	#test_data = test_data[:5]
+
+	# Determine features to prune
+	pruning_keep_indexes_frame, pruning_keep_indexes_flow = None, None
+	if(feature_retain_count and dataset_id):
+		if(dataset_type == 'frames' or dataset_type == 'both'):
+			iad_data_path_frames = os.path.join(dataset_dir, 'iad_frames_'+str(dataset_id))
+			ranking_file = os.path.join(iad_data_path_frames, "feature_ranks_"+str(dataset_id)+".npz")
+			assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
+			pruning_keep_indexes_frame = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+
+		if(dataset_type == 'flow' or dataset_type == 'both'):
+			iad_data_path_flow = os.path.join(dataset_dir, 'iad_flow_'+str(dataset_id))
+			ranking_file = os.path.join(iad_data_path_flow, "feature_ranks_"+str(dataset_id)+".npz")
+			assert os.path.exists(ranking_file), "Cannot locate Feature Ranking file: "+ ranking_file
+			pruning_keep_indexes_flow = get_top_n_feature_indexes(ranking_file, feature_retain_count)
+
+	# Begin Training/Testing
+	if(operation == "train"):
+		prepare_filenames(dataset_dir, dataset_type, dataset_id, train_data)
+		prepare_filenames(dataset_dir, dataset_type, dataset_id, test_data)
+
+		if(dataset_type == 'frames'):
+			train_model(model_dirs_frames, num_classes, train_data, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
+		elif(dataset_type == 'flow'):
+			train_model(model_dirs_flow,   num_classes, train_data, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, batch_size, alpha, epochs, sliding_window)
+	
+	elif(operation == "test"):
+		if(dataset_type == 'frames'):
+			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
+			print("\n\n\nframes_out:", test_data[0]['iad_path_0'])
+			test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, sliding_window, dataset_type)
+			
+		elif(dataset_type == 'flow'):
+			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
+			test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, sliding_window, dataset_type)
+		
+		elif(dataset_type == 'both'):
+			prepare_filenames(dataset_dir, 'frames', dataset_id, test_data)
+			print("\n\n\nframes_out:", test_data[0]['iad_path_0'])
+			frame_results, frame_labels = test_model (iad_model_path_frames, model_dirs_frames, num_classes, test_data, pruning_keep_indexes_frame, feature_retain_count, window_size, sliding_window, "frames")
+			
+			prepare_filenames(dataset_dir, 'flow',   dataset_id, test_data)
+			print("\n\n\nflow_out:",test_data[0]['iad_path_0'])
+			flow_results,  flow_labels  = test_model (iad_model_path_flow,   model_dirs_flow,   num_classes, test_data, pruning_keep_indexes_flow, feature_retain_count, window_size, sliding_window, "flow")
+	
+			#Get Individual accuracy
+			results = np.stack((frame_results, flow_results))
+			results = np.mean(results, axis = 0)
+			results = np.squeeze(results)
+			pred = np.argmax(results, axis=1)
+
+			ofile = open(os.path.join(iad_model_path_frames, "model_accuracy_both.txt"), 'w')
+			for model_num in range(6):
+				pred = np.argmax(results[:, :, model_num], axis=1)
+				print("{:d}\t{:4.6f}".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) ))
+				ofile.write("{:d}\t{:4.6f}\n".format(model_num, np.sum(pred == frame_labels) / float(len(frame_labels)) ))
+
+			#Get Ensemble accuracy
+			confidence_discount_layer = [0.5, 0.7, 0.9, 0.9, 0.9, 1.0]
+
+			frame_results = frame_results * confidence_discount_layer
+			frame_results = np.sum(frame_results, axis=(2,3))
+
+			flow_results = flow_results * confidence_discount_layer
+			flow_results = np.sum(flow_results, axis=(2,3))
+
+			results = np.stack((frame_results, flow_results))
+			results = np.mean(results, axis = 0)
+			pred = np.argmax(results, axis=1)
+
+			print("FINAL\t{:4.6f}".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ))
+			ofile.write("FINAL\t{:4.6f}\n".format( np.sum(pred == frame_labels) / float(len(frame_labels)) ) )
+			ofile.close()
+			
+
+	else:
+		print('Operation parameter must be either "train" or "test"')
 
 
 
 if __name__ == "__main__":
-    """Determine if the user has specified training or testing and run the appropriate function."""
-    
-    if args.prefix == TRAIN_PREFIX:
-        print("----> TRAINING")
-        BATCH_SIZE = 15
-        train_dataset = parse_iadlist(args.iad_dir, TRAIN_PREFIX)
-        eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)
-        train_model(args.model, args.num_classes, train_dataset, eval_dataset)
-    elif args.prefix == TEST_PREFIX:
-        print("----> TESTING")
-        BATCH_SIZE = 1
-        eval_dataset = parse_iadlist(args.iad_dir, TEST_PREFIX)
-        test_model(args.model, args.num_classes, eval_dataset)
-    else:
-        print('"prefix must be either "train" or "test"')
-        sys.exit(1)
+	"""Determine if the user has specified training or testing and run the appropriate function."""
+	
+	import argparse
+	parser = argparse.ArgumentParser(description='Generate IADs from input files')
+
+	#required command line args
+	parser.add_argument('model_type', help='the type of model to use: I3D')
+
+	parser.add_argument('dataset_dir', help='the directory where the dataset is located')
+	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
+
+	parser.add_argument('num_classes', type=int, help='the number of classes in the dataset')
+	parser.add_argument('operation', help='"train" or "test"', choices=['train', 'test'])
+	parser.add_argument('dataset_id', type=int, help='the dataset_id used to train the network. Is used in determing feature rank file')
+	parser.add_argument('dataset_type', help='"frames", "flow", or "both" (only usable for test)', choices=['frames', 'flow', 'both'])
+	parser.add_argument('window_size', type=int, help='the maximum length video to convert into an IAD')
+
+	parser.add_argument('--sliding_window', type=bool, default=False, help='.list file containing the test files')
+	parser.add_argument('--epochs', type=int, default=30, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--batch_size', type=int, default=15, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--alpha', type=int, default=1e-4, help='the maximum length video to convert into an IAD')
+	parser.add_argument('--feature_retain_count', type=int, default=10000, help='the number of features to remove')
+	
+	parser.add_argument('--gpu', default="0", help='gpu to run on')
+
+	FLAGS = parser.parse_args()
+
+	main(FLAGS.model_type, 
+		FLAGS.dataset_dir, 
+		FLAGS.csv_filename, 
+		FLAGS.num_classes, 
+		FLAGS.operation, 
+		FLAGS.dataset_id, 
+		FLAGS.dataset_type,
+		FLAGS.window_size, 
+		FLAGS.epochs,
+		FLAGS.batch_size,
+		FLAGS.alpha,
+		FLAGS.feature_retain_count,
+		FLAGS.gpu,
+		FLAGS.sliding_window)
