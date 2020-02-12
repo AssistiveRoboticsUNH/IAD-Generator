@@ -47,15 +47,8 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filename, num_classes, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
 	
-	# define the model with the provided checkpoint information
-	if(model_type == 'i3d'):
-		from i3d_wrapper import I3DBackBone as bb
-	if(model_type == 'tsm'):
-		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes)
-
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
 
@@ -92,7 +85,9 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filenam
 	if(update_min_maxes):
 		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
 	
-def normalize_dataset(csv_contents, min_max_vals):
+def normalize_dataset(csv_contents, min_max_vals, model_type):
+
+
 	for i in range(len(csv_contents)):
 		print("normalizing IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
@@ -166,8 +161,16 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 		f = np.load(min_max_file, allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
-	convert_dataset_to_iad(csv_contents, min_max_vals, model_type, model_filename, num_classes, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
-	normalize_dataset(csv_contents, min_max_vals)
+	#define the model
+	if(model_type == 'i3d'):
+		from i3d_wrapper import I3DBackBone as bb
+	if(model_type == 'tsm'):
+		from tsm_wrapper import TSMBackBone as bb
+	model = bb(model_filename, num_classes)
+
+	#generate IADs
+	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
+	normalize_dataset(csv_contents, min_max_vals, model)
 
 	#summarize operations
 	print("--------------")
