@@ -57,7 +57,7 @@ class TSNShort(TSN):
 
 class TSMBackBone(BackBone):
          
-    def open_file(self, csv_input, start_idx=0):
+    def open_file(self, csv_input, start_idx=0, batch_now=True):
         
         folder_name = csv_input['raw_path']
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
@@ -76,7 +76,10 @@ class TSMBackBone(BackBone):
 
         # process the frames
         data = self.transform(data)
-        return data.view(-1, self.max_length, 3, 256,256)
+        if (batch_now):
+            return data.view(-1, self.max_length, 3, 256,256)
+        data.view(self.max_length, 3, 256,256)
+
 
     def open_file_as_batch(self, csv_input):
         
@@ -86,7 +89,7 @@ class TSMBackBone(BackBone):
 
         # collect the frames
         end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
-        batch = [ self.open_file(csv_input, start_idx) for start_idx in range(0, end_frame, 4) ]
+        batch = [ self.open_file(csv_input, start_idx, batch_now=False) for start_idx in range(0, end_frame, 4) ]
         
         # process the frames
         return torch.stack(batch).cuda()
