@@ -8,7 +8,11 @@ class BackBone:
 
     def process(self, csv_input, max_length=1):
         pass
-        #return iad_data, rank_data, length_ratio
+        #return iad_data, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes):
+    def rank(self, csv_input, max_length=1):
+        pass
+        #return rank_data
+
+    def __init__(self, checkpoint_file, num_classes, features_kept=None):
 		self.CNN_FEATURE_COUNT = []

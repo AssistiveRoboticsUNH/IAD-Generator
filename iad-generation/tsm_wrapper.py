@@ -85,26 +85,47 @@ class TSMBackBone(BackBone):
 
         print("data_in:", data_in.shape)
         
+        # predict value
         with torch.no_grad():
-
-            # predict value
-            rst = self.net(data_in)
-            #rst = rst.reshape(1, 3, -1).mean(1)
-            #rst = rst.reshape(batch_size, num_crop, -1).mean(1)
-
-        for a in self.activation.keys():
-            print("activation"+a+": ", self.activation[a].shape)
-        return rst
+            return self.net(data_in)
 
     def process(self, csv_input, max_length=8):
 
         data_in = self.open_file(csv_input['raw_path'], max_length=8)
+        length_ratio = csv_input['length']/float(max_length)
 
-        pass
-        #return iad_data, rank_data, length_ratio
+        # data has shape (batch size, segment length, num_ch, height, width)
+        # (6,8,3,256,256)
+
+        print("data_in:", data_in.shape)
+        
+        # pass data through network to obtain activation maps
+        # rst is not used and not need to store grads
+        with torch.no_grad():
+            rst = self.net(data_in)
+
+        return self.activations, length_ratio
+
+    def rank(self, csv_input, max_length=8):
+        data_in = self.open_file(csv_input['raw_path'], max_length=8)
+
+        # data has shape (batch size, segment length, num_ch, height, width)
+        # (6,8,3,256,256)
+
+        print("data_in:", data_in.shape)
+        
+        # pass data through network to obtain activation maps
+        # do need grads for taylor expansion
+        rst = self.net(data_in)
+
+        for i in range(len(self.activations));
+
+            print("activ: {0}, grad: {1}".format(self.activations[i].shape, self.ranks[i].shape))
+
+        return self.ranks
 
 
-    def __init__(self, checkpoint_file, num_classes):
+    def __init__(self, checkpoint_file, num_classes, features_kept=None):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -121,18 +142,7 @@ class TSMBackBone(BackBone):
         test_file = None
 
         #model variables
-        '''
-        def parse_shift_option_from_log_name(log_name):
-            if 'shift' in log_name:
-                strings = log_name.split('_')
-                for i, s in enumerate(strings):
-                    if 'shift' in s:
-                        break
-                return True, int(strings[i].replace('shift', '')), strings[i + 1]
-            else:
-                return False, None, None
-        '''
-        self.is_shift, shift_div, shift_place = True, 8, 'blockres'#parse_shift_option_from_log_name(this_weights)
+        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
 
         
         self.arch = this_weights.split('TSM_')[1].split('_')[2]
@@ -156,20 +166,64 @@ class TSMBackBone(BackBone):
         # load checkpoint file
         checkpoint = torch.load(this_weights)
 
-        print("base_model:", net.base_model)
-
-        self.activation = {}
-        def get_activation(name):
+        # add activation and ranking hooks
+        self.activations = []
+        self.ranks = []
+        def activation_hook():
             def hook(model, input, output):
-                self.activation[name] = output.detach()
+                #prune features and only get those we are investigating 
+                activations = output.detach()
+                if(features_kept):
+                    pass # do stuff
+                self.activations.append( activations ) 
+ 
             return hook
 
-        net.base_model.layer1.register_forward_hook(get_activation('layer1'))
-        net.base_model.layer2.register_forward_hook(get_activation('layer2'))
-        net.base_model.layer3.register_forward_hook(get_activation('layer3'))
-        net.base_model.layer4.register_forward_hook(get_activation('layer4'))
-        
+        def taylor_expansion_hook():
+            def hook(model, input, output):
+                # perform taylor expansion
+                grad = input.detach()
 
+
+
+
+
+                self.ranks.append( grad ) 
+
+
+                '''
+                activation_index = len(self.activations) - self.grad_index - 1
+                activation = self.activations[activation_index]
+                values = \
+                    torch.sum((activation * grad), dim = 0).\
+                        sum(dim=2).sum(dim=3)[0, :, 0, 0].data
+                
+                # Normalize the rank by the filter dimensions
+                values = \
+                    values / (activation.size(0) * activation.size(2) * activation.size(3))
+
+                if activation_index not in self.filter_ranks:
+                    self.filter_ranks[activation_index] = \
+                        torch.FloatTensor(activation.size(1)).zero_().cuda()
+
+                self.filter_ranks[activation_index] += values
+                self.grad_index += 1
+                '''
+
+            return hook
+
+        
+        net.base_model.layer1.register_forward_hook(activation_hook())
+        net.base_model.layer2.register_forward_hook(activation_hook())
+        net.base_model.layer3.register_forward_hook(activation_hook())
+        net.base_model.layer4.register_forward_hook(activation_hook())
+
+        if(not features_kept):
+            net.base_model.layer1.register_backward_hook(taylor_expansion_hook())
+            net.base_model.layer2.register_backward_hook(taylor_expansion_hook())
+            net.base_model.layer3.register_backward_hook(taylor_expansion_hook())
+            net.base_model.layer4.register_backward_hook(taylor_expansion_hook())
+        
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
 

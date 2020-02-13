@@ -71,21 +71,10 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 	# save ranking files
 	depth, index, rank = [],[],[] 
 
-	for layer in range(len(summed_ranks)):
-		depth.append(np.full(len(summed_ranks[layer]), layer))
-		index.append(np.arange(len(summed_ranks[layer])))
-		rank.append(summed_ranks[layer])
-
-	filename = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_size)+".npz")
-	np.savez(filename, 
-		depth=np.concatenate(depth), 
-		index=np.concatenate(index), 
-		rank=np.concatenate(rank))
-
 	#save min_max_vals
 	if(update_min_maxes):
 		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
-	
+"""
 def normalize_dataset(csv_contents, min_max_vals, model_type):
 
 	for i in range(len(csv_contents)):
@@ -108,7 +97,7 @@ def normalize_dataset(csv_contents, min_max_vals, model_type):
 
 			# re-save file
 			np.savez(filename, data=data, label=label, length=length)
-
+"""
 def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, dtype):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
