@@ -57,7 +57,8 @@ def main(
 	# parse CSV file
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id]
-	csv_contents = random.shuffle(csv_contents)[:dataset_size]
+	random.shuffle(csv_contents)
+	csv_contents = csv_contents[:dataset_size]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
