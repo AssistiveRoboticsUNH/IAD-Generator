@@ -14,7 +14,7 @@ from PIL import Image
 
 class TSMBackBone(BackBone):
 
-    def open_file(self, folder_name, max_length=8, start_idx=0):
+    def open_file(self, folder_name, max_length=1, start_idx=0):
         
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
 
