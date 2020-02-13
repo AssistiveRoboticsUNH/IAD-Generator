@@ -14,5 +14,5 @@ class BackBone:
         pass
         #return rank_data
 
-    def __init__(self, checkpoint_file, num_classes, features_kept=None):
+    def __init__(self, checkpoint_file, num_classes, feature_idx=None):
 		self.CNN_FEATURE_COUNT = []

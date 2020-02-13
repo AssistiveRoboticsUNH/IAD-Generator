@@ -122,7 +122,7 @@ class TSMBackBone(BackBone):
         return self.ranks
 
 
-    def __init__(self, checkpoint_file, num_classes, features_kept=None):
+    def __init__(self, checkpoint_file, num_classes, feature_idx=None):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -170,7 +170,7 @@ class TSMBackBone(BackBone):
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
                 activations = output.detach()
-                if(features_kept):
+                if(feature_idx):
                     pass # do stuff
                 self.activations[idx] = activations
  
@@ -198,10 +198,10 @@ class TSMBackBone(BackBone):
         net.base_model.layer3.register_forward_hook(activation_hook(2))
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
-        print("features_kept: ", features_kept, features_kept == None)
+        print("feature_idx: ", feature_idx, feature_idx == None)
 
         
-        if(features_kept == None):
+        if(feature_idx == None):
             # Need to get rank information
             net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
             net.base_model.layer2.register_backward_hook(taylor_expansion_hook(1))

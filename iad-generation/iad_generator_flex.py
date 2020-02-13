@@ -113,15 +113,14 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
 
-	feature_ranks = True
-
+	feature_idx = True
 
 	#define the model
 	if(model_type == 'i3d'):
 		from i3d_wrapper import I3DBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes, feature_ranks)
+	model = bb(model_filename, num_classes, feature_idx)
 
 	# generate arrays to store the min and max values of each feature
 	update_min_maxes = (min_max_file == None)
