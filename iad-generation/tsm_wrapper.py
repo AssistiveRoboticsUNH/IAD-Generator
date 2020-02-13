@@ -37,8 +37,8 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
 
             # predict value
-            rst = net(data_in)
-            rst = rst.reshape(batch_size, num_crop, -1).mean(1)
+            rst = self.net(data_in)
+            #rst = rst.reshape(batch_size, num_crop, -1).mean(1)
 
 
         return rst
