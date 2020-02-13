@@ -208,7 +208,8 @@ class TSMBackBone(BackBone):
                 #prune features and only get those we are investigating 
                 activations = output.detach()
                 if(feature_idx):
-                    pass # do stuff
+                    print(feature_idx.shape)
+
                 self.activations[idx] = activations
  
             return hook

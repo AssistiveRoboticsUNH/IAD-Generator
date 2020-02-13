@@ -3,6 +3,7 @@
 # 10/10/2019
 
 from csv_utils import read_csv
+from feature_rank_utils import get_top_n_feature_indexes
 import tf_utils
 
 #import c3d as model
@@ -84,7 +85,7 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:100]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:5]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -105,7 +106,7 @@ def main(
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
 
-	feature_idx = True
+	feature_idx = get_top_n_feature_indexes(feature_rank_file, num_features)
 
 	#define the model
 	if(model_type == 'i3d'):
