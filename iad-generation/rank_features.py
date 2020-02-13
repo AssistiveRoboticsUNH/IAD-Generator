@@ -27,7 +27,7 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		# add new ranks to cummulative taylor sum
 		for j, rd in enumerate(rank_data):
 			rd = rd.cpu().data
-			print(rd.shape, rd)
+			print(rd.shape, type(rd))
 
 
 			if(i == 0):
