@@ -209,7 +209,7 @@ class TSMBackBone(BackBone):
                 activations = output.detach()
                 if(feature_idx):
                     for layer in feature_idx:
-                        print(layer.shape)
+                        print(idx, layer.shape)
 
                 self.activations[idx] = activations
  
