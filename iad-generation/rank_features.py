@@ -15,7 +15,7 @@ batch_size = 1
 def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
-	summed_ranks = None
+	summed_ranks = []
 
 	# process files
 	for i in range(len(csv_contents)):
@@ -25,7 +25,13 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		rank_data = model.rank(csv_contents[i])
 
 		# add new ranks to cummulative taylor sum
-		summed_ranks = rank_data if i == 0 else np.add(summed_ranks, rank_data)
+		for rd in rank_data:
+			if(i == 0):
+				summed_ranks.append(rd)
+			else:
+				summed_ranks = np.add(summed_ranks, rank_data)
+
+		#summed_ranks = rank_data if i == 0 else np.add(summed_ranks, rank_data)
 
 	# save ranking files
 	depth, index, rank = [],[],[] 
