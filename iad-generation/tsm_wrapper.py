@@ -142,11 +142,11 @@ class TSMBackBone(BackBone):
 
         # input variables
         this_weights = checkpoint_file
-        this_test_segments = 20
+        this_test_segments = 8
         test_file = None
 
         #model variables
-        self.is_shift, shift_div, shift_place = True, 20, 'blockres'
+        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
 
         
         self.arch = this_weights.split('TSM_')[1].split('_')[2]
