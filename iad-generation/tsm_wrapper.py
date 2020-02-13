@@ -194,7 +194,7 @@ class TSMBackBone(BackBone):
                 # Normalize the rank by the filter dimensions
                 values = values / (activation.size(0) * activation.size(2) * activation.size(3))
 
-                self.ranks[idx] = valuesc.cpu().numpy()
+                self.ranks[idx] = values.cpu().numpy()
 
             return hook
 
