@@ -61,6 +61,7 @@ class TSMBackBone(BackBone):
         test_file = None
 
         #model variables
+        '''
         def parse_shift_option_from_log_name(log_name):
             if 'shift' in log_name:
                 strings = log_name.split('_')
@@ -70,8 +71,9 @@ class TSMBackBone(BackBone):
                 return True, int(strings[i].replace('shift', '')), strings[i + 1]
             else:
                 return False, None, None
-        self.is_shift, shift_div, shift_place = parse_shift_option_from_log_name(this_weights)
-        
+        '''
+        self.is_shift, shift_div, shift_place = True, 8, 'blockres'#parse_shift_option_from_log_name(this_weights)
+
         
         self.arch = this_weights.split('TSM_')[1].split('_')[2]
         modality = 'RGB'
