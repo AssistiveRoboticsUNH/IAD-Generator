@@ -45,6 +45,7 @@ class TSMBackBone(BackBone):
 
             # predict value
             rst = self.net(data_in)
+            rst = rst.reshape(1, 3, -1).mean(1)
             #rst = rst.reshape(batch_size, num_crop, -1).mean(1)
 
 
