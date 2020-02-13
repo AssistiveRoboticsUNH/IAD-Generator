@@ -51,7 +51,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:5]
 	
 	#csv_contents = csv_contents[:3]
 
