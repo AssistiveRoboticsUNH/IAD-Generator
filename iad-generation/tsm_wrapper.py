@@ -78,9 +78,22 @@ class TSMBackBone(BackBone):
         data = self.transform(data)
         return data.view(-1, self.max_length, 3, 256,256)
 
+    def open_file_as_batches(self, csv_input):
+        
+        folder_name = csv_input['raw_path']
+        assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
+        files = os.listdir(folder_name)
+
+        # collect the frames
+        end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
+        batch = [ self.open_file(csv_input, start_idx) for start_idx in range(0, end_frame, 4) ]
+        
+        # process the frames
+        return torch.Tensor(batch).cuda()
+
     def predict(self, csv_input):
 
-        data_in = self.open_file(csv_input)
+        data_in = self.open_file_as_batches(csv_input)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -90,6 +103,23 @@ class TSMBackBone(BackBone):
         # predict value
         with torch.no_grad():
             return self.net(data_in)
+
+    def rank(self, csv_input):
+        data_in = self.open_file_as_batches(csv_input['raw_path'])
+
+        # data has shape (batch size, segment length, num_ch, height, width)
+        # (6,8,3,256,256)
+
+        print("data_in:", data_in.shape)
+        
+        # pass data through network to obtain activation maps
+        # do need grads for taylor expansion
+        rst = self.net(data_in)
+
+        # compute gradient and do SGD step
+        self.loss(rst, torch.tensor([csv_input['label']]).cuda() ).backward()
+
+        return self.ranks
 
     def process(self, csv_input):
 
@@ -111,23 +141,6 @@ class TSMBackBone(BackBone):
                 self.activations[i] = np.max(self.activations[i], axis=(2,3))
 
         return self.activations, length_ratio
-
-    def rank(self, csv_input):
-        data_in = self.open_file(csv_input['raw_path'])
-
-        # data has shape (batch size, segment length, num_ch, height, width)
-        # (6,8,3,256,256)
-
-        print("data_in:", data_in.shape)
-        
-        # pass data through network to obtain activation maps
-        # do need grads for taylor expansion
-        rst = self.net(data_in)
-
-        # compute gradient and do SGD step
-        self.loss(rst, torch.tensor([csv_input['label']]).cuda() ).backward()
-
-        return self.ranks
 
 
     def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):

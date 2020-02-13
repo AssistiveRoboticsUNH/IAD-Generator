@@ -1,16 +1,13 @@
 # Madison Clark-Turner
-# iad_generator.py
-# 10/10/2019
+# rank_features.py
+# 2/13/2020
 
 from csv_utils import read_csv
-import tf_utils
 
 import os, sys
 
 import tensorflow as tf
 import numpy as np
-
-batch_size = 1
 
 def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path):
 	
@@ -24,10 +21,8 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		# rank files
 		rank_data = model.rank(csv_contents[i])
 
-		# add new ranks to cummulative taylor sum
+		# add new ranks to cummulative sum
 		for j, rd in enumerate(rank_data):
-			print(rd.shape, type(rd))
-
 			if(i == 0):
 				summed_ranks.append(rd)
 			else:
@@ -55,11 +50,10 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	raw_data_path = os.path.join(dataset_dir, file_loc)
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 
+	# parse CSV file
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:5]
 	
-	#csv_contents = csv_contents[:3]
-
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
 	max_frame_length = 0
@@ -71,18 +65,8 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
 
-	#csv_contents = csv_contents[:5]
-
-	print("numIADs:", len(csv_contents))
-	print("max_frame_length:", max_frame_length)
-
-	if (pad_length < 0):
-		pad_length = max_frame_length
-	print("padding iads to a length of {0} frames".format(max_frame_length))
-
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
-
 
 	#define the model
 	if(model_type == 'i3d'):
@@ -110,30 +94,26 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	print("Summary")
 	print("--------------")
 	print("Dataset ID: {0}".format(dataset_id))
-	print("Number of videos into IADs: {0}".format(len(csv_contents)))
-	print("IADs are padded/pruned to a length of: {0}".format(pad_length))
 	print("Longest video sequence in file list: {0}".format(max_frame_length))
-	print("Files place in: {0}".format(iad_data_path))
-	print("Min/Max File was Saved: {0}".format(update_min_maxes))
-
+	print("Files placed in: {0}".format(iad_data_path))
 
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser(description='Generate IADs from input files')
-	#required command line args
+	
+	# model command line args
 	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
 
+	# dataset command line args
 	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
 	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
 	parser.add_argument('num_classes', type=int, help='number of classes')
-
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
-	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
-	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
-	parser.add_argument('--gpu', default="0", help='gpu to run on')
+	# optional command line args
 	parser.add_argument('--dtype', default="frames", help='run on RGB as opposed to flow data', choices=['frames', 'flow'])
+	parser.add_argument('--gpu', default="0", help='gpu to run on')
 
 	FLAGS = parser.parse_args()
 

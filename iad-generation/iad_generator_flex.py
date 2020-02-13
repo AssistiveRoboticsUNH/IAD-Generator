@@ -132,7 +132,6 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 
 	#generate IADs
 	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path)
-	#normalize_dataset(csv_contents, min_max_vals, model)
 
 	#summarize operations
 	print("--------------")
@@ -145,25 +144,28 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 	print("Files place in: {0}".format(iad_data_path))
 	print("Min/Max File was Saved: {0}".format(update_min_maxes))
 
-
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser(description='Generate IADs from input files')
-	#required command line args
+
+	# model command line args
 	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
 
+	# dataset command line args
 	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
 	parser.add_argument('csv_filename', help='a csv file denoting the files in the dataset')
 	parser.add_argument('num_classes', type=int, help='number of classes')
-
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
-	parser.add_argument('num_features', type=int, default=128, help='the number of features to retain')
 
-	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
-	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
-	parser.add_argument('--gpu', default="0", help='gpu to run on')
+	# IAD gen command line args
+	parser.add_argument('feature_rank_file', nargs='?', help='a .npz file containing min and max values to normalize by')
+	parser.add_argument('max_length', nargs='?', type=int, help='the maximum length video to convert into an IAD')
+
+	# optional command line args
+	parser.add_argument('--num_features', type=int, default=128, help='the number of features to retain')
 	parser.add_argument('--dtype', default="frames", help='run on RGB as opposed to flow data', choices=['frames', 'flow'])
+	parser.add_argument('--gpu', default="0", help='gpu to run on')
 
 	FLAGS = parser.parse_args()
 
