@@ -28,20 +28,14 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		for j, rd in enumerate(rank_data):
 			print(rd.shape, type(rd))
 
-
 			if(i == 0):
 				summed_ranks.append(rd)
 			else:
 				summed_ranks[j] = np.add(summed_ranks[j], rd)
 
-		#summed_ranks = rank_data if i == 0 else np.add(summed_ranks, rank_data)
-
 	# save ranking files
 	depth, index, rank = [],[],[] 
-
 	for layer in range(len(summed_ranks)):
-		print(layer, summed_ranks[layer].shape)
-
 		depth.append(np.full(len(summed_ranks[layer]), layer))
 		index.append(np.arange(len(summed_ranks[layer])))
 		rank.append(summed_ranks[layer])
