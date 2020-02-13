@@ -113,17 +113,16 @@ def main(
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
 	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
-
 	
 	# generate arrays to store the min and max values of each feature
-	update_min_maxes = True#(min_max_file == None)
+	update_min_maxes = dataset_id > 0
 	if(update_min_maxes):
 		min_max_vals = {"max": [],"min": []}
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
 			min_max_vals["max"].append([float("-inf")] * model.CNN_FEATURE_COUNT[layer])
 			min_max_vals["min"].append([float("inf")] * model.CNN_FEATURE_COUNT[layer])
 	else:
-		f = np.load(min_max_file, allow_pickle=True)
+		f = np.load(os.path.join(iad_data_path, "min_maxes.npz"), allow_pickle=True)
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
 	#generate IADs
