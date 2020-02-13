@@ -93,7 +93,7 @@ class TSMBackBone(BackBone):
             #rst = rst.reshape(batch_size, num_crop, -1).mean(1)
 
         for a in self.activation.keys():
-            print("activation:", self.activation[a].shape)
+            print("activation"+a+": ", self.activation[a].shape)
         return rst
 
     def process(self, csv_input, max_length=8):
