@@ -132,7 +132,7 @@ class TSMBackBone(BackBone):
         self.transform = torchvision.transforms.Compose([
                            torchvision.transforms.Compose([
                                 GroupScale(net.scale_size),
-                                GroupCenterCrop(input_size),
+                                GroupCenterCrop(net.scale_size),
                             ]),
                            #torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
                            Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
