@@ -75,7 +75,13 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 	if(update_min_maxes):
 		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
 
-def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, dtype):
+
+def main(
+	model_type, model_filename, 
+	dataset_dir, csv_filename, num_classes, dataset_id, 
+	feature_rank_file, max_length, 
+	num_features, dtype, gpu
+	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
@@ -159,8 +165,8 @@ if __name__ == '__main__':
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
 	# IAD gen command line args
-	parser.add_argument('feature_rank_file', nargs='?', help='a .npz file containing min and max values to normalize by')
-	parser.add_argument('max_length', nargs='?', type=int, help='the maximum length video to convert into an IAD')
+	parser.add_argument('feature_rank_file', type=int, help='a .npz file containing min and max values to normalize by')
+	parser.add_argument('max_length', type=int, help='the maximum length video to convert into an IAD')
 
 	# optional command line args
 	parser.add_argument('--num_features', type=int, default=128, help='the number of features to retain')
@@ -169,15 +175,21 @@ if __name__ == '__main__':
 
 	FLAGS = parser.parse_args()
 
-	main(FLAGS.model_type, 
-		FLAGS.model_filename, 
+	main(
+		FLAGS.model_type, 
+		FLAGS.model_filename,
+
 		FLAGS.dataset_dir, 
 		FLAGS.csv_filename, 
 		FLAGS.num_classes,
 		FLAGS.dataset_id,
-		FLAGS.pad_length, 
-		FLAGS.min_max_file, 
+
+		FLAGS.feature_rank_file,
+		FLAGS.max_length
+
+		FLAGS.num_features, 
+		FLAGS.dtype,
 		FLAGS.gpu,
-		FLAGS.dtype)
+		)
 
 	

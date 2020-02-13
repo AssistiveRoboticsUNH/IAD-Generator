@@ -41,7 +41,11 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		index=np.concatenate(index), 
 		rank=np.concatenate(rank))
 
-def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, dtype):
+def main(
+	model_type, model_filename, 
+	dataset_dir, csv_filename, num_classes, dataset_id, 
+	dtype, gpu
+	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
@@ -117,15 +121,17 @@ if __name__ == '__main__':
 
 	FLAGS = parser.parse_args()
 
-	main(FLAGS.model_type, 
+	main(
+		FLAGS.model_type, 
 		FLAGS.model_filename, 
+
 		FLAGS.dataset_dir, 
 		FLAGS.csv_filename, 
 		FLAGS.num_classes,
 		FLAGS.dataset_id,
-		FLAGS.pad_length, 
-		FLAGS.min_max_file, 
+
+		FLAGS.dtype,
 		FLAGS.gpu,
-		FLAGS.dtype)
+		)
 
 	
