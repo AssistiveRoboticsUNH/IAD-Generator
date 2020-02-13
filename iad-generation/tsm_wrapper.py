@@ -3,6 +3,7 @@ from backbone_wrapper import BackBone
 import sys, os
 sys.path.append("/home/mbc2004/temporal-shift-module")
 
+import pytorch.nn as nn
 from ops.dataset import TSNDataSet
 from ops.models import TSN
 from ops.transforms import *
