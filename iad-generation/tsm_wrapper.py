@@ -68,7 +68,7 @@ class TSMBackBone(BackBone):
         
         for i in range(max_length):
             frame = start_idx+i
-            if(frame > len(files)): 
+            if(frame < len(files)): 
                 data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
             else:
                 # fill out rest of video with blank data
@@ -98,7 +98,7 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def process(self, csv_input, max_length=8):
-        
+
         data_in = self.open_file(csv_input, max_length=max_length)
         length_ratio = csv_input['length']/float(max_length)
 
