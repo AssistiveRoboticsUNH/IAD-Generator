@@ -43,8 +43,6 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def process(self, csv_input, max_length=8):
-
-        max_length = 8
         data_in = self.open_file(csv_input['raw_path'], max_length=max_length)
         length_ratio = csv_input['length']/float(max_length)
 
