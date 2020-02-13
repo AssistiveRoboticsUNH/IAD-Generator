@@ -210,6 +210,7 @@ class TSMBackBone(BackBone):
         else:
             # Need to shorten network so that base_model doesn't get to FC layers
             print(net.base_model)
+            net.base_model = nn.Sequential(*list(net.base_model.children())[:-3]
         
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
