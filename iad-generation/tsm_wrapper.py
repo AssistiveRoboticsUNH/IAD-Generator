@@ -198,7 +198,7 @@ class TSMBackBone(BackBone):
         net.base_model.layer3.register_forward_hook(activation_hook(2))
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
-        print(features_kept, features_kept == None)
+        print("features_kept: ", features_kept, features_kept == None)
 
         
         if(features_kept == None):
