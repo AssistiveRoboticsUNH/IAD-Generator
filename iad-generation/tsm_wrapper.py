@@ -45,7 +45,7 @@ class TSMBackBone(BackBone):
     def process(self, csv_input, max_length=8):
 
         max_length = 10
-        data_in = self.open_file(csv_input['raw_path'], max_length=8)
+        data_in = self.open_file(csv_input['raw_path'], max_length=max_length)
         length_ratio = csv_input['length']/float(max_length)
 
         # data has shape (batch size, segment length, num_ch, height, width)
