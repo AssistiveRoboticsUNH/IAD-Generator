@@ -110,6 +110,13 @@ class TSMBackBone(BackBone):
 
         net.load_state_dict(base_dict)
 
+        
+        # define image modifications
+        self.transform = torchvision.transforms.Compose([
+                           torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
+                           Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
+                           ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
+                           GroupNormalize(net.input_mean, net.input_std)])
 
         # place net onto GPU and finalize network
         net = torch.nn.DataParallel(net.cuda())
@@ -117,10 +124,3 @@ class TSMBackBone(BackBone):
 
         # network variable
         self.net = net
-
-        # define image modifications
-        self.transform = torchvision.transforms.Compose([
-                           torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
-                           Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
-                           ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
-                           GroupNormalize(net.input_mean, net.input_std)])
