@@ -9,7 +9,7 @@ import os, sys
 import tensorflow as tf
 import numpy as np
 
-def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path):
+def rank_dataset(csv_contents, model, dataset_id, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = []
@@ -35,7 +35,7 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		index.append(np.arange(len(summed_ranks[layer])))
 		rank.append(summed_ranks[layer])
 
-	filename = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_size)+".npz")
+	filename = os.path.join(iad_data_path, "feature_ranks_"+str(dataset_id)+".npz")
 	np.savez(filename, 
 		depth=np.concatenate(depth), 
 		index=np.concatenate(index), 
@@ -79,19 +79,8 @@ def main(
 		from tsm_wrapper import TSMBackBone as bb
 	model = bb(model_filename, num_classes)
 
-	# generate arrays to store the min and max values of each feature
-	update_min_maxes = (min_max_file == None)
-	if(update_min_maxes):
-		min_max_vals = {"max": [],"min": []}
-		for layer in range(len(model.CNN_FEATURE_COUNT)):
-			min_max_vals["max"].append([float("-inf")] * model.CNN_FEATURE_COUNT[layer])
-			min_max_vals["min"].append([float("inf")] * model.CNN_FEATURE_COUNT[layer])
-	else:
-		f = np.load(min_max_file, allow_pickle=True)
-		min_max_vals = {"max": f["max"],"min": f["min"]}
-
 	#generate IADs
-	rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path)
+	rank_dataset(csv_contents, model, dataset_id, iad_data_path)
 
 	#summarize operations
 	print("--------------")
