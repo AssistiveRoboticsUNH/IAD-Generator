@@ -78,7 +78,7 @@ class TSMBackBone(BackBone):
         data = self.transform(data)
         if (batch_now):
             return data.view(-1, self.max_length, 3, 256,256)
-        data.view(self.max_length, 3, 256,256)
+        return data.view(self.max_length, 3, 256,256)
 
 
     def open_file_as_batch(self, csv_input):
