@@ -24,7 +24,7 @@ class TSMBackBone(BackBone):
             vid.append(Image.open(os.path.join(folder_name, frame)).convert('RGB')) 
 
         # process the frames
-        return self.transform(vid).view(-1, max_length, data.size(2), data.size(3))
+        return self.transform(vid).view(-1, max_length, 3, data.size(2), data.size(3))
 
     def predict(self, csv_input):
 
