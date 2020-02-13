@@ -1,6 +1,6 @@
 from backbone_wrapper import BackBone
 
-import sys
+import sys, os
 sys.path.append("/home/mbc2004/temporal-shift-module")
 
 from ops.dataset import TSNDataSet
@@ -44,7 +44,7 @@ class TSMBackBone(BackBone):
     def process(self, csv_input):
 
         data_in = self.open_file(csv_input['raw_path'])
-        
+
         pass
         #return iad_data, rank_data, length_ratio
 
