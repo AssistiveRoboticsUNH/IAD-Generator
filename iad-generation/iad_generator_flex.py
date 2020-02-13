@@ -57,9 +57,10 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
 		rst = model.predict(csv_contents[i])
+		print("rst:", rst)
 
 		# generate activation map and rankings from model
-		iad_data, rank_data, length_ratio = model.process(csv_contents[i])
+		#iad_data, rank_data, length_ratio = model.process(csv_contents[i])
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
 		convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio, update_min_maxes, iad_data_path)
@@ -86,7 +87,6 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
 	
 def normalize_dataset(csv_contents, min_max_vals, model_type):
-
 
 	for i in range(len(csv_contents)):
 		print("normalizing IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
@@ -166,7 +166,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 
 	#generate IADs
 	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path)
-	normalize_dataset(csv_contents, min_max_vals, model)
+	#normalize_dataset(csv_contents, min_max_vals, model)
 
 	#summarize operations
 	print("--------------")
