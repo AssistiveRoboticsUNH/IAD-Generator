@@ -91,6 +91,7 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def process(self, csv_input, max_length=8):
+        max_length = min(max_length, csv_input['length'])
         data_in = self.open_file(csv_input['raw_path'], max_length=max_length)
         length_ratio = csv_input['length']/float(max_length)
 
@@ -243,7 +244,11 @@ class TSMBackBone(BackBone):
                            #torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
                            Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
                            ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
-                           GroupNormalize(net.input_mean, net.input_std)])
+                           GroupNormalize(net.input_mean, net.input_std),
+
+                            #padding = (pad_width,pad_height,delta_width-pad_width,delta_height-pad_height)
+                            #ImageOps.expand(img, padding)
+                           ])
 
         # place net onto GPU and finalize network
         net = torch.nn.DataParallel(net.cuda())
