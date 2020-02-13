@@ -185,7 +185,7 @@ if __name__ == '__main__':
 		FLAGS.dataset_id,
 
 		FLAGS.feature_rank_file,
-		FLAGS.max_length
+		FLAGS.max_length,
 
 		FLAGS.num_features, 
 		FLAGS.dtype,
