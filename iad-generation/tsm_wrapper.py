@@ -211,7 +211,7 @@ class TSMBackBone(BackBone):
         else:
             # Need to shorten network so that base_model doesn't get to FC layers
             print("pre:", net.base_model)
-            net.base_model = net.base_model[:-1]
+            net.base_model.fc = nn.Identity()
             print("post:", net.base_model)
         
         # modify network so that...
