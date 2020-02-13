@@ -92,7 +92,7 @@ class TSMBackBone(BackBone):
             #rst = rst.reshape(1, 3, -1).mean(1)
             #rst = rst.reshape(batch_size, num_crop, -1).mean(1)
 
-
+        print("activation:", self.activation)
         return rst
 
     def process(self, csv_input, max_length=8):
@@ -157,14 +157,14 @@ class TSMBackBone(BackBone):
 
         print("base_model:", net.base_model)
 
-        activation = {}
+        self.activation = {}
         def get_activation(name):
             def hook(model, input, output):
-                activation[name] = output.detach()
+                self.activation[name] = output.detach()
             return hook
 
         net.base_model.layer1.register_forward_hook(get_activation('layer1'))
-        print("activation:", activation)
+        
 
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
