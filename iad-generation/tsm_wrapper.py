@@ -93,7 +93,7 @@ class TSMBackBone(BackBone):
 
         # input variables
         this_weights = checkpoint_file
-        this_test_segments = 10
+        this_test_segments = 8
         test_file = None
 
         #model variables
