@@ -111,7 +111,7 @@ class TSMBackBone(BackBone):
         # load checkpoint file
         checkpoint = torch.load(this_weights)
 
-        print("layer1:", net.base_model.layer1)
+        print("base_model:", net.base_model)
 
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
