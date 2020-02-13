@@ -33,6 +33,8 @@ class TSMBackBone(BackBone):
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
+
+        print("data_in:", data_in.shape)
         
         with torch.no_grad():
 
