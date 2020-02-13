@@ -127,7 +127,8 @@ class TSMBackBone(BackBone):
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
-                           torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
+                           GroupFullResSample(net.scale_size, net.scale_size, flip=False),
+                           #torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
                            Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
                            ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
                            GroupNormalize(net.input_mean, net.input_std)])
