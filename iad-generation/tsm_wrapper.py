@@ -164,7 +164,7 @@ class TSMBackBone(BackBone):
             return hook
 
         net.base_model.layer1.register_forward_hook(get_activation('layer1'))
-        print(activation)
+        print("activation:", activation)
 
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
