@@ -16,6 +16,8 @@ class TSMBackBone(BackBone):
 
     def open_file(self, folder_name, max_length=-1, start_idx=0):
         
+        assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
+        
         # collect the frames
         vid = []
         for frame in os.listdir(folder_name)[start_idx:start_idx+max_length]:

@@ -200,7 +200,7 @@ if __name__ == '__main__':
 	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
-	parser.add_argument('--rgb', type=bool, default=False, help='run on RGB as opposed to flow data')
+	parser.add_argument('--rgb', type=bool, default=True, help='run on RGB as opposed to flow data')
 
 	FLAGS = parser.parse_args()
 
