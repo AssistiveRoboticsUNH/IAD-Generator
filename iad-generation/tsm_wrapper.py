@@ -23,6 +23,8 @@ class TSMBackBone(BackBone):
         for frame in os.listdir(folder_name)[start_idx:start_idx+max_length]:
             data.append(Image.open(os.path.join(folder_name, frame)).convert('RGB')) 
 
+        print(data)
+
         # process the frames
         data = self.transform(data)
         print("data.shape:", data.shape)
@@ -124,7 +126,7 @@ class TSMBackBone(BackBone):
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
-                           torchvision.transforms.Compose([ GroupFullResSample(net.input_size, net.scale_size, flip=False) ]),
+                           torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
                            Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
                            ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
                            GroupNormalize(net.input_mean, net.input_std)])
