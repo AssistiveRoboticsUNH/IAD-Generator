@@ -112,7 +112,7 @@ def main(
 		from i3d_wrapper import I3DBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes, max_length=20, feature_idx=feature_idx)
+	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
 
 	
 	# generate arrays to store the min and max values of each feature
