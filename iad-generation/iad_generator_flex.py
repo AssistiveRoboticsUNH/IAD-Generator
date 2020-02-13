@@ -61,7 +61,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 	for i in range(len(csv_contents)):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
-		iad_data, length_ratio = model.process(csv_contents[i])
+		iad_data, length_ratio = model.process(csv_contents[i], max_length=20)
 
 		# generate activation map and rankings from model
 		#iad_data, rank_data, length_ratio = model.process(csv_contents[i])
@@ -77,30 +77,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 	#save min_max_vals
 	if(update_min_maxes):
 		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
-"""
-def normalize_dataset(csv_contents, min_max_vals, model_type):
 
-	for i in range(len(csv_contents)):
-		print("normalizing IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
-
-		for layer in range(len(model.CNN_FEATURE_COUNT)):
-
-			filename = csv_contents[i]['iad_path_'+str(layer)]
-
-			# open .npz file
-			f = np.load(filename)
-			data, label, length = f["data"], f["label"], f["length"]
-
-			# normalize IAD
-			for row in range(data.shape[0]):
-				if(min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row] == 0):
-					data[row] = np.zeros_like(data[row])
-				else:
-					data[row] = (data[row] - min_max_vals["min"][layer][row]) / (min_max_vals["max"][layer][row] - min_max_vals["min"][layer][row])
-
-			# re-save file
-			np.savez(filename, data=data, label=label, length=length)
-"""
 def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, dtype):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -182,6 +159,7 @@ if __name__ == '__main__':
 	parser.add_argument('num_classes', type=int, help='number of classes')
 
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
+	parser.add_argument('num_features', type=int, default=128, help='the number of features to retain')
 
 	parser.add_argument('--pad_length', nargs='?', type=int, default=-1, help='the maximum length video to convert into an IAD')
 	parser.add_argument('--min_max_file', nargs='?', default=None, help='a .npz file containing min and max values to normalize by')
