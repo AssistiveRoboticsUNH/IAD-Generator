@@ -4,5 +4,5 @@ python rank_features.py \
 	~/datasets/Something-Something/ \
 	~/datasets/Something-Something/ss.csv \
 	174 \
-	1 
-	2000 \
+	1 \
+	2000 
