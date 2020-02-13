@@ -159,6 +159,7 @@ class TSMBackBone(BackBone):
 
                 # compress spatial dimensions
                 self.activations[i] = np.max(self.activations[i], axis=(2,3))
+                self.activations[i] = self.activations[i].T
 
         return self.activations, length_ratio
 
