@@ -61,7 +61,7 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 
 		# generate activation map
 		iad_data, length_ratio = model.process(csv_ex)
-		for iad in iad_shape:
+		for iad in iad_data:
 			print("iad.shape:", iad.shape)
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
