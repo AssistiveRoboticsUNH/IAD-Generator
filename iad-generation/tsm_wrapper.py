@@ -60,7 +60,7 @@ class TSMBackBone(BackBone):
 
             for i in range(len(self.activations)):
                 print("in:", self.activations[i].shape)
-                self.activations[i] = torch.max(local_min_values, (2,3))
+                self.activations[i] = torch.max(self.activations[i], (2,3))
                 print("out:", self.activations[i].shape)
                 self.activations[i] = self.activations[i].cpu().numpy()
 
