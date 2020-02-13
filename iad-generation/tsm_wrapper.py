@@ -1,22 +1,57 @@
-
 from backbone_wrapper import BackBone
 
 import sys
-sys.path.append("/home/mbc2004/temporal-shift-module/")
-
+sys.path.append("~/temporal-shift-module")
 
 from ops.dataset import TSNDataSet
 from ops.models import TSN
 from ops.transforms import *
 from ops import dataset_config
 
+import numpy as np
+from PIL import Image
+
+
 class TSMBackBone(BackBone):
 
-    def __init__(self):
+    def open_file(folder_name, max_length=-1, start_idx=0):
+        
+        # collect the frames
+        vid = []
+        for frame in os.listdir(folder_name)[start_idx:start_idx+max_length]:
+            vid.append(Image.open(os.path.join(folder_name, frame)).convert('RGB')) 
+
+        # process the frames
+        return self.transform(images)
+
+    def predict(csv_input):
+
+
+        data_in = open_file(csv_input['raw_path'])
+
+        # data has shape (batch size, segment length, num_ch, height, width)
+        # (6,8,3,256,256)
+        
+        with torch.no_grad():
+
+            # predict value
+            rst = net(data_in)
+            rst = rst.reshape(batch_size, num_crop, -1).mean(1)
+
+
+        return rst
+
+    def process(csv_input):
+        pass
+        #return iad_data, rank_data, length_ratio
+
+
+    def __init__(self, checkpoint_file, num_classes):
         self.is_shift = None
         self.net = None
+        self.arch = None
 
-    def open_model(checkpoint_file):
+        self.transform = None
 
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
 
@@ -27,8 +62,10 @@ class TSMBackBone(BackBone):
 
         #model variables
         self.is_shift, shift_div, shift_place = parse_shift_option_from_log_name(this_weights)
+        
+        self.arch = this_weights.split('TSM_')[1].split('_')[2]
         modality = 'RGB'
-        this_arch = this_weights.split('TSM_')[1].split('_')[2]
+        
 
         # dataset variables
         num_class, args.train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2',
@@ -66,32 +103,13 @@ class TSMBackBone(BackBone):
         # place net onto GPU and finalize network
         net = torch.nn.DataParallel(net.cuda())
         net.eval()
+
+        # network variable
         self.net = net
 
-    def predict(data_in):
-
-        # data has shape (batch size, segment length, num_ch, height, width)
-        # (6,8,3,256,256)
-        
-        with torch.no_grad():
-
-            # predict value
-            rst = net(data_in)
-            rst = rst.reshape(batch_size, num_crop, -1).mean(1)
-
-class DatasetParser:
-    def __init__(self):
-        pass
-
-        itr = 0
-        epoch = 0
-
-    def getNext(self):
-        pass
-
-        itr += 1
-        if(itr == dataset_size):
-            itr = 0
-            epoch += 1
-        
-        return data_in, label, file_name 
+        # define image modifications
+        self.transform = torchvision.transforms.Compose([
+                           torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
+                           Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
+                           ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
+                           GroupNormalize(net.input_mean, net.input_std)])
