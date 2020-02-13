@@ -108,7 +108,7 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def rank(self, csv_input):
-        data_in = self.open_file_as_batch(csv_input)
+        data_in = self.open_file(csv_input)#self.open_file_as_batch(csv_input)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
