@@ -31,9 +31,7 @@ class TSMBackBone(BackBone):
                  temporal_pool=False, non_local=False)
 
         def forward(self, input, no_reshape=False):
-            out = TSN.forward(self, input, no_reshape)
-            return out
-            """
+            
             if not no_reshape:
                 sample_len = (3 if self.modality == "RGB" else 2) * self.new_length
 
@@ -58,7 +56,7 @@ class TSMBackBone(BackBone):
                     base_out = base_out.view((-1, self.num_segments) + base_out.size()[1:])
                 output = self.consensus(base_out)
                 return output.squeeze(1)
-            """
+            
 
     def open_file(self, folder_name, max_length=8, start_idx=0):
         
