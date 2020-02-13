@@ -210,7 +210,8 @@ class TSMBackBone(BackBone):
                 if(feature_idx):
                     feature_idx_keep = feature_idx[idx]
                     print("in:", feature_idx_keep.shape, activations.shape)
-                    activations = activations[:, feature_idx_keep, :, :]
+                    print(feature_idx_keep)
+                    #activations = activations[:, feature_idx_keep, :, :]
                     print("out:", feature_idx_keep.shape, activations.shape)
 
                 self.activations[idx] = activations
