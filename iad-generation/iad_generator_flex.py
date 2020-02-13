@@ -121,8 +121,9 @@ def main(
 		from tsm_wrapper import TSMBackBone as bb
 	model = bb(model_filename, num_classes, max_length=20, feature_idx=feature_idx)
 
+	
 	# generate arrays to store the min and max values of each feature
-	update_min_maxes = (min_max_file == None)
+	update_min_maxes = True#(min_max_file == None)
 	if(update_min_maxes):
 		min_max_vals = {"max": [],"min": []}
 		for layer in range(len(model.CNN_FEATURE_COUNT)):
