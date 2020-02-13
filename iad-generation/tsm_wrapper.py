@@ -185,10 +185,6 @@ class TSMBackBone(BackBone):
                 # perform taylor expansion
                 grad = input.detach()
 
-
-
-
-
                 self.ranks.append( grad ) 
 
 
@@ -219,7 +215,7 @@ class TSMBackBone(BackBone):
         net.base_model.layer3.register_forward_hook(activation_hook())
         net.base_model.layer4.register_forward_hook(activation_hook())
 
-        if(not features_kept):
+        if(features_kept == None):
             net.base_model.layer1.register_backward_hook(taylor_expansion_hook())
             net.base_model.layer2.register_backward_hook(taylor_expansion_hook())
             net.base_model.layer3.register_backward_hook(taylor_expansion_hook())
