@@ -97,7 +97,7 @@ class TSMBackBone(BackBone):
         test_file = None
 
         #model variables
-        self.is_shift, shift_div, shift_place = True, 10, 'blockres'
+        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
 
         
         self.arch = this_weights.split('TSM_')[1].split('_')[2]
