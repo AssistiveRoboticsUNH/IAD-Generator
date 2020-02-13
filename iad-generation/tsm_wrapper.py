@@ -13,62 +13,15 @@ from PIL import Image
 
 
 class TSMBackBone(BackBone):
-    '''
-    class NetworkWrapper(TSN):
-        def __init__(self, num_class, num_segments, modality,
-                 base_model='resnet101', new_length=None,
-                 consensus_type='avg', before_softmax=True,
-                 dropout=0.8, img_feature_dim=256,
-                 crop_num=1, partial_bn=True, print_spec=True, pretrain='imagenet',
-                 is_shift=False, shift_div=8, shift_place='blockres', fc_lr5=False,
-                 temporal_pool=False, non_local=False):
-            TSN.__init__(self, num_class, num_segments, modality,
-                 base_model='resnet101', new_length=None,
-                 consensus_type='avg', before_softmax=True,
-                 dropout=0.8, img_feature_dim=256,
-                 crop_num=1, partial_bn=True, print_spec=True, pretrain='imagenet',
-                 is_shift=False, shift_div=8, shift_place='blockres', fc_lr5=False,
-                 temporal_pool=False, non_local=False)
-
-        def forward(self, input, no_reshape=False):
-            
-            if not no_reshape:
-                sample_len = (3 if self.modality == "RGB" else 2) * self.new_length
-
-                if self.modality == 'RGBDiff':
-                    sample_len = 3 * self.new_length
-                    input = self._get_diff(input)
-
-                base_out = self.base_model(input.view((-1, sample_len) + input.size()[-2:]))
-            else:
-                base_out = self.base_model(input)
-
-            if self.dropout > 0:
-                base_out = self.new_fc(base_out)
-
-            if not self.before_softmax:
-                base_out = self.softmax(base_out)
-
-            if self.reshape:
-                if self.is_shift and self.temporal_pool:
-                    base_out = base_out.view((-1, self.num_segments // 2) + base_out.size()[1:])
-                else:
-                    base_out = base_out.view((-1, self.num_segments) + base_out.size()[1:])
-                output = self.consensus(base_out)
-                return output.squeeze(1)
-    '''      
-
+         
     def open_file(self, folder_name, max_length=8, start_idx=0):
         
-        max_length = 8
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
 
         # collect the frames
         data = []
         for frame in os.listdir(folder_name)[start_idx:start_idx+max_length]:
             data.append(Image.open(os.path.join(folder_name, frame)).convert('RGB')) 
-
-        print(data)
 
         # process the frames
         data = self.transform(data)
