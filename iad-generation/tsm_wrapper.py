@@ -26,12 +26,12 @@ class TSMBackBone(BackBone):
         # process the frames
         data = self.transform(data)
         print("data.shape:", data.shape)
-        return data.view(-1, max_length, 3, data.size(1), data.size(2))
+        return data.view(-1, max_length, 3, 256,256)
 
     def predict(self, csv_input):
 
 
-        data_in = self.open_file(csv_input['raw_path'])
+        data_in = self.open_file(csv_input['raw_path'], max_length=8)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
