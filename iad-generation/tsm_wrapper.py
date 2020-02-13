@@ -108,21 +108,32 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def rank(self, csv_input):
-        data_in = self.open_file(csv_input)#self.open_file_as_batch(csv_input)
 
-        # data has shape (batch size, segment length, num_ch, height, width)
-        # (6,8,3,256,256)
+        summed_ranks = []
 
-        print("data_in:", data_in.shape)
-        
-        # pass data through network to obtain activation maps
-        # do need grads for taylor expansion
-        rst = self.net(data_in)
+        end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
+        for start_idx in range(0, end_frame, 4):
+            data_in = self.open_file(csv_input, start_idx = start_idx)#self.open_file_as_batch(csv_input)
 
-        # compute gradient and do SGD step
-        self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
+            # data has shape (batch size, segment length, num_ch, height, width)
+            # (6,8,3,256,256)
 
-        return self.ranks
+            print("data_in:", data_in.shape)
+            
+            # pass data through network to obtain activation maps
+            # do need grads for taylor expansion
+            rst = self.net(data_in)
+
+            # compute gradient and do SGD step
+            self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
+
+            for j, rd in enumerate(self.ranks):
+                if(i == 0):
+                    summed_ranks.append(rd)
+                else:
+                    summed_ranks[j] = np.add(summed_ranks[j], rd)
+
+        return summed_ranks
 
     def process(self, csv_input):
 

@@ -44,7 +44,7 @@ def rank_dataset(csv_contents, model, dataset_id, iad_data_path):
 def main(
 	model_type, model_filename, 
 	dataset_dir, csv_filename, num_classes, dataset_id, 
-	dtype, gpu
+	dataset_size, dtype, gpu
 	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -56,7 +56,7 @@ def main(
 
 	# parse CSV file
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:100]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:dataset_size]
 	
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -105,6 +105,7 @@ if __name__ == '__main__':
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
 	# optional command line args
+	parser.add_argument('--dataset_size', default=2000, type=int, help='number of examples to base choice on')
 	parser.add_argument('--dtype', default="frames", help='run on RGB as opposed to flow data', choices=['frames', 'flow'])
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
 
@@ -119,6 +120,7 @@ if __name__ == '__main__':
 		FLAGS.num_classes,
 		FLAGS.dataset_id,
 
+		FLAGS.dataset_size, 
 		FLAGS.dtype,
 		FLAGS.gpu,
 		)
