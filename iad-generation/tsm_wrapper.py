@@ -186,28 +186,16 @@ class TSMBackBone(BackBone):
             def hook(model, input, output):
                 # perform taylor expansion
                 grad = input[0].detach()
-
-                self.ranks[idx] = grad 
-
-
-                '''
-                activation_index = len(self.activations) - self.grad_index - 1
-                activation = self.activations[activation_index]
-                values = \
-                    torch.sum((activation * grad), dim = 0).\
-                        sum(dim=2).sum(dim=3)[0, :, 0, 0].data
+                activation = self.activations[idx]
                 
+
+                values = torch.sum((activation * grad), dim = 0).\
+                        sum(dim=2).sum(dim=3)[0, :, 0, 0].data
+
                 # Normalize the rank by the filter dimensions
-                values = \
-                    values / (activation.size(0) * activation.size(2) * activation.size(3))
+                values = values / (activation.size(0) * activation.size(2) * activation.size(3))
 
-                if activation_index not in self.filter_ranks:
-                    self.filter_ranks[activation_index] = \
-                        torch.FloatTensor(activation.size(1)).zero_().cuda()
-
-                self.filter_ranks[activation_index] += values
-                self.grad_index += 1
-                '''
+                self.ranks[idx] = values 
 
             return hook
 
