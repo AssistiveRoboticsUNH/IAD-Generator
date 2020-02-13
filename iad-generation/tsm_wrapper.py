@@ -60,7 +60,7 @@ class TSMBackBone(BackBone):
     def open_file(self, csv_input, max_length=8, start_idx=0):
         
         folder_name = csv_input['raw_path']
-        assert os.path.exists(), "cannot find frames folder: "+folder_name
+        assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
         files = os.listdir(folder_name)
 
         # collect the frames
