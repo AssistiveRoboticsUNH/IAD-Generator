@@ -208,7 +208,8 @@ class TSMBackBone(BackBone):
                 #prune features and only get those we are investigating 
                 activations = output.detach()
                 if(feature_idx):
-                    print(feature_idx.shape)
+                    for layer in feature_idx:
+                        print(layer.shape)
 
                 self.activations[idx] = activations
  
