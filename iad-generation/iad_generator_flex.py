@@ -23,9 +23,9 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 	#converts file to iad and extracts the max and min values for the given IAD
 
 	#update max and min values
-	print(meta_data['dataset_id'])
-	print(type(data[0]))
-	print(data[0].shape)
+	#print(meta_data['dataset_id'])
+	#print(type(data[0]))
+	print(len(data))
 
 
 	if(update_min_maxes and meta_data['dataset_id'] != 0):
