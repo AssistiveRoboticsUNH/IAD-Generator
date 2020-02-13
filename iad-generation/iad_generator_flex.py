@@ -135,8 +135,7 @@ def main(
 	print("--------------")
 	print("Dataset ID: {0}".format(dataset_id))
 	print("Number of videos into IADs: {0}".format(len(csv_contents)))
-	print("IADs are padded/pruned to a length of: {0}".format(pad_length))
-	print("Longest video sequence in file list: {0}".format(max_frame_length))
+	print("IADs are padded/pruned to a length of: {0}".format(max_length))
 	print("Files place in: {0}".format(iad_data_path))
 	print("Min/Max File was Saved: {0}".format(update_min_maxes))
 
