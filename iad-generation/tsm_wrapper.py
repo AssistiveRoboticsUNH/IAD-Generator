@@ -13,7 +13,7 @@ from PIL import Image
 
 
 class TSMBackBone(BackBone):
-
+    '''
     class NetworkWrapper(TSN):
         def __init__(self, num_class, num_segments, modality,
                  base_model='resnet101', new_length=None,
@@ -56,7 +56,7 @@ class TSMBackBone(BackBone):
                     base_out = base_out.view((-1, self.num_segments) + base_out.size()[1:])
                 output = self.consensus(base_out)
                 return output.squeeze(1)
-            
+    '''      
 
     def open_file(self, folder_name, max_length=8, start_idx=0):
         
@@ -143,7 +143,7 @@ class TSMBackBone(BackBone):
         print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
 
         # define model
-        net = self.NetworkWrapper(num_class, this_test_segments if self.is_shift else 1, modality,
+        net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
                   base_model=self.arch,
                   consensus_type='avg',
                   img_feature_dim=256,
@@ -156,6 +156,15 @@ class TSMBackBone(BackBone):
         checkpoint = torch.load(this_weights)
 
         print("base_model:", net.base_model)
+
+        activation = {}
+        def get_activation(name):
+            def hook(model, input, output):
+                activation[name] = output.detach()
+            return hook
+
+        net.base_model.layer1.register_forward_hook(get_activation('layer1'))
+        print(activation)
 
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
