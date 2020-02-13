@@ -165,7 +165,7 @@ if __name__ == '__main__':
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
 	# IAD gen command line args
-	parser.add_argument('feature_rank_file', type=int, help='a .npz file containing min and max values to normalize by')
+	parser.add_argument('feature_rank_file', help='a .npz file containing min and max values to normalize by')
 	parser.add_argument('max_length', type=int, help='the maximum length video to convert into an IAD')
 
 	# optional command line args
