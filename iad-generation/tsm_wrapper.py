@@ -120,7 +120,7 @@ class TSMBackBone(BackBone):
         rst = self.net(data_in)
 
         # compute gradient and do SGD step
-        self.loss(rst, torch.tensor([csv_input['label']]).cuda() ).backward()
+        self.loss(rst, torch.tensor([csv_input['label']]*data_in[0]).cuda() ).backward()
 
         return self.ranks
 
