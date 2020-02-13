@@ -209,8 +209,9 @@ class TSMBackBone(BackBone):
             net.base_model.layer4.register_backward_hook(taylor_expansion_hook(3))
         else:
             # Need to shorten network so that base_model doesn't get to FC layers
-            print(net.base_model)
+            print("pre:", net.base_model)
             net.base_model = nn.Sequential(*list(net.base_model.children())[:-3]
+            print("post:", net.base_model)
         
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
