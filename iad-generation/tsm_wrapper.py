@@ -1,7 +1,7 @@
 
 from backbone_wrapper import BackBone
 
-import sys, math
+import sys
 sys.path.append("~/temporal-shift-module/")
 
 
