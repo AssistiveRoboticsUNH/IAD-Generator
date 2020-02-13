@@ -58,7 +58,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 	for i in range(len(csv_contents)):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
-		iad_data, length_ratio = model.process(csv_contents[i], max_length=20)
+		iad_data, length_ratio = model.process(csv_contents[i])
 
 		# generate activation map and rankings from model
 		#iad_data, rank_data, length_ratio = model.process(csv_contents[i])
@@ -117,7 +117,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 		from i3d_wrapper import I3DBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes, feature_idx)
+	model = bb(model_filename, num_classes, feature_idx, max_length=20)
 
 	# generate arrays to store the min and max values of each feature
 	update_min_maxes = (min_max_file == None)

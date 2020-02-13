@@ -130,11 +130,12 @@ class TSMBackBone(BackBone):
         return self.ranks
 
 
-    def __init__(self, checkpoint_file, num_classes, max_length, feature_idx=None):
+    def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
         self.is_shift = None
         self.net = None
         self.arch = None
-        self.max_length
+        self.num_classes = num_classes
+        self.max_length = max_length
 
         self.transform = None
 
