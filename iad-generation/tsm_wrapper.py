@@ -89,7 +89,7 @@ class TSMBackBone(BackBone):
         batch = [ self.open_file(csv_input, start_idx) for start_idx in range(0, end_frame, 4) ]
         
         # process the frames
-        return torch.Tensor(batch).cuda()
+        return torch.stack(batch).cuda()
 
     def predict(self, csv_input):
 
