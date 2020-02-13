@@ -78,7 +78,7 @@ class TSMBackBone(BackBone):
         data = self.transform(data)
         return data.view(-1, self.max_length, 3, 256,256)
 
-    def open_file_as_batches(self, csv_input):
+    def open_file_as_batch(self, csv_input):
         
         folder_name = csv_input['raw_path']
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
@@ -93,7 +93,7 @@ class TSMBackBone(BackBone):
 
     def predict(self, csv_input):
 
-        data_in = self.open_file_as_batches(csv_input)
+        data_in = self.open_file_as_batch(csv_input)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -105,7 +105,7 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def rank(self, csv_input):
-        data_in = self.open_file_as_batches(csv_input['raw_path'])
+        data_in = self.open_file_as_batch(csv_input)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
