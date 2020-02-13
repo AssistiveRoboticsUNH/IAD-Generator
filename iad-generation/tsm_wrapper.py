@@ -85,7 +85,7 @@ class TSMBackBone(BackBone):
 
         # define model
         net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
-                  base_model=this_arch,
+                  base_model=self.arch,
                   consensus_type='avg',
                   img_feature_dim=256,
                   pretrain='imagenet',
