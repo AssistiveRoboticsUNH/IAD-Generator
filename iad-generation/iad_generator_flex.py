@@ -91,12 +91,11 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:5]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:100]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
 	max_frame_length = 0
-	filenames, labels = [],[]
 	for ex in csv_contents:
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
 		ex['raw_path'] = os.path.join(raw_data_path, file_location)
@@ -107,11 +106,8 @@ def main(
 	#csv_contents = csv_contents[:5]
 
 	print("numIADs:", len(csv_contents))
-	print("max_frame_length:", max_frame_length)
+	print("max_frame_length:", max_length)
 
-	if (pad_length < 0):
-		pad_length = max_frame_length
-	print("padding iads to a length of {0} frames".format(max_frame_length))
 
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
