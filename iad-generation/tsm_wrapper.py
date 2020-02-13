@@ -117,6 +117,8 @@ class TSMBackBone(BackBone):
         # pass data through network to obtain activation maps
         # do need grads for taylor expansion
         rst = self.net(data_in)
+        # compute gradient and do SGD step
+        self.loss(rst, csv_input['label']).backward()
 
         print(len(self.activations), len(self.ranks))
         for i in range(len(self.activations)):
@@ -256,3 +258,5 @@ class TSMBackBone(BackBone):
 
         # network variable
         self.net = net
+
+        self.loss = torch.nn.CrossEntropyLoss().cuda()
