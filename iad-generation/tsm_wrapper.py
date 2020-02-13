@@ -59,6 +59,9 @@ class TSMBackBone(BackBone):
             rst = self.net(data_in)
 
             for i in range(len(self.activations)):
+                print("in:", self.activations[i].shape)
+                self.activations[i] = torch.max(local_min_values)
+                print("out:", self.activations[i].shape)
                 self.activations[i] = self.activations[i].cpu().numpy()
 
         return self.activations, length_ratio
