@@ -170,24 +170,24 @@ class TSMBackBone(BackBone):
         checkpoint = torch.load(this_weights)
 
         # add activation and ranking hooks
-        self.activations = []
-        self.ranks = []
-        def activation_hook():
+        self.activations = [None]*4
+        self.ranks = [None]*4
+        def activation_hook(idx):
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
                 activations = output.detach()
                 if(features_kept):
                     pass # do stuff
-                self.activations.append( activations ) 
+                self.activations[idx] = activations
  
             return hook
 
-        def taylor_expansion_hook():
+        def taylor_expansion_hook(idx):
             def hook(model, input, output):
                 # perform taylor expansion
                 grad = input[0].detach()
 
-                self.ranks.append( grad ) 
+                self.ranks[idx] = grad 
 
 
                 '''
@@ -212,17 +212,17 @@ class TSMBackBone(BackBone):
             return hook
 
         
-        net.base_model.layer1.register_forward_hook(activation_hook())
-        net.base_model.layer2.register_forward_hook(activation_hook())
-        net.base_model.layer3.register_forward_hook(activation_hook())
-        net.base_model.layer4.register_forward_hook(activation_hook())
+        net.base_model.layer1.register_forward_hook(activation_hook(1))
+        net.base_model.layer2.register_forward_hook(activation_hook(2))
+        net.base_model.layer3.register_forward_hook(activation_hook(3))
+        net.base_model.layer4.register_forward_hook(activation_hook(4))
 
         print(features_kept, features_kept == None)
         if(features_kept == None):
-            net.base_model.layer1.register_backward_hook(taylor_expansion_hook())
-            net.base_model.layer2.register_backward_hook(taylor_expansion_hook())
-            net.base_model.layer3.register_backward_hook(taylor_expansion_hook())
-            net.base_model.layer4.register_backward_hook(taylor_expansion_hook())
+            net.base_model.layer1.register_backward_hook(taylor_expansion_hook(1))
+            net.base_model.layer2.register_backward_hook(taylor_expansion_hook(2))
+            net.base_model.layer3.register_backward_hook(taylor_expansion_hook(3))
+            net.base_model.layer4.register_backward_hook(taylor_expansion_hook(4))
         
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
