@@ -47,7 +47,7 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 
 		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path, isRGB):
+def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
@@ -109,7 +109,7 @@ def normalize_dataset(csv_contents, min_max_vals, model_type):
 			# re-save file
 			np.savez(filename, data=data, label=label, length=length)
 
-def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, isRGB):
+def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, dtype):
 
 
 	
@@ -117,7 +117,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
-	file_loc = 'frames' if isRGB else 'flow'
+	file_loc = 'frames' if dtype else 'flow'
 
 	raw_data_path = os.path.join(dataset_dir, file_loc)
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
@@ -169,7 +169,7 @@ def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dat
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
 	#generate IADs
-	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path, isRGB)
+	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path)
 	normalize_dataset(csv_contents, min_max_vals, model)
 
 	#summarize operations
@@ -213,6 +213,6 @@ if __name__ == '__main__':
 		FLAGS.pad_length, 
 		FLAGS.min_max_file, 
 		FLAGS.gpu,
-		FLAGS.rgb)
+		FLAGS.dtype)
 
 	
