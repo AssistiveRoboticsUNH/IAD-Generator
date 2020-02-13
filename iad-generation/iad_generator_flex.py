@@ -19,13 +19,13 @@ import numpy as np
 
 batch_size = 1
 
-def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes, iad_data_path):
+def convert_to_iad(data, csv_input, update_min_maxes, min_max_vals, length_ratio, iad_data_path):
 	#converts file to iad and extracts the max and min values for the given IAD
 
 	#update max and min values
 	#print(meta_data['dataset_id'])
 	#print(type(data[0]))
-	if(update_min_maxes and meta_data['dataset_id'] != 0):
+	if(update_min_maxes and csv_input['dataset_id'] != 0):
 		for layer in range(len(data)):
 			local_max_values = np.max(data[layer], axis=1)
 			local_min_values = np.min(data[layer], axis=1)
@@ -39,37 +39,30 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 
 	#save to disk
 	for layer in range(len(data)):
-		label_path = os.path.join(iad_data_path, meta_data['label_name'])
+		label_path = os.path.join(iad_data_path, csv_input['label_name'])
 		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
 
-		meta_data['iad_path_'+str(layer)] = os.path.join(label_path, meta_data['example_id'])+"_"+str(layer)+".npz"
+		csv_input['iad_path_'+str(layer)] = os.path.join(label_path, csv_input['example_id'])+"_"+str(layer)+".npz"
 
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 
-		np.savez(meta_data['iad_path_'+str(layer)], data=data[layer], label=meta_data['label'], length=data[layer].shape[1])
+		np.savez(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_size, update_min_maxes, iad_data_path):
+def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
 
 	# process files
-	for i in range(len(csv_contents)):
+	for i, csv_ex in enumerate(len(csv_contents)):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
-		iad_data, length_ratio = model.process(csv_contents[i])
-
-		# generate activation map and rankings from model
-		#iad_data, rank_data, length_ratio = model.process(csv_contents[i])
+		# generate activation map
+		iad_data, length_ratio = model.process(csv_ex)
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
-		convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio, update_min_maxes, iad_data_path)
-
-		# add new ranks to cummulative taylor sum
-
-	# save ranking files
-	depth, index, rank = [],[],[] 
+		convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
 
 	#save min_max_vals
 	if(update_min_maxes):
@@ -134,7 +127,7 @@ def main(
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
 	#generate IADs
-	convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, dataset_id, update_min_maxes, iad_data_path)
+	convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path)
 
 	#summarize operations
 	print("--------------")
