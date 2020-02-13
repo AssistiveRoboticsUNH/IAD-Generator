@@ -68,8 +68,13 @@ class TSMBackBone(BackBone):
 
         # process the frames
         data = self.transform(data)
-        print("data.shape:", data.shape)
-        return data.view(-1, max_length, 3, 256,256)
+        print("data.shape1:", data.shape)
+        data = data.view(-1, max_length, 3, 256,256)
+        print("data.shape2:", data.shape)
+
+
+
+        return data#data.view(-1, max_length, 3, 256,256)
 
     def predict(self, csv_input, max_length=8):
 
