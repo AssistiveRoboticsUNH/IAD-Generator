@@ -151,7 +151,13 @@ class TSMBackBone(BackBone):
             rst = self.net(data_in)
 
             for i in range(len(self.activations)):
+                # convert actvitaion from PyTorch to Numpy
                 self.activations[i] = self.activations[i].cpu().numpy()
+
+                # prune low-quality filters
+                self.activations[i] = self.activations[i][:, self.feature_idx[i], :, :]
+
+                # compress spatial dimensions
                 self.activations[i] = np.max(self.activations[i], axis=(2,3))
 
         return self.activations, length_ratio
@@ -207,13 +213,7 @@ class TSMBackBone(BackBone):
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
                 activations = output.detach()
-                if(feature_idx):
-                    feature_idx_keep = feature_idx[idx]
-                    print("in:", feature_idx_keep.shape, activations.shape)
-                    print(feature_idx_keep)
-                    #activations = activations[:, feature_idx_keep, :, :]
-                    print("out:", feature_idx_keep.shape, activations.shape)
-
+                
                 self.activations[idx] = activations
  
             return hook
