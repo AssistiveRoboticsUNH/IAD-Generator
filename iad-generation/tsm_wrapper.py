@@ -57,14 +57,22 @@ class TSNShort(TSN):
 
 class TSMBackBone(BackBone):
          
-    def open_file(self, folder_name, max_length=8, start_idx=0):
+    def open_file(self, csv_input, max_length=8, start_idx=0):
         
-        assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
+        folder_name = csv_input['raw_path']
+        assert os.path.exists(), "cannot find frames folder: "+folder_name
+        files = os.listdir(folder_name)
 
         # collect the frames
         data = []
-        for frame in os.listdir(folder_name)[start_idx:start_idx+max_length]:
-            data.append(Image.open(os.path.join(folder_name, frame)).convert('RGB')) 
+        
+        for i in range(max_length):
+            frame = start_idx+i
+            if(frame > len(files)): 
+                data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
+            else:
+                # fill out rest of video with blank data
+                data.append( Image.new('RGB', (data[0].w, data[0].height)) )
 
         # process the frames
         data = self.transform(data)
@@ -78,8 +86,7 @@ class TSMBackBone(BackBone):
 
     def predict(self, csv_input, max_length=8):
 
-
-        data_in = self.open_file(csv_input['raw_path'], max_length=max_length)
+        data_in = self.open_file(csv_input, max_length=max_length)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -91,8 +98,8 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def process(self, csv_input, max_length=8):
-        max_length = min(max_length, csv_input['length'])
-        data_in = self.open_file(csv_input['raw_path'], max_length=max_length)
+        
+        data_in = self.open_file(csv_input, max_length=max_length)
         length_ratio = csv_input['length']/float(max_length)
 
         # data has shape (batch size, segment length, num_ch, height, width)
