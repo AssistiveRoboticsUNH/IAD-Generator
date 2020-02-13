@@ -169,6 +169,7 @@ class TSMBackBone(BackBone):
         self.arch = None
         self.num_classes = num_classes
         self.max_length = max_length
+        self.feature_idx = feature_idx
 
         self.transform = None
 
@@ -240,7 +241,7 @@ class TSMBackBone(BackBone):
         net.base_model.layer3.register_forward_hook(activation_hook(2))
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
-        if(feature_idx == None):
+        if(self.feature_idx == None):
             # Need to get rank information
             net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
             net.base_model.layer2.register_backward_hook(taylor_expansion_hook(1))
@@ -284,5 +285,5 @@ class TSMBackBone(BackBone):
         self.net = net
 
         # loss variable (used for generating gradients when ranking)
-        if(feature_idx == None):
+        if(self.feature_idx == None):
             self.loss = torch.nn.CrossEntropyLoss().cuda()
