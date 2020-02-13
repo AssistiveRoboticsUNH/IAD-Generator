@@ -25,9 +25,6 @@ def convert_to_iad(data, meta_data, min_max_vals, length_ratio, update_min_maxes
 	#update max and min values
 	#print(meta_data['dataset_id'])
 	#print(type(data[0]))
-	print(len(data))
-
-
 	if(update_min_maxes and meta_data['dataset_id'] != 0):
 		for layer in range(len(data)):
 			local_max_values = np.max(data[layer], axis=1)

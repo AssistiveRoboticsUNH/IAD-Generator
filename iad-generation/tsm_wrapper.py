@@ -135,7 +135,7 @@ class TSMBackBone(BackBone):
 
         self.transform = None
 
-        self.CNN_FEATURE_COUNT = []
+        self.CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
 
