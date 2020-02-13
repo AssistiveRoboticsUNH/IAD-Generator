@@ -57,7 +57,7 @@ class TSNShort(TSN):
 
 class TSMBackBone(BackBone):
          
-    def open_file(self, csv_input, max_length=8, start_idx=0):
+    def open_file(self, csv_input, start_idx=0):
         
         folder_name = csv_input['raw_path']
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
@@ -66,7 +66,7 @@ class TSMBackBone(BackBone):
         # collect the frames
         data = []
         
-        for i in range(max_length):
+        for i in range(self.max_length):
             frame = start_idx+i
             if(frame < len(files)): 
                 data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
@@ -76,17 +76,11 @@ class TSMBackBone(BackBone):
 
         # process the frames
         data = self.transform(data)
-        print("data.shape1:", data.shape)
-        data = data.view(-1, max_length, 3, 256,256)
-        print("data.shape2:", data.shape)
+        return data.view(-1, max_length, 3, 256,256)
 
+    def predict(self, csv_input):
 
-
-        return data#data.view(-1, max_length, 3, 256,256)
-
-    def predict(self, csv_input, max_length=8):
-
-        data_in = self.open_file(csv_input, max_length=max_length)
+        data_in = self.open_file(csv_input)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -97,10 +91,10 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
             return self.net(data_in)
 
-    def process(self, csv_input, max_length=8):
+    def process(self, csv_input):
 
-        data_in = self.open_file(csv_input, max_length=max_length)
-        length_ratio = csv_input['length']/float(max_length)
+        data_in = self.open_file(csv_input)
+        length_ratio = csv_input['length']/float(self.max_length)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -118,8 +112,8 @@ class TSMBackBone(BackBone):
 
         return self.activations, length_ratio
 
-    def rank(self, csv_input, max_length=8):
-        data_in = self.open_file(csv_input['raw_path'], max_length=8)
+    def rank(self, csv_input):
+        data_in = self.open_file(csv_input['raw_path'])
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -136,10 +130,11 @@ class TSMBackBone(BackBone):
         return self.ranks
 
 
-    def __init__(self, checkpoint_file, num_classes, feature_idx=None):
+    def __init__(self, checkpoint_file, num_classes, max_length, feature_idx=None):
         self.is_shift = None
         self.net = None
         self.arch = None
+        self.max_length
 
         self.transform = None
 
@@ -149,7 +144,7 @@ class TSMBackBone(BackBone):
 
         # input variables
         this_weights = checkpoint_file
-        this_test_segments = 20
+        this_test_segments = self.max_length
         test_file = None
 
         #model variables
@@ -206,15 +201,12 @@ class TSMBackBone(BackBone):
 
             return hook
 
-        
+        # Will always need the activations (whether for out or for ranking)
         net.base_model.layer1.register_forward_hook(activation_hook(0))
         net.base_model.layer2.register_forward_hook(activation_hook(1))
         net.base_model.layer3.register_forward_hook(activation_hook(2))
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
-        print("feature_idx: ", feature_idx, feature_idx == None)
-
-        
         if(feature_idx == None):
             # Need to get rank information
             net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
@@ -223,13 +215,11 @@ class TSMBackBone(BackBone):
             net.base_model.layer4.register_backward_hook(taylor_expansion_hook(3))
         else:
             # Need to shorten network so that base_model doesn't get to FC layers
-            print("pre:", net.base_model)
             net.base_model.fc = nn.Identity()
-            print("post:", net.base_model)
         
-        # modify network so that...
-        print("checkpoint.keys()", checkpoint.keys())
-
+        # Combine network together so that the it can have parameters set correctly
+        # I think, I'm not 100% what this code section actually does and I don't have 
+        # the time to figure it out right now
         checkpoint = checkpoint['state_dict']
         base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint.items())}
         replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
@@ -240,7 +230,6 @@ class TSMBackBone(BackBone):
                 base_dict[v] = base_dict.pop(k)
 
         net.load_state_dict(base_dict)
-
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
@@ -252,9 +241,6 @@ class TSMBackBone(BackBone):
                            Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
                            ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
                            GroupNormalize(net.input_mean, net.input_std),
-
-                            #padding = (pad_width,pad_height,delta_width-pad_width,delta_height-pad_height)
-                            #ImageOps.expand(img, padding)
                            ])
 
         # place net onto GPU and finalize network
@@ -264,4 +250,6 @@ class TSMBackBone(BackBone):
         # network variable
         self.net = net
 
-        self.loss = torch.nn.CrossEntropyLoss().cuda()
+        # loss variable (used for generating gradients when ranking)
+        if(feature_idx == None):
+            self.loss = torch.nn.CrossEntropyLoss().cuda()
