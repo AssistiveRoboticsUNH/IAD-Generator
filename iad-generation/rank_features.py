@@ -16,7 +16,7 @@ def rank_dataset(csv_contents, model, dataset_id, iad_data_path):
 
 	# process files
 	for i in range(len(csv_contents)):
-		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
+		print("Ranking features for file: {:6d}/{:6d}".format(i, len(csv_contents)))
 
 		# rank files
 		rank_data = model.rank(csv_contents[i])
