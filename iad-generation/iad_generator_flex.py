@@ -55,7 +55,7 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 	summed_ranks = None
 
 	# process files
-	for i, csv_ex in enumerate(len(csv_contents)):
+	for i, csv_ex in enumerate(csv_contents):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
 		# generate activation map
