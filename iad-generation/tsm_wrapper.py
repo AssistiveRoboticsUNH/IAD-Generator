@@ -80,16 +80,15 @@ class TSMBackBone(BackBone):
         
 
         # dataset variables
-        num_class, args.train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2',
-                                                                                                modality)
+        num_class, train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2', modality)
         print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
 
         # define model
         net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
                   base_model=this_arch,
-                  consensus_type=args.crop_fusion_type,
-                  img_feature_dim=args.img_feature_dim,
-                  pretrain=args.pretrain,
+                  consensus_type='avg',
+                  img_feature_dim=256,
+                  pretrain='imagenet',
                   is_shift=self.is_shift, shift_div=shift_div, shift_place=shift_place,
                   non_local='_nl' in this_weights,
                   )
