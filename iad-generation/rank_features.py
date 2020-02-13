@@ -25,11 +25,11 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		rank_data = model.rank(csv_contents[i])
 
 		# add new ranks to cummulative taylor sum
-		for rd in rank_data:
+		for i, rd in enumerate(rank_data):
 			if(i == 0):
 				summed_ranks.append(rd)
 			else:
-				summed_ranks = np.add(summed_ranks, rank_data)
+				summed_ranks = np.add(summed_ranks[i], rd)
 
 		#summed_ranks = rank_data if i == 0 else np.add(summed_ranks, rank_data)
 
