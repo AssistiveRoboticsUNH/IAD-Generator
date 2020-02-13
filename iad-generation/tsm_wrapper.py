@@ -14,7 +14,7 @@ from PIL import Image
 
 class TSMBackBone(BackBone):
 
-    def open_file(folder_name, max_length=-1, start_idx=0):
+    def open_file(self, folder_name, max_length=-1, start_idx=0):
         
         # collect the frames
         vid = []
@@ -24,10 +24,10 @@ class TSMBackBone(BackBone):
         # process the frames
         return self.transform(images)
 
-    def predict(csv_input):
+    def predict(self, csv_input):
 
 
-        data_in = open_file(csv_input['raw_path'])
+        data_in = self.open_file(csv_input['raw_path'])
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -41,7 +41,10 @@ class TSMBackBone(BackBone):
 
         return rst
 
-    def process(csv_input):
+    def process(self, csv_input):
+
+        data_in = self.open_file(csv_input['raw_path'])
+        
         pass
         #return iad_data, rank_data, length_ratio
 

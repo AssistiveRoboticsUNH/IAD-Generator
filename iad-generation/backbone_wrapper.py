@@ -1,12 +1,12 @@
 class BackBone():
 
-    def open_model(checkpoint_file, num_classes):
+    def open_model(self, checkpoint_file, num_classes):
         pass
 
-    def predict(csv_input):
+    def predict(self, csv_input):
         pass
 
-    def process(csv_input):
+    def process(self, csv_input):
         pass
         #return iad_data, rank_data, length_ratio
 
