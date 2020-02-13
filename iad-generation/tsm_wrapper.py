@@ -105,6 +105,9 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
             rst = self.net(data_in)
 
+            for i in range(len(self.activations)):
+                self.activations[i].cpu().numpy()
+
         return self.activations, length_ratio
 
     def rank(self, csv_input, max_length=8):
@@ -118,13 +121,9 @@ class TSMBackBone(BackBone):
         # pass data through network to obtain activation maps
         # do need grads for taylor expansion
         rst = self.net(data_in)
+
         # compute gradient and do SGD step
         self.loss(rst, torch.tensor([csv_input['label']]).cuda() ).backward()
-
-        print(len(self.activations), len(self.ranks))
-        for i in range(len(self.activations)):
-
-            print("activ: {0}, grad: {1}".format(self.activations[i].shape, self.ranks[i].shape))
 
         return self.ranks
 
