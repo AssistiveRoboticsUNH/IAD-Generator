@@ -106,7 +106,7 @@ class TSMBackBone(BackBone):
             rst = self.net(data_in)
 
             for i in range(len(self.activations)):
-                self.activations[i].cpu().numpy()
+                self.activations[i] = self.activations[i].cpu().numpy()
 
         return self.activations, length_ratio
 
