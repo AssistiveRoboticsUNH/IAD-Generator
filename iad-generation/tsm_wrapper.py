@@ -72,7 +72,7 @@ class TSMBackBone(BackBone):
                 data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
             else:
                 # fill out rest of video with blank data
-                data.append( Image.new('RGB', (data[0].w, data[0].height)) )
+                data.append( Image.new('RGB', (data[0].width, data[0].height)) )
 
         # process the frames
         data = self.transform(data)
