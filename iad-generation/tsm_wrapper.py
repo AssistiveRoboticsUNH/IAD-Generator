@@ -22,7 +22,7 @@ class TSMBackBone(BackBone):
                  crop_num=1, partial_bn=True, print_spec=True, pretrain='imagenet',
                  is_shift=False, shift_div=8, shift_place='blockres', fc_lr5=False,
                  temporal_pool=False, non_local=False):
-            super(self).__init__(num_class, num_segments, modality,
+            TSN.__init__(num_class, num_segments, modality,
                  base_model='resnet101', new_length=None,
                  consensus_type='avg', before_softmax=True,
                  dropout=0.8, img_feature_dim=256,
@@ -31,7 +31,7 @@ class TSMBackBone(BackBone):
                  temporal_pool=False, non_local=False)
 
         def forward(self, input, no_reshape=False):
-            out = super().forward(input, no_reshape)
+            out = TSN.forward(input, no_reshape)
             return out
             """
             if not no_reshape:
