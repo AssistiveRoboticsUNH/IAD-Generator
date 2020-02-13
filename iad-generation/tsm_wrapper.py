@@ -188,9 +188,7 @@ class TSMBackBone(BackBone):
                 grad = input[0].detach()
                 activation = self.activations[idx]
                 
-                print(grad.shape, activation.shape)
-                print(torch.sum((activation * grad), dim = (0,2,3)).shape)
-
+                # sum values together
                 values = torch.sum((activation * grad), dim = (0,2,3)).data
 
                 # Normalize the rank by the filter dimensions

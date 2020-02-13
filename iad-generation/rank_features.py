@@ -25,7 +25,7 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 		rank_data = model.rank(csv_contents[i])
 
 		# add new ranks to cummulative taylor sum
-		summed_ranks = rank_data if summed_ranks == None else np.add(summed_ranks, rank_data)
+		summed_ranks = rank_data if i == 0 else np.add(summed_ranks, rank_data)
 
 	# save ranking files
 	depth, index, rank = [],[],[] 
