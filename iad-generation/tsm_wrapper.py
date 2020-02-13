@@ -188,6 +188,8 @@ class TSMBackBone(BackBone):
                 grad = input[0].detach()
                 activation = self.activations[idx]
                 
+                print(grad.shape, activation.shape)
+                print((activation * grad).shape)
 
                 values = torch.sum((activation * grad), dim = 0).\
                         sum(dim=2).sum(dim=3)[0, :, 0, 0].data
