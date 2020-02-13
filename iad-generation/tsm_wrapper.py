@@ -17,14 +17,14 @@ class TSMBackBone(BackBone):
     def open_file(self, folder_name, max_length=-1, start_idx=0):
         
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
-        
+
         # collect the frames
         vid = []
         for frame in os.listdir(folder_name)[start_idx:start_idx+max_length]:
             vid.append(Image.open(os.path.join(folder_name, frame)).convert('RGB')) 
 
         # process the frames
-        return self.transform(images)
+        return self.transform(vid)
 
     def predict(self, csv_input):
 

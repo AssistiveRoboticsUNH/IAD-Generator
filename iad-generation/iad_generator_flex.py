@@ -111,10 +111,6 @@ def normalize_dataset(csv_contents, min_max_vals, model_type):
 
 def main(model_type, model_filename, dataset_dir, csv_filename, num_classes, dataset_id, pad_length, min_max_file, gpu, dtype):
 
-
-	
-
-
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
 
 	file_loc = 'frames' if dtype else 'flow'
