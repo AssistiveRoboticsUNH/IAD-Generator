@@ -1,7 +1,7 @@
 from backbone_wrapper import BackBone
 
 import sys
-sys.path.append("~/temporal-shift-module")
+sys.path.append("/home/mbc2004/temporal-shift-module")
 
 from ops.dataset import TSNDataSet
 from ops.models import TSN
