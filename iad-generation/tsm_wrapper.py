@@ -183,10 +183,8 @@ class TSMBackBone(BackBone):
             return hook
 
         def taylor_expansion_hook():
-            print("here1")
             def hook(model, input, output):
                 # perform taylor expansion
-                print("here2", input)
                 grad = input[0].detach()
 
                 self.ranks.append( grad ) 
