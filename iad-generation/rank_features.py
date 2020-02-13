@@ -40,6 +40,8 @@ def rank_dataset(csv_contents, min_max_vals, model, pad_length, dataset_size, up
 	depth, index, rank = [],[],[] 
 
 	for layer in range(len(summed_ranks)):
+		print(summed_ranks[layer].shape)
+
 		depth.append(np.full(len(summed_ranks[layer]), layer))
 		index.append(np.arange(len(summed_ranks[layer])))
 		rank.append(summed_ranks[layer])
