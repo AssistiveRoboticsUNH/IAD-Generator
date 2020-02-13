@@ -43,7 +43,6 @@ class TSMBackBone(BackBone):
             return self.net(data_in)
 
     def process(self, csv_input, max_length=8):
-
         data_in = self.open_file(csv_input['raw_path'], max_length=max_length)
         length_ratio = csv_input['length']/float(max_length)
 
@@ -94,11 +93,11 @@ class TSMBackBone(BackBone):
 
         # input variables
         this_weights = checkpoint_file
-        this_test_segments = 8
+        this_test_segments = 20
         test_file = None
 
         #model variables
-        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
+        self.is_shift, shift_div, shift_place = True, 20, 'blockres'
 
         
         self.arch = this_weights.split('TSM_')[1].split('_')[2]
