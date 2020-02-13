@@ -212,17 +212,17 @@ class TSMBackBone(BackBone):
             return hook
 
         
-        net.base_model.layer1.register_forward_hook(activation_hook(1))
-        net.base_model.layer2.register_forward_hook(activation_hook(2))
-        net.base_model.layer3.register_forward_hook(activation_hook(3))
-        net.base_model.layer4.register_forward_hook(activation_hook(4))
+        net.base_model.layer1.register_forward_hook(activation_hook(0))
+        net.base_model.layer2.register_forward_hook(activation_hook(1))
+        net.base_model.layer3.register_forward_hook(activation_hook(2))
+        net.base_model.layer4.register_forward_hook(activation_hook(3))
 
         print(features_kept, features_kept == None)
         if(features_kept == None):
-            net.base_model.layer1.register_backward_hook(taylor_expansion_hook(1))
-            net.base_model.layer2.register_backward_hook(taylor_expansion_hook(2))
-            net.base_model.layer3.register_backward_hook(taylor_expansion_hook(3))
-            net.base_model.layer4.register_backward_hook(taylor_expansion_hook(4))
+            net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
+            net.base_model.layer2.register_backward_hook(taylor_expansion_hook(1))
+            net.base_model.layer3.register_backward_hook(taylor_expansion_hook(2))
+            net.base_model.layer4.register_backward_hook(taylor_expansion_hook(3))
         
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
