@@ -145,7 +145,7 @@ class TSMBackBone(BackBone):
         print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
 
         # define model
-        net = NetworkWrapper(num_class, this_test_segments if self.is_shift else 1, modality,
+        net = self.NetworkWrapper(num_class, this_test_segments if self.is_shift else 1, modality,
                   base_model=self.arch,
                   consensus_type='avg',
                   img_feature_dim=256,
