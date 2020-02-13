@@ -10,7 +10,49 @@ from ops import dataset_config
 
 import numpy as np
 from PIL import Image
+'''
+class TSNShort(TSN):
+    def __init__(self, num_class, num_segments, modality,
+                 base_model='resnet101', new_length=None,
+                 consensus_type='avg', before_softmax=True,
+                 dropout=0.8, img_feature_dim=256,
+                 crop_num=1, partial_bn=True, print_spec=True, pretrain='imagenet',
+                 is_shift=False, shift_div=8, shift_place='blockres', fc_lr5=False,
+                 temporal_pool=False, non_local=False):
+        TSN.__init__(self, num_class, num_segments, modality,
+                 base_model, new_length,
+                 consensus_type, before_softmax,
+                 dropout, img_feature_dim,
+                 crop_num, partial_bn, print_spec, pretrain,
+                 is_shift, shift_div, shift_place, fc_lr5,
+                 temporal_pool, non_local)
 
+    def forward(self, input, no_reshape=False):
+        if not no_reshape:
+            sample_len = (3 if self.modality == "RGB" else 2) * self.new_length
+
+            if self.modality == 'RGBDiff':
+                sample_len = 3 * self.new_length
+                input = self._get_diff(input)
+
+            base_out = self.base_model(input.view((-1, sample_len) + input.size()[-2:]))
+        else:
+            base_out = self.base_model(input)
+
+        if self.dropout > 0:
+            base_out = self.new_fc(base_out)
+
+        if not self.before_softmax:
+            base_out = self.softmax(base_out)
+
+        if self.reshape:
+            if self.is_shift and self.temporal_pool:
+                base_out = base_out.view((-1, self.num_segments // 2) + base_out.size()[1:])
+            else:
+                base_out = base_out.view((-1, self.num_segments) + base_out.size()[1:])
+            output = self.consensus(base_out)
+            return output.squeeze(1)
+'''
 
 class TSMBackBone(BackBone):
          
@@ -157,11 +199,17 @@ class TSMBackBone(BackBone):
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
         print(features_kept, features_kept == None)
+
+        
         if(features_kept == None):
+            # Need to get rank information
             net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
             net.base_model.layer2.register_backward_hook(taylor_expansion_hook(1))
             net.base_model.layer3.register_backward_hook(taylor_expansion_hook(2))
             net.base_model.layer4.register_backward_hook(taylor_expansion_hook(3))
+        else:
+            # Need to shorten network so that base_model doesn't get to FC layers
+            print(net.base_model)
         
         # modify network so that...
         print("checkpoint.keys()", checkpoint.keys())
