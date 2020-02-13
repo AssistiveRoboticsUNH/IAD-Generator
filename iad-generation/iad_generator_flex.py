@@ -67,7 +67,7 @@ def convert_dataset_to_iad(csv_contents, min_max_vals, model, pad_length, datase
 		#iad_data, rank_data, length_ratio = model.process(csv_contents[i])
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
-		convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio, update_min_maxes, iad_data_path)
+		#convert_to_iad(iad_data, csv_contents[i], min_max_vals, length_ratio, update_min_maxes, iad_data_path)
 
 		# add new ranks to cummulative taylor sum
 		summed_ranks = rank_data if summed_ranks == None else np.add(summed_ranks, rank_data)
