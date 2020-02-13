@@ -118,7 +118,7 @@ class TSMBackBone(BackBone):
         # do need grads for taylor expansion
         rst = self.net(data_in)
 
-        for i in range(len(self.activations));
+        for i in range(len(self.activations)):
 
             print("activ: {0}, grad: {1}".format(self.activations[i].shape, self.ranks[i].shape))
 
