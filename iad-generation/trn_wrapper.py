@@ -14,7 +14,7 @@ import pdb
 import numpy as np
 from PIL import Image
 
-class TSMBackBone(BackBone):
+class TRNBackBone(BackBone):
          
     def open_file(self, csv_input, start_idx=0, batch_now=True):
         
