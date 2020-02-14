@@ -137,8 +137,9 @@ class TRNBackBone(BackBone):
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
         #checkpoint_file = TRN_somethingv2_RGB_BNInception_TRNmultiscale_segment8_best.pth.tar
 
+        modality = 'RGB'
         crop_fusion_type = 'TRNmultiscale'
-        net = TSN(self.num_classes, self.max_length, args.modality,
+        net = TSN(self.num_classes, self.max_length, modality,
                   base_model=self.arch,
                   consensus_type=crop_fusion_type,
                   img_feature_dim=256,
