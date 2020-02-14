@@ -4,10 +4,12 @@ import sys, os
 sys.path.append("/home/mbc2004/TRN-pytorch")
 
 import torch.nn as nn
-from ops.dataset import TSNDataSet
-from ops.models import TSN
-from ops.transforms import *
-from ops import dataset_config
+from dataset import TSNDataSet
+from models import TSN
+from transforms import *
+from ops import ConsensusModule
+import datasets_video
+import pdb
 
 import numpy as np
 from PIL import Image
