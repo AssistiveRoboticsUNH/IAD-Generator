@@ -72,9 +72,9 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 		iad_data, length_ratio = model.process(csv_ex)
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
-		#convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
 		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
-		pool.apply_async(convert_to_iad, (iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path, ))
+		#pool.apply_async(convert_to_iad, (iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path, ))
 
 	#save min_max_vals
 	if(update_min_maxes):
