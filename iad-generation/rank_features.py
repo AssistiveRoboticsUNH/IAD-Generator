@@ -77,6 +77,8 @@ def main(
 	#define the model
 	if(model_type == 'i3d'):
 		from i3d_wrapper import I3DBackBone as bb
+	if(model_type == 'trn'):
+		from tsm_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
 	model = bb(model_filename, num_classes)
@@ -97,7 +99,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Generate IADs from input files')
 	
 	# model command line args
-	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'tsm'])
+	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'trn', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
 
 	# dataset command line args
