@@ -15,22 +15,7 @@ from multiprocessing import Pool
 
 batch_size = 1
 
-def convert_to_iad(data, csv_input, update_min_maxes, min_max_vals, length_ratio, iad_data_path):
-	#converts file to iad and extracts the max and min values for the given IAD
-
-	#update max and min values
-	if(update_min_maxes and csv_input['dataset_id'] != 0):
-		for layer in range(len(data)):
-			local_max_values = np.max(data[layer], axis=1)
-			local_min_values = np.min(data[layer], axis=1)
-
-			for i in range(len(local_max_values)):
-				if(local_max_values[i] > min_max_vals["max"][layer][i]):
-					min_max_vals["max"][layer][i] = local_max_values[i]
-
-				if(local_min_values[i] < min_max_vals["min"][layer][i]):
-					min_max_vals["min"][layer][i] = local_min_values[i]
-
+def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 	#save to disk
 	for layer in range(len(data)):
 		label_path = os.path.join(iad_data_path, csv_input['label_name'])
@@ -43,7 +28,7 @@ def convert_to_iad(data, csv_input, update_min_maxes, min_max_vals, length_ratio
 
 		np.savez(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
 
-def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path):
+def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
@@ -56,20 +41,27 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 		iad_data, length_ratio = model.process(csv_ex)
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
-		convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		convert_to_iad(iad_data, csv_ex, length_ratio, iad_data_path)
 
 		print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
 
-	#save min_max_vals
-	if(update_min_maxes):
-		np.savez(os.path.join(iad_data_path, "min_maxes.npz"), min=np.array(min_max_vals["min"]), max=np.array(min_max_vals["max"]))
+def convert_csv_chunk(csv_contents, model_type, model_filename, num_classes, max_length, feature_idx):
 
+	#define the model
+	if(model_type == 'i3d'):
+		from i3d_wrapper import I3DBackBone as bb
+	if(model_type == 'tsm'):
+		from tsm_wrapper import TSMBackBone as bb
+	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
+	
+	#generate IADs
+	convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path)
 
 def main(
 	model_type, model_filename, 
 	dataset_dir, csv_filename, num_classes, dataset_id, 
 	feature_rank_file, max_length, 
-	num_features, dtype, gpu
+	num_features, dtype, gpu, num_procs
 	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -80,7 +72,7 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:5]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:20]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -92,39 +84,28 @@ def main(
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
 
-	#csv_contents = csv_contents[:5]
-
-	print("numIADs:", len(csv_contents))
-	print("max_frame_length:", max_length)
-
-
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
 
 	feature_idx = get_top_n_feature_indexes(feature_rank_file, num_features)
 
-	#define the model
-	if(model_type == 'i3d'):
-		from i3d_wrapper import I3DBackBone as bb
-	if(model_type == 'tsm'):
-		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
-	
-	# generate arrays to store the min and max values of each feature
-	update_min_maxes = dataset_id > 0
-	if(update_min_maxes):
-		min_max_vals = {"max": [],"min": []}
-		for layer in range(len(model.CNN_FEATURE_COUNT)):
-			min_max_vals["max"].append([float("-inf")] * model.CNN_FEATURE_COUNT[layer])
-			min_max_vals["min"].append([float("inf")] * model.CNN_FEATURE_COUNT[layer])
-	else:
-		f = np.load(os.path.join(iad_data_path, "min_maxes.npz"), allow_pickle=True)
-		min_max_vals = {"max": f["max"],"min": f["min"]}
+	p = Pool(num_procs)
 
-	#generate IADs
-	t_s = time.time()
-	convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path)
-	print("elapsed: ", time.time()-t_s)
+	inputs = []
+	chunk_size = len(csv_contents)/num_procs
+	for i in range(num_procs):
+		inputs.append(
+			(
+			csv_contents[i*chunk_size: i*chunk_size+chunk_size], 
+			model_type, 
+			model_filename, 
+			num_classes, 
+			max_length, 
+			feature_idx
+			)
+		)
+
+	p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
 	print("--------------")
@@ -158,6 +139,7 @@ if __name__ == '__main__':
 	parser.add_argument('--num_features', type=int, default=128, help='the number of features to retain')
 	parser.add_argument('--dtype', default="frames", help='run on RGB as opposed to flow data', choices=['frames', 'flow'])
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
+	parser.add_argument('--num_procs', default=1, type=int, help='number of process to split IAD generation over')
 
 	FLAGS = parser.parse_args()
 
@@ -176,6 +158,7 @@ if __name__ == '__main__':
 		FLAGS.num_features, 
 		FLAGS.dtype,
 		FLAGS.gpu,
+		FLAGS.num_procs,
 		)
 
 	
