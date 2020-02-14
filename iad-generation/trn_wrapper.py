@@ -144,6 +144,7 @@ class TRNBackBone(BackBone):
                   consensus_type=crop_fusion_type,
                   img_feature_dim=256
                   )
+        print(net.base_model)
 
         # load checkpoint file
         checkpoint = torch.load(this_weights)
