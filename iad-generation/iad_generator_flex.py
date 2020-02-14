@@ -25,6 +25,7 @@ def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 		csv_input['iad_path_'+str(layer)] = os.path.join(label_path, csv_input['example_id'])+"_"+str(layer)+".npz"
 
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
+		#print(data[layer].shape)
 
 		np.savez(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
 
@@ -47,17 +48,18 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 
 def convert_csv_chunk(inputs):
 	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
-	print([ex['example_id'] for ex in csv_contents])
+	#print([ex['example_id'] for ex in csv_contents])
 
 	#define the model
 	if(model_type == 'i3d'):
 		from i3d_wrapper import I3DBackBone as bb
+	if(model_type == 'trn'):
+		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
 	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
 	
 	#generate IADs
-
 	convert_dataset_to_iad(csv_contents, model, iad_data_path)
 
 def main(
@@ -76,7 +78,7 @@ def main(
 
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id or ex['dataset_id'] == 0]
-	#csv_contents = csv_contents[:23]
+	csv_contents = csv_contents[:5]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -114,7 +116,8 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	p.map(convert_csv_chunk, inputs)
+	convert_csv_chunk(inputs[0])
+	#p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
 	print("--------------")
@@ -131,7 +134,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Generate IADs from input files')
 
 	# model command line args
-	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'tsm'])
+	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'trn', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
 
 	# dataset command line args

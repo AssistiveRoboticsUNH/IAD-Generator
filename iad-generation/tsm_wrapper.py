@@ -135,7 +135,6 @@ class TSMBackBone(BackBone):
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
 
         # input variables
-        this_weights = checkpoint_file
         this_test_segments = self.max_length
         test_file = None
 
@@ -143,7 +142,7 @@ class TSMBackBone(BackBone):
         self.is_shift, shift_div, shift_place = True, 8, 'blockres'
 
         
-        self.arch = this_weights.split('TSM_')[1].split('_')[2]
+        self.arch = checkpoint_file.split('TSM_')[1].split('_')[2]
         modality = 'RGB'
         
 
@@ -158,11 +157,11 @@ class TSMBackBone(BackBone):
                   img_feature_dim=256,
                   pretrain='imagenet',
                   is_shift=self.is_shift, shift_div=shift_div, shift_place=shift_place,
-                  non_local='_nl' in this_weights,
+                  non_local='_nl' in checkpoint_file,
                   )
 
         # load checkpoint file
-        checkpoint = torch.load(this_weights)
+        checkpoint = torch.load(checkpoint_file)
 
         # add activation and ranking hooks
         self.activations = [None]*4
@@ -170,9 +169,9 @@ class TSMBackBone(BackBone):
         def activation_hook(idx):
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
-                activations = output.detach()
+                activation = output.detach()
                 
-                self.activations[idx] = activations
+                self.activations[idx] = activation
  
             return hook
 
