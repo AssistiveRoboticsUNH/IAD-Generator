@@ -205,7 +205,12 @@ class TRNBackBone(BackBone):
                 # Need to get rank information
                 layer.register_backward_hook(taylor_expansion_hook(idx))
 
-                
+        if(self.feature_idx != None):
+            # Need to shorten network so that base_model doesn't get to FC layers
+            net.base_model.fc = nn.Identity()
+            net.new_fc = nn.Identity()
+            net.consensus = nn.Identity()
+        print(net)        
 
 
         # Combine network together so that the it can have parameters set correctly
@@ -222,12 +227,7 @@ class TRNBackBone(BackBone):
 
         net.load_state_dict(base_dict)
 
-        if(self.feature_idx != None):
-            # Need to shorten network so that base_model doesn't get to FC layers
-            net.base_model.fc = nn.Identity()
-            net.new_fc = nn.Identity()
-            net.consensus = nn.Identity()
-        print(net)
+        
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
