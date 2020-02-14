@@ -44,28 +44,12 @@ def convert_to_iad(data, csv_input, update_min_maxes, min_max_vals, length_ratio
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 
 		np.savez(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
-'''
-def convert_to_iad_wrapper(x):
-	convert_to_iad(x.iad_data, x.csv_ex, x.update_min_maxes, x.min_max_vals, x.length_ratio, x.iad_data_path)
 
-class WrapperObject:
-	def __init__(self, iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path):
-		self.iad_data = iad_data
-		self.csv_ex = csv_ex
-		self.update_min_maxes = update_min_maxes
-		self.min_max_vals = min_max_vals
-		self.length_ratio = length_ratio
-		self.iad_data_path = iad_data_path
-'''
 def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
 
-	procs = 8
-	pool = Pool(processes=procs)  
-
-	'''
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
@@ -75,26 +59,6 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
 		convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
-		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
-		#pool.apply_async(convert_to_iad, (iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path, ))
-	'''
-	# process files
-	for i in range(0, len(csv_contents), procs):
-		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
-
-		# generate activation map
-		iad_data, length_ratio = model.process_batch(csv_contents[i:i+procs])
-
-		# write the am_layers to file and get the minimum and maximum values for each feature row
-		#convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
-		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
-		#iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path
-		#pool.map(convert_to_iad, zip(iad_data, length_ratio))
-
-
-
-
-
 
 	#save min_max_vals
 	if(update_min_maxes):
