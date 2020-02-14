@@ -78,7 +78,7 @@ def main(
 	if(model_type == 'i3d'):
 		from i3d_wrapper import I3DBackBone as bb
 	if(model_type == 'trn'):
-		from tsm_wrapper import TRNBackBone as bb
+		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper import TSMBackBone as bb
 	model = bb(model_filename, num_classes)
