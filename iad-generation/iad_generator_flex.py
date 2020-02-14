@@ -62,8 +62,10 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
 
-	pool = Pool(processes=8)  
+	procs = 8
+	pool = Pool(processes=procs)  
 
+	'''
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
@@ -75,6 +77,24 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 		convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
 		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
 		#pool.apply_async(convert_to_iad, (iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path, ))
+	'''
+	# process files
+	for i in range(0, len(csv_contents), procs):
+		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
+
+		# generate activation map
+		iad_data, length_ratio = model.process_batch(csv_ex, batch_size=procs)
+
+		# write the am_layers to file and get the minimum and maximum values for each feature row
+		#convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		#iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path
+		pool.map(convert_to_iad, zip(iad_data, length_ratio))
+
+
+
+
+
 
 	#save min_max_vals
 	if(update_min_maxes):
