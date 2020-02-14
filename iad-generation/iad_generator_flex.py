@@ -1,22 +1,17 @@
 # Madison Clark-Turner
 # iad_generator.py
-# 10/10/2019
+# 2/13/2019
 
 from csv_utils import read_csv
 from feature_rank_utils import get_top_n_feature_indexes
 import tf_utils
 
-#import c3d as model
-#import c3d_large as model
-
-#import i3d_wrapper as model
-
-
-
-import os, sys
+import os, sys, time
 
 import tensorflow as tf
 import numpy as np
+
+from multiprocessing import Pool
 
 batch_size = 1
 
@@ -49,11 +44,25 @@ def convert_to_iad(data, csv_input, update_min_maxes, min_max_vals, length_ratio
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 
 		np.savez(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
+'''
+def convert_to_iad_wrapper(x):
+	convert_to_iad(x.iad_data, x.csv_ex, x.update_min_maxes, x.min_max_vals, x.length_ratio, x.iad_data_path)
 
+class WrapperObject:
+	def __init__(self, iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path):
+		self.iad_data = iad_data
+		self.csv_ex = csv_ex
+		self.update_min_maxes = update_min_maxes
+		self.min_max_vals = min_max_vals
+		self.length_ratio = length_ratio
+		self.iad_data_path = iad_data_path
+'''
 def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
+
+	pool = Pool(processes=8)  
 
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
@@ -63,7 +72,9 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 		iad_data, length_ratio = model.process(csv_ex)
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
-		convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		#convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
+		pool.apply_async(convert_to_iad, (iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path, ))
 
 	#save min_max_vals
 	if(update_min_maxes):
@@ -127,7 +138,9 @@ def main(
 		min_max_vals = {"max": f["max"],"min": f["min"]}
 
 	#generate IADs
+	t_s = time.time()
 	convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path)
+	print("elapsed: ", time.time()-t_s)
 
 	#summarize operations
 	print("--------------")
