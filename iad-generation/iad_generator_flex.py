@@ -83,7 +83,7 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 		print("converting video to IAD: {:6d}/{:6d}".format(i, len(csv_contents)))
 
 		# generate activation map
-		iad_data, length_ratio = model.process_batch(csv_contents[i:i+procs], batch_size=procs)
+		iad_data, length_ratio = model.process_batch(csv_contents[i:i+procs])
 
 		# write the am_layers to file and get the minimum and maximum values for each feature row
 		#convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
