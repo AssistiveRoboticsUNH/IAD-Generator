@@ -76,6 +76,7 @@ def main(
 
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id or ex['dataset_id'] == 0]
+	csv_contents = csv_contents[:23]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
