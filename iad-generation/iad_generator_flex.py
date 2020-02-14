@@ -45,7 +45,8 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 
 		print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
 
-def convert_csv_chunk(csv_contents, model_type, model_filename, num_classes, max_length, feature_idx):
+def convert_csv_chunk(inputs):
+	csv_contents, model_type, model_filename, num_classes, max_length, feature_idx = inputs
 
 	#define the model
 	if(model_type == 'i3d'):
