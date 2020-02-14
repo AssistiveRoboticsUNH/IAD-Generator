@@ -89,7 +89,7 @@ def convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, 
 		#convert_to_iad(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
 		#x = WrapperObject(iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path)
 		#iad_data, csv_ex, update_min_maxes, min_max_vals, length_ratio, iad_data_path
-		pool.map(convert_to_iad, zip(iad_data, length_ratio))
+		#pool.map(convert_to_iad, zip(iad_data, length_ratio))
 
 
 
