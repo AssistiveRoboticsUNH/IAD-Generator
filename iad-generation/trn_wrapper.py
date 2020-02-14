@@ -139,12 +139,11 @@ class TRNBackBone(BackBone):
 
         modality = 'RGB'
         crop_fusion_type = 'TRNmultiscale'
-        net = TSN(self.num_classes, 25, modality,
+        net = TSN(self.num_classes, self.max_length, modality,
                   base_model=self.arch,
                   consensus_type=crop_fusion_type,
                   img_feature_dim=256
                   )
-        print(net.base_model)
 
         # load checkpoint file
         checkpoint = torch.load(this_weights)
