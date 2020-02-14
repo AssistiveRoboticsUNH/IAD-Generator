@@ -72,7 +72,7 @@ def main(
 	file_loc = 'frames' if dtype else 'flow'
 
 	raw_data_path = os.path.join(dataset_dir, file_loc)
-	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
+	iad_data_path = os.path.join(dataset_dir, 'iad_'+model_type+'_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
 	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:23]
