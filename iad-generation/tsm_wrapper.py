@@ -120,40 +120,6 @@ class TSMBackBone(BackBone):
 
         return self.activations, length_ratio
 
-    def process_batch(self, csv_inputs):
-
-        data_in = []
-        length_ratios = []
-
-        for csv_input in csv_inputs:
-            data_in.append(self.open_file(csv_input, batch_now=False))
-            length_ratios.append(csv_input['length']/float(self.max_length))
-        data_in = torch.stack(data_in)
-
-        # data has shape (batch size, segment length, num_ch, height, width)
-        # (6,8,3,256,256)
-
-        print("data_in:", data_in.shape)
-        
-        # pass data through network to obtain activation maps
-        # rst is not used and not need to store grads
-        with torch.no_grad():
-            rst = self.net(data_in)
-
-            for i in range(len(self.activations)):
-                # convert actvitaion from PyTorch to Numpy
-                self.activations[i] = self.activations[i].cpu().numpy()
-
-                # prune low-quality filters
-                self.activations[i] = self.activations[i][:, self.feature_idx[i], :, :]
-
-                # compress spatial dimensions
-                self.activations[i] = np.max(self.activations[i], axis=(2,3))
-                self.activations[i] = self.activations[i].T
-
-        return self.activations, length_ratios
-
-
     def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
         self.is_shift = None
         self.net = None

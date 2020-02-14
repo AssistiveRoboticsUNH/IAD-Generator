@@ -19,8 +19,6 @@ def convert_to_iad(data, csv_input, update_min_maxes, min_max_vals, length_ratio
 	#converts file to iad and extracts the max and min values for the given IAD
 
 	#update max and min values
-	#print(meta_data['dataset_id'])
-	#print(type(data[0]))
 	if(update_min_maxes and csv_input['dataset_id'] != 0):
 		for layer in range(len(data)):
 			local_max_values = np.max(data[layer], axis=1)
