@@ -95,11 +95,13 @@ def main(
 	p = Pool(num_procs)
 
 	inputs = []
-	chunk_size = len(csv_contents)/num_procs
-	for i in range(num_procs-1):
+	chunk_size = len(csv_contents)/float(num_procs)
+	last = 0.0
+
+	while last < len(csv_contents):
 		inputs.append(
 			(
-			csv_contents[i*chunk_size: i*chunk_size+chunk_size], 
+			csv_contents[int(last):int(last+chunk_size)], 
 			model_type, 
 			model_filename, 
 			iad_data_path,
@@ -108,17 +110,8 @@ def main(
 			feature_idx
 			)
 		)
-	inputs.append(
-			(
-			csv_contents[(num_procs-1)*chunk_size:], 
-			model_type, 
-			model_filename, 
-			iad_data_path,
-			num_classes, 
-			max_length, 
-			feature_idx
-			)
-		)
+		last += chunk_size
+
 
 	p.map(convert_csv_chunk, inputs)
 
