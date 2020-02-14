@@ -122,7 +122,7 @@ class TRNBackBone(BackBone):
 
         return self.activations, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
+    def __init__(self, checkpoint_file, num_classes, max_length=25, feature_idx=None):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -135,32 +135,13 @@ class TRNBackBone(BackBone):
         self.CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
+        #checkpoint_file = TRN_somethingv2_RGB_BNInception_TRNmultiscale_segment8_best.pth.tar
 
-        # input variables
-        this_weights = checkpoint_file
-        this_test_segments = self.max_length
-        test_file = None
-
-        #model variables
-        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
-
-        
-        self.arch = this_weights.split('TSM_')[1].split('_')[2]
-        modality = 'RGB'
-        
-
-        # dataset variables
-        num_class, train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2', modality)
-        print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
-
-        # define model
-        net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
+        crop_fusion_type = 'TRNmultiscale'
+        net = TSN(num_class, self.max_length, args.modality,
                   base_model=self.arch,
-                  consensus_type='avg',
+                  consensus_type=crop_fusion_type,
                   img_feature_dim=256,
-                  pretrain='imagenet',
-                  is_shift=self.is_shift, shift_div=shift_div, shift_place=shift_place,
-                  non_local='_nl' in this_weights,
                   )
 
         # load checkpoint file
