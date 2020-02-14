@@ -73,7 +73,7 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:20]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:23]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
