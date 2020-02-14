@@ -110,7 +110,7 @@ def main(
 		)
 	inputs.append(
 			(
-			csv_contents[(num_procs-1)*chunk_size+chunk_size:], 
+			csv_contents[(num_procs-1)*chunk_size:], 
 			model_type, 
 			model_filename, 
 			iad_data_path,
