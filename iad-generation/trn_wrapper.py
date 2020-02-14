@@ -36,8 +36,8 @@ class TRNBackBone(BackBone):
         # process the frames
         data = self.transform(data)
         if (batch_now):
-            return data.view(-1, self.max_length, 3, 256,256)
-        return data.view(self.max_length, 3, 256,256)
+            return data.view(-1, self.max_length, 3, 224,224)
+        return data.view(self.max_length, 3, 224,224)
 
 
     def open_file_as_batch(self, csv_input):
@@ -122,17 +122,17 @@ class TRNBackBone(BackBone):
 
         return self.activations, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes, max_length=25, feature_idx=None):
+    def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
         self.is_shift = None
         self.net = None
-        self.arch = None
+        self.arch = 'BNInception'
         self.num_classes = num_classes
         self.max_length = max_length
         self.feature_idx = feature_idx
 
         self.transform = None
 
-        self.CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
+        self.CNN_FEATURE_COUNT = [64, 192, 320, 608, 1024]
 
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
         #checkpoint_file = TRN_somethingv2_RGB_BNInception_TRNmultiscale_segment8_best.pth.tar
@@ -144,28 +144,44 @@ class TRNBackBone(BackBone):
                   consensus_type=crop_fusion_type,
                   img_feature_dim=256
                   )
-        print(net.base_model)
+
+        #print("children:", net.base_model.named_modules)
 
         # load checkpoint file
-        checkpoint = torch.load(this_weights)
+        checkpoint = torch.load(checkpoint_file)
 
         # add activation and ranking hooks
-        self.activations = [None]*4
-        self.ranks = [None]*4
+        num_layers_extracted = len(self.CNN_FEATURE_COUNT)
+
+
+
+        layers = [
+            net.base_model.pool1_3x3_s2,
+            net.base_model.pool2_3x3_s2,
+            net.base_model.inception_3c_pool,
+            net.base_model.inception_4e_pool,
+            net.base_model.inception_5b_pool,
+        ]
+
+        self.activations = []
+        self.ranks = []
+
         def activation_hook(idx):
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
-                activations = output.detach()
-                
-                self.activations[idx] = activations
+                activation = output.detach()
+                self.activations[idx] = activation
  
             return hook
 
         def taylor_expansion_hook(idx):
             def hook(model, input, output):
                 # perform taylor expansion
-                grad = input[0].detach()
+                grad = output[0].detach()
                 activation = self.activations[idx]
+
+                #print("activ: ", activation.shape)
+                #print("grad: ", grad.shape)
                 
                 # sum values together
                 values = torch.sum((activation * grad), dim = (0,2,3)).data
@@ -177,22 +193,21 @@ class TRNBackBone(BackBone):
 
             return hook
 
-        # Will always need the activations (whether for out or for ranking)
-        net.base_model.layer1.register_forward_hook(activation_hook(0))
-        net.base_model.layer2.register_forward_hook(activation_hook(1))
-        net.base_model.layer3.register_forward_hook(activation_hook(2))
-        net.base_model.layer4.register_forward_hook(activation_hook(3))
 
-        if(self.feature_idx == None):
-            # Need to get rank information
-            net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
-            net.base_model.layer2.register_backward_hook(taylor_expansion_hook(1))
-            net.base_model.layer3.register_backward_hook(taylor_expansion_hook(2))
-            net.base_model.layer4.register_backward_hook(taylor_expansion_hook(3))
-        else:
-            # Need to shorten network so that base_model doesn't get to FC layers
-            net.base_model.fc = nn.Identity()
-        
+
+        for idx, layer in enumerate(layers):
+            self.activations.append([])
+            self.ranks.append([])
+
+            # Will always need the activations (whether for out or for ranking)
+            layer.register_forward_hook(activation_hook(idx))
+            if(self.feature_idx == None):
+                # Need to get rank information
+                layer.register_backward_hook(taylor_expansion_hook(idx))
+
+                
+
+
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
         # the time to figure it out right now
@@ -206,17 +221,20 @@ class TRNBackBone(BackBone):
                 base_dict[v] = base_dict.pop(k)
 
         net.load_state_dict(base_dict)
+
+        if(self.feature_idx != None):
+            # Need to shorten network so that base_model doesn't get to FC layers
+            net.base_model.fc = nn.Identity()
+            net.new_fc = nn.Identity()
+            net.consensus = nn.Identity()
+        print(net)
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
-                           torchvision.transforms.Compose([
-                                GroupScale(net.scale_size),
-                                GroupCenterCrop(net.scale_size),
-                            ]),
-                           #torchvision.transforms.Compose([ GroupFullResSample(net.scale_size, net.scale_size, flip=False) ]),
-                           Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
-                           ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
-                           GroupNormalize(net.input_mean, net.input_std),
+                            GroupOverSample(224, net.scale_size),
+                            Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
+                            ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
+                            GroupNormalize(net.input_mean, net.input_std),
                            ])
 
         # place net onto GPU and finalize network
