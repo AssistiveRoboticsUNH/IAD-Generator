@@ -56,7 +56,7 @@ def convert_csv_chunk(inputs):
 	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
 	
 	#generate IADs
-	convert_dataset_to_iad(csv_contents, model, update_min_maxes, min_max_vals, iad_data_path)
+	convert_dataset_to_iad(csv_contents, model, iad_data_path)
 
 def main(
 	model_type, model_filename, 
@@ -116,7 +116,7 @@ def main(
 	print("Number of videos into IADs: {0}".format(len(csv_contents)))
 	print("IADs are padded/pruned to a length of: {0}".format(max_length))
 	print("Files place in: {0}".format(iad_data_path))
-	print("Min/Max File was Saved: {0}".format(update_min_maxes))
+	#print("Min/Max File was Saved: {0}".format(update_min_maxes))
 
 if __name__ == '__main__':
 	import argparse
