@@ -75,7 +75,7 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+model_type+'_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id][:23]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id or ex['dataset_id'] == 0]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -112,7 +112,7 @@ def main(
 		)
 		last += chunk_size
 
-
+	#convert files to IAD in parallel
 	p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
