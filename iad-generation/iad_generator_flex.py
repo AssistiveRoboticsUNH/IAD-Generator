@@ -47,6 +47,7 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 
 def convert_csv_chunk(inputs):
 	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
+	print([ex['example_id'] for ex in csv_contents])
 
 	#define the model
 	if(model_type == 'i3d'):
@@ -56,6 +57,7 @@ def convert_csv_chunk(inputs):
 	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
 	
 	#generate IADs
+
 	convert_dataset_to_iad(csv_contents, model, iad_data_path)
 
 def main(
@@ -94,10 +96,21 @@ def main(
 
 	inputs = []
 	chunk_size = len(csv_contents)/num_procs
-	for i in range(num_procs):
+	for i in range(num_procs-1):
 		inputs.append(
 			(
 			csv_contents[i*chunk_size: i*chunk_size+chunk_size], 
+			model_type, 
+			model_filename, 
+			iad_data_path,
+			num_classes, 
+			max_length, 
+			feature_idx
+			)
+		)
+	inputs.append(
+			(
+			csv_contents[(num_procs-1)*chunk_size+chunk_size:], 
 			model_type, 
 			model_filename, 
 			iad_data_path,
