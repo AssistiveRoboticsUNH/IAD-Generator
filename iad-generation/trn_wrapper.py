@@ -218,14 +218,23 @@ class TRNBackBone(BackBone):
         # the time to figure it out right now
         checkpoint = checkpoint['state_dict']
         base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint.items())}
+        '''
         replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
                         'base_model.classifier.bias': 'new_fc.bias',
                         }
         for k, v in replace_dict.items():
             if k in base_dict:
                 base_dict[v] = base_dict.pop(k)
+        '''
 
-        net.load_state_dict(base_dict)
+        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k in base_dict}
+        # 2. overwrite entries in the existing state dict
+        base_dict.update(pretrained_dict) 
+        # 3. load the new state dict
+        net.load_state_dict(pretrained_dict)
+
+
+        #net.load_state_dict(base_dict)
 
         
         
