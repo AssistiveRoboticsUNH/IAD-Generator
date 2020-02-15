@@ -9,6 +9,8 @@ from ops.models import TSN
 from ops.transforms import *
 from ops import dataset_config
 
+from gluon_i3d import i3d_resnet50_v1_sthsthv2 as model
+
 import numpy as np
 from PIL import Image
 
@@ -61,8 +63,9 @@ class I3DBackBone(BackBone):
         print("data_in:", data_in.shape)
         
         # predict value
-        with torch.no_grad():
-            return self.net(data_in)
+        #with torch.no_grad():
+        #    return self.net(data_in)
+        self.net.forward(is_train=False, data=data_in)
 
     def rank(self, csv_input):
 
@@ -120,7 +123,7 @@ class I3DBackBone(BackBone):
 
         return self.activations, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
+    def __init__(self, checkpoint_file, num_classes, max_length=1, feature_idx=None, gpu=0):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -180,75 +183,19 @@ class I3DBackBone(BackBone):
         # get data
         image_norm_mean = [0.485, 0.456, 0.406]
         image_norm_std = [0.229, 0.224, 0.225]
-        '''
-        if opt.ten_crop:
-            transform_test = transforms.Compose([
-                video.VideoTenCrop(opt.input_size),
-                video.VideoToTensor(),
-                video.VideoNormalize(image_norm_mean, image_norm_std)
-            ])
-            opt.num_crop = 10
-        elif opt.three_crop:
-            transform_test = transforms.Compose([
-                video.VideoThreeCrop(opt.input_size),
-                video.VideoToTensor(),
-                video.VideoNormalize(image_norm_mean, image_norm_std)
-            ])
-            opt.num_crop = 3
-        else:
-        '''
-        transform_test = video.VideoGroupValTransform(size=opt.input_size, mean=image_norm_mean, std=image_norm_std)
-        opt.num_crop = 1
-
-        #if not opt.deploy:
-        # get model
-        #if opt.use_pretrained and len(opt.hashtag) > 0:
-        #    opt.use_pretrained = opt.hashtag
-        classes = opt.num_classes
-        model_name = opt.model
-        # Currently, these is no hashtag for int8 models.
-        #if opt.quantized:
-        #    model_name += '_int8'
-        #    opt.use_pretrained = True
         
+        transform_test = video.VideoGroupValTransform(size=224, mean=image_norm_mean, std=image_norm_std)
+
         #net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
-        net = model(nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
+        net = model(nclass=self.num_classes, pretrained=True, num_segments=self.max_length, num_crop=1)
         
-        net.cast(opt.dtype)
-        net.collect_params().reset_ctx(context)
-        if opt.mode == 'hybrid':
-            net.hybridize(static_alloc=True, static_shape=True)
-        if opt.resume_params is not '' and not opt.use_pretrained:
-            net.load_parameters(opt.resume_params, ctx=context)
-            print('Pre-trained model %s is successfully loaded.' % (opt.resume_params))
-        else:
-            print('Pre-trained model is successfully loaded from the model zoo.')
-        '''
-        else:
-            model_name = 'deploy'
-            net = mx.gluon.SymbolBlock.imports('{}-symbol.json'.format(opt.model_prefix),
-                        ['data'], '{}-0000.params'.format(opt.model_prefix))
-            net.hybridize(static_alloc=True, static_shape=True)
-        '''
-        print("Successfully loaded model {}".format(model_name))
+        net.cast('float32')
+        net.collect_params().reset_ctx([mx.gpu(gpu)])
 
+        net.hybridize(static_alloc=True, static_shape=True)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # load checkpoint file
-        checkpoint = torch.load(this_weights)
+        print('Pre-trained model is successfully loaded from the model zoo.')
+        
 
         # add activation and ranking hooks
         self.activations = [None]*4
