@@ -229,7 +229,7 @@ class TRNBackBone(BackBone):
 
         pretrained_dict = {k: v for k, v in base_dict.items() if k in net.state_dict()}
         # 2. overwrite entries in the existing state dict
-        model.state_dict().update(pretrained_dict) 
+        net.state_dict().update(pretrained_dict) 
         # 3. load the new state dict
         net.load_state_dict(pretrained_dict)
 
