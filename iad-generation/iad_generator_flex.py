@@ -52,7 +52,7 @@ def convert_csv_chunk(inputs):
 
 	#define the model
 	if(model_type == 'i3d'):
-		from i3d_wrapper import I3DBackBone as bb
+		from gi3d_wrapper import I3DBackBone as bb
 	if(model_type == 'trn'):
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
@@ -77,18 +77,22 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+model_type+'_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] == dataset_id or ex['dataset_id'] == 0]
-	csv_contents = csv_contents[:5]
+	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
+	csv_contents = csv_contents[:50]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
 	max_frame_length = 0
 	for ex in csv_contents:
+
+		print(ex['example_id'])
+
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
 		ex['raw_path'] = os.path.join(raw_data_path, file_location)
 
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
+	return
 
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
@@ -116,8 +120,8 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	convert_csv_chunk(inputs[0])
-	#p.map(convert_csv_chunk, inputs)
+	#convert_csv_chunk(inputs[0])
+	p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
 	print("--------------")

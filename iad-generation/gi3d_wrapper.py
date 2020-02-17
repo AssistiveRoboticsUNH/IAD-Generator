@@ -1,18 +1,37 @@
 from backbone_wrapper import BackBone
 
 import sys, os
-sys.path.append("/home/mbc2004/temporal-shift-module")
-
+sys.path.append("/home/mbc2004/gluon")
+'''
 import torch.nn as nn
 from ops.dataset import TSNDataSet
 from ops.models import TSN
 from ops.transforms import *
 from ops import dataset_config
+'''
+import cv2
+import numpy as np
+import mxnet as mx
+import mxnet.ndarray as F
+import gluoncv as gcv
+gcv.utils.check_version('0.6.0')
+from mxnet import gluon, nd, gpu, init, context
+from mxnet import autograd as ag
+from mxnet.gluon import nn
+from mxnet.gluon.data.vision import transforms
+from mxnet.contrib.quantization import *
 
+from gluoncv.data.transforms import video
+from gluoncv.data import UCF101, Kinetics400, SomethingSomethingV2, HMDB51
+#from gluoncv.model_zoo import get_model
 from gluon_i3d import i3d_resnet50_v1_sthsthv2 as model
+from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
+
 
 import numpy as np
 from PIL import Image
+
+depth_size = 5
 
 class I3DBackBone(BackBone):
          
@@ -28,16 +47,50 @@ class I3DBackBone(BackBone):
         for i in range(self.max_length):
             frame = start_idx+i
             if(frame < len(files)): 
-                data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
+                data.append( cv2.imread(os.path.join(folder_name, files[frame])) ) 
             else:
                 # fill out rest of video with blank data
-                data.append( Image.new('RGB', (data[0].width, data[0].height)) )
+                data.append( np.zeros_like(data[0], np.uint8) )
 
         # process the frames
         data = self.transform(data)
+        print("data:", data[0].shape)
         if (batch_now):
-            return data.view(-1, self.max_length, 3, 256,256)
-        return data.view(self.max_length, 3, 256,256)
+            return np.array(data).reshape(-1, self.max_length, 3, 224,224)
+        return np.array(data).reshape(self.max_length, 3, 224,224)
+
+
+
+
+
+        '''
+        def _image_TSN_cv2_loader(self, directory, duration, indices, skip_offsets):
+        sampled_list = []
+        for seg_ind in indices:
+            offset = int(seg_ind)
+            for i, _ in enumerate(range(0, self.skip_length, self.new_step)):
+                if offset + skip_offsets[i] <= duration:
+                    frame_path = os.path.join(directory, self.name_pattern % (offset + skip_offsets[i]))
+                else:
+                    frame_path = os.path.join(directory, self.name_pattern % (offset))
+                cv_img = self.cv2.imread(frame_path)
+                if cv_img is None:
+                    raise(RuntimeError("Could not load file %s starting at frame %d. Check data path." % (frame_path, offset)))
+                if self.new_width > 0 and self.new_height > 0:
+                    h, w, _ = cv_img.shape
+                    if h != self.new_height or w != self.new_width:
+                        cv_img = self.cv2.resize(cv_img, (self.new_width, self.new_height))
+                cv_img = cv_img[:, :, ::-1]
+                sampled_list.append(cv_img)
+                if offset + self.new_step < duration:
+                    offset += self.new_step
+        return sampled_list
+        '''
+
+
+
+
+
 
 
     def open_file_as_batch(self, csv_input):
@@ -55,7 +108,7 @@ class I3DBackBone(BackBone):
 
     def predict(self, csv_input):
 
-        data_in = self.open_file_as_batch(csv_input)
+        #data_in = self.open_file_as_batch(csv_input)
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
@@ -85,7 +138,7 @@ class I3DBackBone(BackBone):
             rst = self.net(data_in)
 
             # compute gradient and do SGD step
-            self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
+            #self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
 
             for j, rd in enumerate(self.ranks):
                 if(i == 0):
@@ -107,6 +160,8 @@ class I3DBackBone(BackBone):
         
         # pass data through network to obtain activation maps
         # rst is not used and not need to store grads
+
+        '''
         with torch.no_grad():
             rst = self.net(data_in)
 
@@ -120,7 +175,7 @@ class I3DBackBone(BackBone):
                 # compress spatial dimensions
                 self.activations[i] = np.max(self.activations[i], axis=(2,3))
                 self.activations[i] = self.activations[i].T
-
+		'''
         return self.activations, length_ratio
 
     def __init__(self, checkpoint_file, num_classes, max_length=1, feature_idx=None, gpu=0):
@@ -138,21 +193,21 @@ class I3DBackBone(BackBone):
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
 
         # input variables
-        this_weights = checkpoint_file
-        this_test_segments = self.max_length
-        test_file = None
+        #this_weights = checkpoint_file
+        #this_test_segments = self.max_length
+        #test_file = None
 
         #model variables
-        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
+        #self.is_shift, shift_div, shift_place = True, 8, 'blockres'
 
         
-        self.arch = this_weights.split('TSM_')[1].split('_')[2]
+        #self.arch = this_weights.split('TSM_')[1].split('_')[2]
         modality = 'RGB'
         
 
         # dataset variables
-        num_class, train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2', modality)
-        print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
+        #num_class, train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2', modality)
+        #print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
 
         # define model
         
@@ -184,7 +239,7 @@ class I3DBackBone(BackBone):
         image_norm_mean = [0.485, 0.456, 0.406]
         image_norm_std = [0.229, 0.224, 0.225]
         
-        transform_test = video.VideoGroupValTransform(size=224, mean=image_norm_mean, std=image_norm_std)
+        self.transform = video.VideoGroupValTransform(size=224, mean=image_norm_mean, std=image_norm_std)
 
         #net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
         net = model(nclass=self.num_classes, pretrained=True, num_segments=self.max_length, num_crop=1)
@@ -196,7 +251,7 @@ class I3DBackBone(BackBone):
 
         print('Pre-trained model is successfully loaded from the model zoo.')
         
-
+        '''
         # add activation and ranking hooks
         self.activations = [None]*4
         self.ranks = [None]*4
@@ -270,10 +325,10 @@ class I3DBackBone(BackBone):
         # place net onto GPU and finalize network
         net = torch.nn.DataParallel(net.cuda())
         net.eval()
-
+		'''
         # network variable
         self.net = net
 
         # loss variable (used for generating gradients when ranking)
-        if(self.feature_idx == None):
-            self.loss = torch.nn.CrossEntropyLoss().cuda()
+        #if(self.feature_idx == None):
+        #    self.loss = torch.nn.CrossEntropyLoss().cuda()

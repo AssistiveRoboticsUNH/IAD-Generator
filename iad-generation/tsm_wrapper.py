@@ -12,6 +12,8 @@ from ops import dataset_config
 import numpy as np
 from PIL import Image
 
+depth_size = 4
+
 class TSMBackBone(BackBone):
          
     def open_file(self, csv_input, start_idx=0, batch_now=True):
