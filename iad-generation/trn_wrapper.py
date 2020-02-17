@@ -33,10 +33,12 @@ class TRNBackBone(BackBone):
                 # fill out rest of video with blank data
                 data.append( Image.new('RGB', (data[0].width, data[0].height)) )
 
+        print(len(data))
+
         # process the frames
         data = self.transform(data)
         if (batch_now):
-            return data.view(-1, self.max_length, 3, 224,224)
+            return data.view(self.max_length, -1, 3, 224,224)
         return data.view(self.max_length, 3, 224,224)
 
 
@@ -139,7 +141,7 @@ class TRNBackBone(BackBone):
 
         modality = 'RGB'
         crop_fusion_type = 'TRNmultiscale'
-        net = TSN(self.num_classes, self.max_length, modality,
+        net = TSN(self.num_classes, 1, modality,
                   base_model=self.arch,
                   consensus_type=crop_fusion_type,
                   img_feature_dim=256
@@ -240,7 +242,12 @@ class TRNBackBone(BackBone):
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
-                            GroupOverSample(224, net.scale_size),
+                            torchvision.transforms.Compose([
+                                GroupScale(224),
+                                GroupCenterCrop(224),
+                            ]),
+
+                            #GroupOverSample(224, net.scale_size),
                             Stack(roll=(self.arch in ['BNInception', 'InceptionV3'])),
                             ToTorchFormatTensor(div=(self.arch not in ['BNInception', 'InceptionV3'])),
                             GroupNormalize(net.input_mean, net.input_std),
