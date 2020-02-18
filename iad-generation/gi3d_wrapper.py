@@ -60,7 +60,8 @@ class I3DBackBone(BackBone):
         if (batch_now):
             out = data.reshape(-1, self.max_length, 3, 224,224)
             out =  np.transpose(out, [0,2,1,3,4])
-            return mx.ndarray.array(out).gpu(0)
+
+            return mx.ndarray.array(out).copyto(self.ctx) 
         out = data.reshape(self.max_length, 3, 224,224)
         return np.transpose(out, [1,0,2,3])
 
@@ -251,7 +252,8 @@ class I3DBackBone(BackBone):
         net = model(nclass=self.num_classes, pretrained=True, num_segments=self.max_length, num_crop=1)
         
         net.cast('float32')
-        net.collect_params().reset_ctx([mx.gpu(gpu)])
+        self.ctx = [mx.gpu(gpu)]
+        net.collect_params().reset_ctx(self.ctx)
 
         net.hybridize(static_alloc=True, static_shape=True)
 
