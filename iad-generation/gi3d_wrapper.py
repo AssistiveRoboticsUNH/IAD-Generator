@@ -60,7 +60,7 @@ class I3DBackBone(BackBone):
         if (batch_now):
             out = data.reshape(-1, self.max_length, 3, 224,224)
             out =  np.transpose(out, [0,2,1,3,4])
-            return mx.ndarray.array(out)
+            return mx.ndarray.array(out).gpu(0)
         out = data.reshape(self.max_length, 3, 224,224)
         return np.transpose(out, [1,0,2,3])
 
