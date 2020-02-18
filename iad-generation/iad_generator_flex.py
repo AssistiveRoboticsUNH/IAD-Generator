@@ -66,7 +66,7 @@ def main(
 	model_type, model_filename, 
 	dataset_dir, csv_filename, num_classes, dataset_id, 
 	feature_rank_file, max_length, 
-	num_features, dtype, gpu, num_procs, single
+	num_features=128, dtype="frames", gpu=0, num_procs=1, single=""
 	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -82,7 +82,7 @@ def main(
 		csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
 	else:
 		csv_contents = [ex for ex in csv_contents if ex['label_name'] in single and ex['exampl_id'] in single]
-		
+
 	#csv_contents = csv_contents[:50]
 
 	# get the maximum frame length among the dataset and add the 
@@ -163,44 +163,23 @@ if __name__ == '__main__':
 
 	FLAGS = parser.parse_args()
 
-	if(FLAGS.single != ""):
-		main(
-			FLAGS.model_type, 
-			FLAGS.model_filename,
+	main(
+		FLAGS.model_type, 
+		FLAGS.model_filename,
 
-			FLAGS.dataset_dir, 
-			FLAGS.csv_filename, 
-			FLAGS.num_classes,
-			FLAGS.dataset_id,
+		FLAGS.dataset_dir, 
+		FLAGS.csv_filename, 
+		FLAGS.num_classes,
+		FLAGS.dataset_id,
 
-			FLAGS.feature_rank_file,
-			FLAGS.max_length,
+		FLAGS.feature_rank_file,
+		FLAGS.max_length,
 
-			FLAGS.num_features, 
-			FLAGS.dtype,
-			FLAGS.gpu,
-			FLAGS.num_procs,
-			)
-	else:
-		single(
-			FLAGS.model_type, 
-			FLAGS.model_filename,
-
-			FLAGS.dataset_dir, 
-			FLAGS.csv_filename, 
-			FLAGS.num_classes,
-			FLAGS.dataset_id,
-
-			FLAGS.feature_rank_file,
-			FLAGS.max_length,
-
-			FLAGS.num_features, 
-			FLAGS.dtype,
-			FLAGS.gpu,
-			FLAGS.num_procs,
-			FLAGS.single
-			)
-
-
-
+		FLAGS.num_features, 
+		FLAGS.dtype,
+		FLAGS.gpu,
+		FLAGS.num_procs,
+		FLAGS.single,
+		)
+	
 	
