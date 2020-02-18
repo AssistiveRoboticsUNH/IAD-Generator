@@ -9,5 +9,5 @@ python iad_generator_flex.py \
 	1 \
 	~/datasets/Something-Something/iad_tsm_frames_1/feature_ranks_1.npz  \
 	100 \
-	--num_procs=4 \
+	--num_procs=1 \
 	--single=~/datasets/Something-Something/frames/48200
