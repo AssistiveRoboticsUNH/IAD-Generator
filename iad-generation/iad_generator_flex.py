@@ -81,9 +81,7 @@ def main(
 	if(single == ""):
 		csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
 	else:
-		single_s = single.split('/')
-		single_label_name, single_id = single_s[-2], single_s[-1]
-		csv_contents = [ex for ex in csv_contents if ex['label_name'] == single_label_name and ex['example_id'] == single_id]
+		csv_contents = [ex for ex in csv_contents if ex['example_id'] == single]
 	print([ex["example_id"] for ex in csv_contents])
 	#csv_contents = csv_contents[:50]
 
