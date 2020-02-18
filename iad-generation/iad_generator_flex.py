@@ -66,7 +66,7 @@ def main(
 	model_type, model_filename, 
 	dataset_dir, csv_filename, num_classes, dataset_id, 
 	feature_rank_file, max_length, 
-	num_features, dtype, gpu, num_procs
+	num_features, dtype, gpu, num_procs, single
 	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -77,22 +77,24 @@ def main(
 	iad_data_path = os.path.join(dataset_dir, 'iad_'+model_type+'_'+file_loc+'_'+str(dataset_id))
 
 	csv_contents = read_csv(csv_filename)
-	csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
-	csv_contents = csv_contents[:50]
+	
+	if(single == ""):
+		csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
+	else:
+		csv_contents = [ex for ex in csv_contents if ex['label_name'] in single and ex['exampl_id'] in single]
+		
+	#csv_contents = csv_contents[:50]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
 	max_frame_length = 0
 	for ex in csv_contents:
 
-		print(ex['example_id'])
-
 		file_location = os.path.join(ex['label_name'], ex['example_id'])
 		ex['raw_path'] = os.path.join(raw_data_path, file_location)
 
 		if(ex['length'] > max_frame_length):
 			max_frame_length = ex['length']
-	return
 
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
@@ -156,25 +158,49 @@ if __name__ == '__main__':
 	parser.add_argument('--dtype', default="frames", help='run on RGB as opposed to flow data', choices=['frames', 'flow'])
 	parser.add_argument('--gpu', default="0", help='gpu to run on')
 	parser.add_argument('--num_procs', default=1, type=int, help='number of process to split IAD generation over')
+	parser.add_argument('--single', default="", help='process a singular file at given path')
+
 
 	FLAGS = parser.parse_args()
 
-	main(
-		FLAGS.model_type, 
-		FLAGS.model_filename,
+	if(FLAGS.single != ""):
+		main(
+			FLAGS.model_type, 
+			FLAGS.model_filename,
 
-		FLAGS.dataset_dir, 
-		FLAGS.csv_filename, 
-		FLAGS.num_classes,
-		FLAGS.dataset_id,
+			FLAGS.dataset_dir, 
+			FLAGS.csv_filename, 
+			FLAGS.num_classes,
+			FLAGS.dataset_id,
 
-		FLAGS.feature_rank_file,
-		FLAGS.max_length,
+			FLAGS.feature_rank_file,
+			FLAGS.max_length,
 
-		FLAGS.num_features, 
-		FLAGS.dtype,
-		FLAGS.gpu,
-		FLAGS.num_procs,
-		)
+			FLAGS.num_features, 
+			FLAGS.dtype,
+			FLAGS.gpu,
+			FLAGS.num_procs,
+			)
+	else:
+		single(
+			FLAGS.model_type, 
+			FLAGS.model_filename,
+
+			FLAGS.dataset_dir, 
+			FLAGS.csv_filename, 
+			FLAGS.num_classes,
+			FLAGS.dataset_id,
+
+			FLAGS.feature_rank_file,
+			FLAGS.max_length,
+
+			FLAGS.num_features, 
+			FLAGS.dtype,
+			FLAGS.gpu,
+			FLAGS.num_procs,
+			FLAGS.single
+			)
+
+
 
 	
