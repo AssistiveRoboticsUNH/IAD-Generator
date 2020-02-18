@@ -185,7 +185,7 @@ class I3DBackBone(BackBone):
 		'''
         return self.activations, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes, max_length=1, feature_idx=None, gpu=0):
+    def __init__(self, checkpoint_file, num_classes, max_length=16, feature_idx=None, gpu=0):
         self.is_shift = None
         self.net = None
         self.arch = None
