@@ -55,6 +55,8 @@ class I3DBackBone(BackBone):
         # process the frames
         data = self.transform(data)
         print("data:", data[0].shape)
+
+        data = data.astype(np.float32, copy=False)
         if (batch_now):
             out = np.array(data).reshape(-1, self.max_length, 3, 224,224)
             return np.transpose(out, [0,2,1,3,4])
