@@ -74,7 +74,7 @@ def main(
 	file_loc = 'frames' if dtype else 'flow'
 
 	raw_data_path = os.path.join(dataset_dir, file_loc)
-	iad_data_path = os.path.join(dataset_dir, 'iad_'+model_type+'_'+file_loc+'_'+str(dataset_id))
+	iad_data_path = os.path.join(dataset_dir, 'iad_{0}_{1}_{2}'.format(model_type,file_loc,dataset_id))
 
 	csv_contents = read_csv(csv_filename)
 	
@@ -82,7 +82,7 @@ def main(
 		csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
 	else:
 		csv_contents = [ex for ex in csv_contents if ex['label_name'] in single and ex['example_id'] in single]
-
+	print([ex["example_id"] for ex in csv_contents])
 	#csv_contents = csv_contents[:50]
 
 	# get the maximum frame length among the dataset and add the 
