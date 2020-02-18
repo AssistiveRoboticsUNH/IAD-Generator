@@ -131,10 +131,11 @@ class I3DBackBone(BackBone):
             # data has shape (batch size, segment length, num_ch, height, width)
             # (6,8,3,256,256)
 
-            #print("data_in:", data_in.shape)
+            print("data_in:", data_in.shape)
             
             # pass data through network to obtain activation maps
             # do need grads for taylor expansion
+
             rst = self.net(data_in)
 
             # compute gradient and do SGD step
