@@ -56,8 +56,10 @@ class I3DBackBone(BackBone):
         data = self.transform(data)
         print("data:", data[0].shape)
         if (batch_now):
-            return np.array(data).reshape(-1, self.max_length, 3, 224,224)
-        return np.array(data).reshape(self.max_length, 3, 224,224)
+            out = np.array(data).reshape(-1, self.max_length, 3, 224,224)
+            return np.transpose(out, [0,2,1,3,4])
+        out = np.array(data).reshape(self.max_length, 3, 224,224)
+        return np.transpose(out, [1,0,2,3])
 
 
 
