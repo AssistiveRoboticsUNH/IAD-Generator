@@ -82,8 +82,8 @@ def main(
 		csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
 	else:
 		csv_contents = [ex for ex in csv_contents if ex['example_id'] == single]
-	print([ex["example_id"] for ex in csv_contents])
-	#csv_contents = csv_contents[:50]
+	#print([ex["example_id"] for ex in csv_contents])
+	csv_contents = csv_contents[:50]
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
@@ -122,8 +122,8 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	#convert_csv_chunk(inputs[0])
-	p.map(convert_csv_chunk, inputs)
+	convert_csv_chunk(inputs[0])
+	#p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
 	print("--------------")

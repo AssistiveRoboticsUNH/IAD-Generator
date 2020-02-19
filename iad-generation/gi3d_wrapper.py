@@ -69,34 +69,6 @@ class I3DBackBone(BackBone):
 
 
 
-        '''
-        def _image_TSN_cv2_loader(self, directory, duration, indices, skip_offsets):
-        sampled_list = []
-        for seg_ind in indices:
-            offset = int(seg_ind)
-            for i, _ in enumerate(range(0, self.skip_length, self.new_step)):
-                if offset + skip_offsets[i] <= duration:
-                    frame_path = os.path.join(directory, self.name_pattern % (offset + skip_offsets[i]))
-                else:
-                    frame_path = os.path.join(directory, self.name_pattern % (offset))
-                cv_img = self.cv2.imread(frame_path)
-                if cv_img is None:
-                    raise(RuntimeError("Could not load file %s starting at frame %d. Check data path." % (frame_path, offset)))
-                if self.new_width > 0 and self.new_height > 0:
-                    h, w, _ = cv_img.shape
-                    if h != self.new_height or w != self.new_width:
-                        cv_img = self.cv2.resize(cv_img, (self.new_width, self.new_height))
-                cv_img = cv_img[:, :, ::-1]
-                sampled_list.append(cv_img)
-                if offset + self.new_step < duration:
-                    offset += self.new_step
-        return sampled_list
-        '''
-
-
-
-
-
 
 
     def open_file_as_batch(self, csv_input):
@@ -129,6 +101,7 @@ class I3DBackBone(BackBone):
     def rank(self, csv_input):
 
         summed_ranks = []
+        L = gluon.loss.SoftmaxCrossEntropyLoss()
 
         end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
         for i in range(0, end_frame, 4):
@@ -142,11 +115,34 @@ class I3DBackBone(BackBone):
             # pass data through network to obtain activation maps
             # do need grads for taylor expansion
 
+            #self.monitor.tic()
+
+
+            #print(self.net.res_layers.get_outputs()) 
+
+
+
+
+
+
+
+
             rst = self.net(data_in)
+            #rst = var(data_in)
+
+
+            print("rst", rst)
+
+            #print("toc print")
+            #self.monitor.toc_print()
+
+            #label = mx.ndarray.array([csv_input['label']]).copyto(self.ctx) 
+            #loss = L(rst, label) 
 
             # compute gradient and do SGD step
             #self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
 
+            '''
             for j, rd in enumerate(self.ranks):
                 if(i == 0):
                     summed_ranks.append(rd)
@@ -154,6 +150,7 @@ class I3DBackBone(BackBone):
                     summed_ranks[j] = np.add(summed_ranks[j], rd)
 
         return summed_ranks
+            '''
 
     def process(self, csv_input):
 
@@ -182,7 +179,7 @@ class I3DBackBone(BackBone):
                 # compress spatial dimensions
                 self.activations[i] = np.max(self.activations[i], axis=(2,3))
                 self.activations[i] = self.activations[i].T
-		'''
+        '''
         return self.activations, length_ratio
 
     def __init__(self, checkpoint_file, num_classes, max_length=16, feature_idx=None, gpu=0):
@@ -247,18 +244,100 @@ class I3DBackBone(BackBone):
         image_norm_std = [0.229, 0.224, 0.225]
         
         self.transform = video.VideoGroupValTransform(size=224, mean=image_norm_mean, std=image_norm_std)
+        self.ctx = mx.gpu(gpu)
 
+
+
+
+
+        """
         #net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
-        net = model(nclass=self.num_classes, pretrained=True, num_segments=self.max_length, num_crop=1)
+        net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1)
         
         net.cast('float32')
-        self.ctx = mx.gpu(gpu)
         net.collect_params().reset_ctx([self.ctx])
 
         net.hybridize(static_alloc=True, static_shape=True)
+        """
 
-        print('Pre-trained model is successfully loaded from the model zoo.')
-        
+        """
+
+
+        #print(net.res_layers)
+        #print('---------')
+        print(net.res_layers[0][2].bottleneck[0])
+
+        self.monitor = mx.monitor.Monitor(1, pattern=".*", sort=True)
+        #net.install_monitor(self.monitor)
+
+        layers = [
+            net.res_layers[0][2].bottleneck[0],
+            #net.res_layers[1][3].bottleneck,
+            #net.res_layers[2][5].bottleneck,
+            #net.res_layers[3][2].bottleneck,
+        ]
+
+        self.activations = []
+        self.ranks = []
+
+        def activation_hook(idx):
+            print("add hook:")
+
+            def hook(model, input, output):
+                #prune features and only get those we are investigating 
+                #activation = output.detach()
+                #print("activation:", activation.shape)
+                #self.activations[idx] = activation
+                print("in_function", input, output)
+ 
+            return hook
+
+        def taylor_expansion_hook(idx):
+            def hook(model, input, output):
+                # perform taylor expansion
+                grad = output[0].detach()
+                activation = self.activations[idx]
+
+                #print("activ: ", activation.shape)
+                #print("grad: ", grad.shape)
+                
+                # sum values together
+                values = torch.sum((activation * grad), dim = (0,2,3)).data
+
+                # Normalize the rank by the filter dimensions
+                values = values / (activation.size(0) * activation.size(2) * activation.size(3))
+
+                self.ranks[idx] = values.cpu().numpy()
+
+            return hook
+
+
+
+
+        for idx, layer in enumerate(layers):
+            self.activations.append([])
+            self.ranks.append([])
+
+            # Will always need the activations (whether for out or for ranking)
+            #layer.register_forward_hook(activation_hook(idx))
+            print(layer)
+            #if(self.feature_idx == None):
+                # Need to get rank information
+                #layer.register_backward_hook(taylor_expansion_hook(idx))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         '''
         # add activation and ranking hooks
         self.activations = [None]*4
@@ -333,10 +412,22 @@ class I3DBackBone(BackBone):
         # place net onto GPU and finalize network
         net = torch.nn.DataParallel(net.cuda())
         net.eval()
-		'''
+        '''
         # network variable
         self.net = net
 
         # loss variable (used for generating gradients when ranking)
         #if(self.feature_idx == None):
         #    self.loss = torch.nn.CrossEntropyLoss().cuda()
+        """
+
+
+        path = "/home/mbc2004/gluon/"
+        net = gluon.nn.SymbolBlock.imports(path+"gluon_i3d-symbol.json", ['data'], path+"gluon_i3d-0000.params", ctx=self.ctx)
+
+        all_layers = net.get_internals()
+        all_layers.list_outputs()
+
+        print(all_layers)
+
+        self.net = net
