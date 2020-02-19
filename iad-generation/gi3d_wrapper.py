@@ -425,8 +425,12 @@ class I3DBackBone(BackBone):
         path = "/home/mbc2004/gluon/"
         net = gluon.nn.SymbolBlock.imports(path+"gluon_i3d-symbol.json", ['data'], path+"gluon_i3d-0000.params", ctx=self.ctx)
 
-        all_layers = net.get_internals()
-        all_layers.list_outputs()
+        all_layers = net.symbol.get_internals()
+        
+        self.output_layer_you_want = all_layers['output_layer_name']
+
+        #new_model = mx.model.create()  # use this api, pass necessary symbol(the output_layer_you_want and aug_param, etc)
+        #new_model.predict()
 
         print(all_layers)
 
