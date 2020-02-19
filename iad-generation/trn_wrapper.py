@@ -78,7 +78,7 @@ class TRNBackBone(BackBone):
         for i in range(0, end_frame, self.max_length/2):
             data_in = self.open_file(csv_input, start_idx = i)#self.open_file_as_batch(csv_input)
 
-            data.view( -1, self.max_length, 3, 224,224)
+            data_in.view( -1, self.max_length, 3, 224,224)
 
             # data has shape (batch size, segment length, num_ch, height, width)
             # (6,8,3,256,256)
