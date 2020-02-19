@@ -75,7 +75,7 @@ class TRNBackBone(BackBone):
         summed_ranks = []
 
         end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
-        for i in range(0, end_frame, 4):
+        for i in range(0, end_frame, self.max_lengt/2):
             data_in = self.open_file(csv_input, start_idx = i)#self.open_file_as_batch(csv_input)
 
             # data has shape (batch size, segment length, num_ch, height, width)
@@ -143,7 +143,12 @@ class TRNBackBone(BackBone):
 
         modality = 'RGB'
         crop_fusion_type = 'TRNmultiscale'
-        net = TSN(self.num_classes, 1, modality,
+
+        num_segments = self.max_length
+        if(self.feature_idx != None):
+            num_segments = 1
+
+        net = TSN(self.num_classes, num_segments, modality,
                   base_model=self.arch,
                   consensus_type=crop_fusion_type,
                   img_feature_dim=256
