@@ -35,7 +35,7 @@ class TRNBackBone(BackBone):
                 # fill out rest of video with blank data
                 data.append( Image.new('RGB', (data[0].width, data[0].height)) )
 
-        print(len(data))
+        #print(len(data))
 
         # process the frames
         data = self.transform(data)
@@ -83,7 +83,7 @@ class TRNBackBone(BackBone):
             # data has shape (batch size, segment length, num_ch, height, width)
             # (6,8,3,256,256)
 
-            print("data_in:", data_in.shape)
+            #print("data_in:", data_in.shape)
             
             # pass data through network to obtain activation maps
             # do need grads for taylor expansion
