@@ -126,8 +126,8 @@ class I3DBackBone(BackBone):
 
 
 
-
-            rst = self.net(data_in)
+            rst = self.output_layer_you_want(data_in)
+            #rst = self.net(data_in)
             #rst = var(data_in)
 
 
