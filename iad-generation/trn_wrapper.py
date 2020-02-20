@@ -40,7 +40,7 @@ class TRNBackBone(BackBone):
         files = os.listdir(folder_name)
 
         tick = len(files) / float(self.max_length)
-        idx = list(np.linspace(tick/2, len(self.max_length) - (tick/2), self.max_length))
+        idx = list(np.linspace(tick/2, self.max_length - (tick/2), self.max_length))
         
         data = []
         for frame in idx:
