@@ -110,14 +110,14 @@ class TRNBackBone(BackBone):
 
         # compute gradient and do SGD step
         self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
-
+        '''
         for j, rd in enumerate(self.ranks):
             if(i == 0):
                 summed_ranks.append(rd)
             else:
                 summed_ranks[j] = np.add(summed_ranks[j], rd)
-
-        return summed_ranks
+        '''
+        return rd
         '''
         summed_ranks = []
 
