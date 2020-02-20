@@ -1,7 +1,7 @@
 from backbone_wrapper import BackBone
 
 import sys, os
-sys.path.append("/home/mbc2004/temporal-shift-module")
+sys.path.append("/home/mbc2004/cpnet")
 
 import torch.nn as nn
 from ops.dataset import TSNDataSet

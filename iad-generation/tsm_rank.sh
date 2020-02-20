@@ -5,4 +5,5 @@ python rank_features.py \
 	~/datasets/Something-Something/ss.csv \
 	174 \
 	1 \
-	--dataset_size=5000 \
+	--dataset_size=50000 \
+	--num_procs=2 \
