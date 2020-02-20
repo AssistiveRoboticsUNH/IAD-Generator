@@ -22,6 +22,7 @@ class TSMBackBone(BackBone):
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
         files = os.listdir(folder_name)
 
+        data = []
     
         for i in range(self.max_length):
             frame = start_idx+i
