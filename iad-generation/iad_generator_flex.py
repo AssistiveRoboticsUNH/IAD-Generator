@@ -83,14 +83,8 @@ def main(
 	else:
 		csv_contents = [ex for ex in csv_contents if ex['example_id'] == single]
 	#print([ex["example_id"] for ex in csv_contents])
-	#csv_contents = csv_contents[:50]
+	csv_contents = csv_contents[:50]
 
-	lengths = np.array([ex["length"] for ex in csv_contents])
-
-	#print(lengths.mean(), lengths.max(), lengths.min())
-	#print(np.percentile(lengths, 75), np.percentile(lengths, 98))
-
-	return
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
