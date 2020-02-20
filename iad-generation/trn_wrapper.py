@@ -14,7 +14,8 @@ import pdb
 import numpy as np
 from PIL import Image
 
-depth_size = 5
+DEPTH_SIZE = 5
+CNN_FEATURE_COUNT = [64, 192, 320, 608, 1024]
 
 class TRNBackBone(BackBone):
 

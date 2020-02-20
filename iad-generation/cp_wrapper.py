@@ -134,33 +134,34 @@ class TSMBackBone(BackBone):
 
         self.CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
-        #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
-
-        # input variables
-        this_test_segments = self.max_length
-        test_file = None
-
-        #model variables
-        self.is_shift, shift_div, shift_place = True, 8, 'blockres'
-
         
-        self.arch = checkpoint_file.split('TSM_')[1].split('_')[2]
-        modality = 'RGB'
-        
+        #"log_something_something_c2d_resnet34_cp_224_12_2_train/model-100.ckpt"
 
         # dataset variables
-        num_class, train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2', modality)
-        print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
+        MODEL = importlib.import_module('c2d_resnet34_cp_224')
+        MODEL_PATH = checkpoint_file
+        MODEL_FILE = os.path.join(os.path.dirname(MODEL_PATH), FLAGS.model+'.py')
+        video_pl, labels_pl = MODEL.placeholder_inputs(1, 12, 224, 224, evaluate=True)
+        is_training_pl = tf.placeholder(tf.bool, shape=())
 
-        # define model
-        net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
-                  base_model=self.arch,
-                  consensus_type='avg',
-                  img_feature_dim=256,
-                  pretrain='imagenet',
-                  is_shift=self.is_shift, shift_div=shift_div, shift_place=shift_place,
-                  non_local='_nl' in checkpoint_file,
-                  )
+        self.net = MODEL.get_model(video_pl, is_training_pl, self.num_classes, pool_t=1)
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # load checkpoint file
         checkpoint = torch.load(checkpoint_file)
