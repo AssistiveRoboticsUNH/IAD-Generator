@@ -117,7 +117,7 @@ class TRNBackBone(BackBone):
             else:
                 summed_ranks[j] = np.add(summed_ranks[j], rd)
         '''
-        return rd
+        return self.ranks
         '''
         summed_ranks = []
 
