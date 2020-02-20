@@ -29,7 +29,7 @@ def rank_dataset(csv_contents, model, dataset_id, iad_data_path):
 				summed_ranks.append(rd)
 			else:
 				summed_ranks[j] = np.add(summed_ranks[j], rd)
-
+	return summed_ranks
 	
 
 def rank_dataset_wrapper(inp):
