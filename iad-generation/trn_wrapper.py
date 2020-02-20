@@ -44,6 +44,7 @@ class TRNBackBone(BackBone):
         
         data = []
         for frame in idx:
+            print(frame)
             data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
 
         return data
