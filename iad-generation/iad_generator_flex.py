@@ -84,6 +84,7 @@ def main(
 		csv_contents = [ex for ex in csv_contents if ex['example_id'] == single]
 	#print([ex["example_id"] for ex in csv_contents])
 	#csv_contents = csv_contents[:50]
+	csv_contents = csv_contents[:len(csv_contents)/2]
 
 
 	# get the maximum frame length among the dataset and add the 
