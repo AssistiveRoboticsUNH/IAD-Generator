@@ -123,8 +123,8 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	convert_csv_chunk(inputs[0])
-	#p.map(convert_csv_chunk, inputs)
+	#convert_csv_chunk(inputs[0])
+	p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
 	print("--------------")
