@@ -101,16 +101,14 @@ class TSMBackBone(BackBone):
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
 
-        print("data_in1:", data_in.shape)
-        data_in = data_in[:, :48, :]
-        print("data_in2:", data_in.shape)
+        print("data_in:", data_in.shape)
         
         # pass data through network to obtain activation maps
         # rst is not used and not need to store grads
         with torch.no_grad():
-            print("ok")
+
             rst = self.net(data_in)
-            print("still ok")
+
             for i in range(len(self.activations)):
                 # convert actvitaion from PyTorch to Numpy
                 self.activations[i] = self.activations[i].cpu().numpy()
