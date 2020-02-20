@@ -9,4 +9,4 @@ python iad_generator_flex.py \
 	1 \
 	~/datasets/Something-Something/iad_trn_frames_1/feature_ranks_1.npz  \
 	8 \
-	--num_procs=2
+	--num_procs=4
