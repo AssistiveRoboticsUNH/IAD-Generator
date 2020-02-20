@@ -103,11 +103,11 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	#ranks = [rank_dataset_wrapper(inputs[0])]
+	ranks = [rank_dataset_wrapper(inputs[0])]
 
-	ranks = p.map(rank_dataset_wrapper, inputs)
+	#ranks = p.map(rank_dataset_wrapper, inputs)
 	print("ranks:", len(ranks), len(ranks[0]))
-	
+
 
 	summed_ranks = ranks[0]
 	for r in ranks[1:]:
