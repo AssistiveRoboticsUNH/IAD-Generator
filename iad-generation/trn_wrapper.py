@@ -84,8 +84,7 @@ class TRNBackBone(BackBone):
 
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
-
-        print("data_in:", data_in.shape)
+        
         
         # predict value
         with torch.no_grad():
@@ -155,7 +154,10 @@ class TRNBackBone(BackBone):
         # data has shape (batch size, segment length, num_ch, height, width)
         # (6,8,3,256,256)
 
+        data_in = data_in.view( -1, self.max_length, 3, 224,224)
+
         print("data_in:", data_in.shape)
+
         
         # pass data through network to obtain activation maps
         # rst is not used and not need to store grads
