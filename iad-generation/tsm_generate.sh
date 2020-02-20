@@ -8,5 +8,5 @@ python iad_generator_flex.py \
 	174 \
 	1 \
 	~/datasets/Something-Something/iad_tsm_frames_1/feature_ranks_1.npz  \
-	50 \
+	70 \
 	--num_procs=2

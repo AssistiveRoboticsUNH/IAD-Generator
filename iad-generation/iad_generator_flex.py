@@ -87,8 +87,8 @@ def main(
 
 	lengths = np.array([ex["length"] for ex in csv_contents])
 
-	print(lengths.mean(), lengths.max(), lengths.min())
-	print(np.percentile(lengths, 75), np.percentile(lengths, 98))
+	#print(lengths.mean(), lengths.max(), lengths.min())
+	#print(np.percentile(lengths, 75), np.percentile(lengths, 98))
 
 	return
 
