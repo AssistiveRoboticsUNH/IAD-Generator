@@ -17,16 +17,14 @@ from PIL import Image
 depth_size = 5
 
 class TRNBackBone(BackBone):
-         
-    def open_file(self, csv_input, start_idx=0, batch_now=True):
-        
+
+    def get_adjacent_frames(self, csv_input):
         folder_name = csv_input['raw_path']
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
         files = os.listdir(folder_name)
 
         # collect the frames
         data = []
-        
         for i in range(self.max_length):
             frame = start_idx+i
             if(frame < len(files)): 
@@ -34,6 +32,28 @@ class TRNBackBone(BackBone):
             else:
                 # fill out rest of video with blank data
                 data.append( Image.new('RGB', (data[0].width, data[0].height)) )
+        return data
+
+    def get_spaced_frames(self, csv_input):
+        folder_name = csv_input['raw_path']
+        assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
+        files = os.listdir(folder_name)
+
+        tick = len(files) / float(self.max_length)
+        idx = list(np.linspace(tick/2, len(self.max_length) - (tick/2), self.max_length))
+        
+        data = []
+        for frame in idx:
+            data.append( Image.open(os.path.join(folder_name, files[frame])).convert('RGB') ) 
+
+        return data
+
+         
+    def open_file(self, csv_input, start_idx=0, batch_now=True):
+        
+        
+
+        data = get_spaced_frames(csv_input)
 
         #print(len(data))
 
@@ -74,6 +94,32 @@ class TRNBackBone(BackBone):
 
         summed_ranks = []
 
+        data_in = self.open_file(csv_input)#self.open_file_as_batch(csv_input)
+
+        data_in = data_in.view( -1, self.max_length, 3, 224,224)
+
+        # data has shape (batch size, segment length, num_ch, height, width)
+        # (6,8,3,256,256)
+
+        #print("data_in:", data_in.shape)
+        
+        # pass data through network to obtain activation maps
+        # do need grads for taylor expansion
+        rst = self.net(data_in)
+
+        # compute gradient and do SGD step
+        self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
+
+        for j, rd in enumerate(self.ranks):
+            if(i == 0):
+                summed_ranks.append(rd)
+            else:
+                summed_ranks[j] = np.add(summed_ranks[j], rd)
+
+        return summed_ranks
+        '''
+        summed_ranks = []
+
         end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
         for i in range(0, end_frame, self.max_length/2):
             data_in = self.open_file(csv_input, start_idx = i)#self.open_file_as_batch(csv_input)
@@ -99,7 +145,7 @@ class TRNBackBone(BackBone):
                     summed_ranks[j] = np.add(summed_ranks[j], rd)
 
         return summed_ranks
-
+        '''
     def process(self, csv_input):
 
         data_in = self.open_file(csv_input)
