@@ -10,4 +10,4 @@ python iad_generator_flex.py \
 	~/datasets/Something-Something/iad_tsm_frames_1/feature_ranks_1.npz  \
 	70 \
 	--num_procs=2 \ 
-	--gpu=1
+	--gpu 1
