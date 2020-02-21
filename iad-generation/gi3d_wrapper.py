@@ -126,8 +126,8 @@ class I3DBackBone(BackBone):
 
 
 
-            rst = self.output_layer_you_want(data_in)
-            #rst = self.net(data_in)
+            #rst = self.output_layer_you_want(data_in)
+            rst = self.net(data_in)
             #rst = var(data_in)
 
 
@@ -252,7 +252,7 @@ class I3DBackBone(BackBone):
 
         
         #net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
-        net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1)
+        net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1, feat_ext=True)
         
         net.cast('float32')
         net.collect_params().reset_ctx([self.ctx])
