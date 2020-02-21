@@ -678,6 +678,8 @@ class I3D_ResNetV1(HybridBlock):
         for i, res_layer in enumerate(self.res_layers):
             #res_layer.attach_grad()
             x = res_layer(x)
+            print(type(res_layer))
+
             #x.attach_grad()
             #if i in self.out_indices:
             outs.append(x)
@@ -700,7 +702,6 @@ class I3D_ResNetV1(HybridBlock):
         self.activation_points = outs
 
         if self.feat_ext:
-            x.attach_grad()
             return x#outs#[x, self.res_layers[0]]#+layers
             #return x
 
