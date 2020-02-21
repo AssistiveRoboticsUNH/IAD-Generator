@@ -692,10 +692,10 @@ class I3D_ResNetV1(HybridBlock):
         x = F.mean(x, axis=1)
 
         layers = [
-            net.res_layers[0][2].bottleneck[0],
-            net.res_layers[1][3].bottleneck[0],
-            net.res_layers[2][5].bottleneck[0],
-            net.res_layers[3][2].bottleneck[0],
+            self.res_layers[0][2].bottleneck[0],
+            self.res_layers[1][3].bottleneck[0],
+            self.res_layers[2][5].bottleneck[0],
+            self.res_layers[3][2].bottleneck[0],
         ]
 
 
