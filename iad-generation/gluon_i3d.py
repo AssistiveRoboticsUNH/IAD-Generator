@@ -674,16 +674,16 @@ class I3D_ResNetV1(HybridBlock):
         """Hybrid forward of I3D network"""
         x = self.first_stage(x)
         outs = []
+
         for i, res_layer in enumerate(self.res_layers):
-            print(i, res_layer)
             x = res_layer(x)
-            if i in self.out_indices:
-                outs.append(x)
+            #if i in self.out_indices:
+            outs.append(x)
             if i == 0:
                 x = self.pool2(x)
 
         print("outs:", outs)
-        feat = outs[0]
+        feat = outs[-1]
 
         # spatial temporal average
         pooled_feat = self.st_avg(feat)
