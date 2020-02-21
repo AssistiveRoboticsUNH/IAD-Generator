@@ -676,6 +676,7 @@ class I3D_ResNetV1(HybridBlock):
         outs = []
 
         for i, res_layer in enumerate(self.res_layers):
+            res_layer.attach_grad()
             x = res_layer(x)
             #if i in self.out_indices:
             outs.append(x)
@@ -693,8 +694,8 @@ class I3D_ResNetV1(HybridBlock):
         x = F.reshape(x, shape=(-1, self.num_segments * self.num_crop, self.feat_dim))
         x = F.mean(x, axis=1)
 
-        for o in outs:
-            o.attach_grad()
+        #for o in outs:
+        #    o.attach_grad()
         self.activation_points = outs
 
         if self.feat_ext:
