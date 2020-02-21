@@ -104,8 +104,8 @@ class I3DBackBone(BackBone):
         L = gluon.loss.SoftmaxCrossEntropyLoss()
 
 
-
-        data_in = self.open_file(csv_input, start_idx = i)
+        data_in = self.open_file(csv_input)
+        #data_in = self.open_file(csv_input, start_idx = i)
         print("data_in:", data_in.shape)
 
         
