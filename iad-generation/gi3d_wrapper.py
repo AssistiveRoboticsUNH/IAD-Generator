@@ -130,6 +130,7 @@ class I3DBackBone(BackBone):
         #print("grads:", out.grad_arrays)
 
         for p in self.net.collect_params():
+            print(p, type(p))
             for g in p.list_grads():
                 print("g:", g)
 
