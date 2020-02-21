@@ -133,8 +133,8 @@ class I3DBackBone(BackBone):
 
             #print("act", self.activations[0])
 
-
-            print("rst", rst)
+            for i, out in enumerate(rst):
+                print(i, out.shape)
 
             #print("toc print")
             #self.monitor.toc_print()
