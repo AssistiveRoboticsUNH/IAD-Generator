@@ -693,6 +693,8 @@ class I3D_ResNetV1(HybridBlock):
         x = F.reshape(x, shape=(-1, self.num_segments * self.num_crop, self.feat_dim))
         x = F.mean(x, axis=1)
 
+        for o in outs:
+            out.attach_grad()
         self.activation_points = outs
 
         if self.feat_ext:
