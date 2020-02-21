@@ -319,11 +319,11 @@ class I3DBackBone(BackBone):
         print("arg_params:")
         print(arg_params)
 
-        print("aux_params:")
-        print(aux_params)
+        #print("aux_params:")
+        #print(aux_params)
 
-        activ = mx.mod.Module(symbol=layers, label_names=None, context=mx.gpu())
-        activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
+        #activ = mx.mod.Module(symbol=layers, label_names=None, context=mx.gpu())
+        #activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
         #activ.set_params(arg_params, aux_params)
 
         self.activ = activ
