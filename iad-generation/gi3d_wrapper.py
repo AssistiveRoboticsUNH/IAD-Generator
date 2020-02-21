@@ -250,7 +250,7 @@ class I3DBackBone(BackBone):
 
 
 
-        """
+        
         #net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
         net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1)
         
@@ -258,15 +258,17 @@ class I3DBackBone(BackBone):
         net.collect_params().reset_ctx([self.ctx])
 
         net.hybridize(static_alloc=True, static_shape=True)
-        """
-
-        """
+        
 
 
-        #print(net.res_layers)
-        #print('---------')
+
+        
+
+
+        print(net.res_layers)
+        print('---------')
         print(net.res_layers[0][2].bottleneck[0])
-
+        """
         self.monitor = mx.monitor.Monitor(1, pattern=".*", sort=True)
         #net.install_monitor(self.monitor)
 
@@ -421,7 +423,7 @@ class I3DBackBone(BackBone):
         #    self.loss = torch.nn.CrossEntropyLoss().cuda()
         """
 
-
+        """
         path = "/home/mbc2004/gluon/"
         net = gluon.nn.SymbolBlock.imports(path+"gluon_i3d-symbol.json", ['data'], path+"gluon_i3d-0000.params", ctx=self.ctx)
 
@@ -435,3 +437,4 @@ class I3DBackBone(BackBone):
         print(all_layers)
 
         self.net = net
+        """
