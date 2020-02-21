@@ -122,7 +122,7 @@ class I3DBackBone(BackBone):
         # Create a one-hot target with class_id and backprop with the created target
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         out.backward(one_hot_target, train_mode=False)
-
+        print("one_hot_target:", one_hot_target)
         
         # Return the recorded convolution output and gradient
         layers = self.net.activation_points
