@@ -317,10 +317,12 @@ class I3DBackBone(BackBone):
 
         sym, arg_params, aux_params = mx.model.load_checkpoint('/home/mbc2004/gluon/gluon_i3d', 0)
         print("arg_params:")
-        print(arg_params.keys())
+        for k in arg_params.keys():
+            print(k)
 
-        #print("aux_params:")
-        #print(aux_params)
+        print("aux_params:")
+        for k in aux_params.keys():
+            print(k)
 
         #activ = mx.mod.Module(symbol=layers, label_names=None, context=mx.gpu())
         #activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
