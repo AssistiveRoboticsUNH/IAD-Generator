@@ -262,7 +262,7 @@ class I3DBackBone(BackBone):
 
 
 
-        
+        self.net = net
 
 
         print(net.res_layers)
