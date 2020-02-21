@@ -129,85 +129,16 @@ class I3DBackBone(BackBone):
         # Return the recorded convolution output and gradient
         #print("grads:", out.grad_arrays)
 
+        '''
         layers = self.net.activation_points
 
         for i, l in enumerate(layers):
             print(type(l[0]), type(l.grad[0]))
             #print(l[0].asnumpy(), l.grad[0].asnumpy())
+        '''
 
 
-
-        #conv_out = Conv2D.conv_output
-        #return conv_out[0].asnumpy(), conv_out.grad[0].asnumpy()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
-        for i in range(0, end_frame, 4):
-            data_in = self.open_file(csv_input, start_idx = i)#self.open_file_as_batch(csv_input)
-
-            # data has shape (batch size, segment length, num_ch, height, width)
-            # (6,8,3,256,256)
-
-            print("data_in:", data_in.shape)
-            
-            # pass data through network to obtain activation maps
-            # do need grads for taylor expansion
-
-            #self.monitor.tic()
-
-
-            #print(self.net.res_layers.get_outputs()) 
-
-
-
-
-
-
-            #rst = self.output_layer_you_want(data_in)
-            rst = self.net(data_in)
-            #rst = self.activ(data_in)
-
-            #rst = var(data_in)
-
-            #print("act", self.activations[0])
-
-            for i, out in enumerate(rst):
-                print(i, out.shape)
-
-            #print("toc print")
-            #self.monitor.toc_print()
-
-            #label = mx.ndarray.array([csv_input['label']]).copyto(self.ctx) 
-            #loss = L(rst, label) 
-
-            # compute gradient and do SGD step
-            #self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
-
-            '''
-            for j, rd in enumerate(self.ranks):
-                if(i == 0):
-                    summed_ranks.append(rd)
-                else:
-                    summed_ranks[j] = np.add(summed_ranks[j], rd)
-
-        return summed_ranks
-            '''
-
+   
     def process(self, csv_input):
 
         data_in = self.open_file(csv_input)
