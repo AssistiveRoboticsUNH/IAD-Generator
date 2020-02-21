@@ -317,7 +317,7 @@ class I3DBackBone(BackBone):
 
         sym, arg_params, aux_params = mx.model.load_checkpoint('/home/mbc2004/gluon/gluon_i3d', 0)
         print("arg_params:")
-        print(arg_params)
+        print(type(arg_params))
 
         #print("aux_params:")
         #print(aux_params)
