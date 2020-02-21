@@ -288,7 +288,7 @@ class I3DBackBone(BackBone):
                 #activation = output.detach()
                 #print("activation:", activation.shape)
                 #self.activations[idx] = activation
-                print("in_function", input.get_params(), output.get_params())
+                print("in_function", input[0].get_params(), output.get_params())
  
             return hook
 
