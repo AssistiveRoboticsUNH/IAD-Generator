@@ -324,7 +324,7 @@ class I3DBackBone(BackBone):
             return hook
 
         sym, arg_params, aux_params = mx.model.load_checkpoint('/home/mbc2004/gluon/gluon_i3d', 0)
-        
+
         
         print("arg_params:")
         for k in arg_params.keys():
@@ -334,7 +334,7 @@ class I3DBackBone(BackBone):
         for k in aux_params.keys():
             print(k)
 
-        print(type(layers[0].data))
+        #print(type(layers[0].data))
         
         for idx, layer in enumerate(layers):
             self.activations.append([])
