@@ -131,7 +131,7 @@ class I3DBackBone(BackBone):
             #rst = var(data_in)
 
 
-            print("rst", rst)
+            print("rst", rst.shape)
 
             #print("toc print")
             #self.monitor.toc_print()
