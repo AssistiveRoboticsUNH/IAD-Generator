@@ -85,10 +85,10 @@ def main(
 	#print([ex["example_id"] for ex in csv_contents])
 	#csv_contents = csv_contents[:50]
 	
-	if (gpu == 0):
+	if (gpu == "0"):
 		print("set 1")
 		csv_contents = csv_contents[:len(csv_contents)/2]
-	else:
+	elif (gpu == "1"):
 		print("set 2")
 		csv_contents = csv_contents[len(csv_contents)/2:]
 	
