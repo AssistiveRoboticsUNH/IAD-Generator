@@ -127,7 +127,9 @@ class I3DBackBone(BackBone):
 
 
             #rst = self.output_layer_you_want(data_in)
-            rst = self.net.forward(is_train=True, data_in)
+            #rst = self.net(data_in)
+            rst = self.activ(data_in)
+
             #rst = var(data_in)
 
             print("act", self.activations[0])
@@ -314,8 +316,12 @@ class I3DBackBone(BackBone):
             return hook
 
 
+        activ = mx.mod.Module(symbol=layers, label_names=None, context=mx.gpu())
+        activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
+        #activ.set_params(arg_params, aux_params)
 
-
+        self.activ = activ
+        """
         for idx, layer in enumerate(layers):
             self.activations.append([])
             self.ranks.append([])
@@ -326,7 +332,7 @@ class I3DBackBone(BackBone):
             #if(self.feature_idx == None):
                 # Need to get rank information
                 #layer.register_backward_hook(taylor_expansion_hook(idx))
-
+        """
         """
 
 
