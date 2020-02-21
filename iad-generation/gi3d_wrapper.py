@@ -336,8 +336,9 @@ class I3DBackBone(BackBone):
         for k in aux_params.keys():
             print(k)
 
-        #print(type(layers[0].data))
+        print(type(layers[0].get_params()))
         
+        """
         for idx, layer in enumerate(layers):
             self.activations.append([])
             self.ranks.append([])
@@ -348,7 +349,7 @@ class I3DBackBone(BackBone):
             #if(self.feature_idx == None):
                 # Need to get rank information
                 #layer.register_backward_hook(taylor_expansion_hook(idx))
-        
+        """
         """
 
 
