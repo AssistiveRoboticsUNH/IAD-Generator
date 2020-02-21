@@ -103,6 +103,56 @@ class I3DBackBone(BackBone):
         summed_ranks = []
         L = gluon.loss.SoftmaxCrossEntropyLoss()
 
+
+
+        data_in = self.open_file(csv_input, start_idx = i)
+        print("data_in:", data_in.shape)
+
+        
+
+
+
+        with autograd.record(train_mode=False):
+            out = self.net(data_in)
+
+        # If user didn't provide a class id, we'll use the class that the network predicted
+        if class_id == None:
+            model_output = out.asnumpy()
+            target_class = np.argmax(model_output)
+
+        # Create a one-hot target with class_id and backprop with the created target
+        one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
+        out.backward(one_hot_target, train_mode=False)
+
+        
+        # Return the recorded convolution output and gradient
+        layers = self.net.activation_points
+
+        for i, l in enumerate(layers):
+            print(l[0].shape, l.grad[0].shape)
+            #print(l[0].asnumpy(), l.grad[0].asnumpy())
+
+
+
+        #conv_out = Conv2D.conv_output
+        #return conv_out[0].asnumpy(), conv_out.grad[0].asnumpy()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
         for i in range(0, end_frame, 4):
             data_in = self.open_file(csv_input, start_idx = i)#self.open_file_as_batch(csv_input)
@@ -168,22 +218,21 @@ class I3DBackBone(BackBone):
         # pass data through network to obtain activation maps
         # rst is not used and not need to store grads
 
-        '''
-        with torch.no_grad():
-            rst = self.net(data_in)
+    
+        activations = self.net(data_in)
 
-            for i in range(len(self.activations)):
-                # convert actvitaion from PyTorch to Numpy
-                self.activations[i] = self.activations[i].cpu().numpy()
+        for i in range(len(activations)):
+            # convert actvitaion from PyTorch to Numpy
+            activations[i] = activations[i].cpu().numpy()
 
-                # prune low-quality filters
-                self.activations[i] = self.activations[i][:, self.feature_idx[i], :, :]
+            # prune low-quality filters
+            activations[i] = activations[i][:, self.feature_idx[i], :, :]
 
-                # compress spatial dimensions
-                self.activations[i] = np.max(self.activations[i], axis=(2,3))
-                self.activations[i] = self.activations[i].T
-        '''
-        return self.activations, length_ratio
+            # compress spatial dimensions
+            activations[i] = np.max(activations[i], axis=(2,3))
+            activations[i] = activations[i].T
+        
+        return activations, length_ratio
 
     def __init__(self, checkpoint_file, num_classes, max_length=16, feature_idx=None, gpu=0):
         self.is_shift = None
@@ -268,6 +317,14 @@ class I3DBackBone(BackBone):
         self.net = net
 
 
+
+
+
+
+        
+
+
+        """
         print(net.res_layers)
         print('---------')
         print(net.res_layers[0][2].bottleneck[0])
@@ -337,7 +394,7 @@ class I3DBackBone(BackBone):
             print(k)
 
         #print(type(layers[0].get_params()))
-        
+        """
         """
         for idx, layer in enumerate(layers):
             self.activations.append([])

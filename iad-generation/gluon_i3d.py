@@ -693,16 +693,10 @@ class I3D_ResNetV1(HybridBlock):
         x = F.reshape(x, shape=(-1, self.num_segments * self.num_crop, self.feat_dim))
         x = F.mean(x, axis=1)
 
-        layers = [
-            self.res_layers[0][2].bottleneck[0],
-            self.res_layers[1][3].bottleneck[0],
-            self.res_layers[2][5].bottleneck[0],
-            self.res_layers[3][2].bottleneck[0],
-        ]
-
+        self.activation_points = outs
 
         if self.feat_ext:
-            return outs#[x, self.res_layers[0]]#+layers
+            return x#outs#[x, self.res_layers[0]]#+layers
             #return x
 
         x = self.head(x)
