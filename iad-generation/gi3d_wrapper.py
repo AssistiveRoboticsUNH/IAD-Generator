@@ -114,7 +114,9 @@ class I3DBackBone(BackBone):
 
 
         with ag.record(train_mode=False):
+
             out = self.net(data_in)
+            out.attach_grad()
 
         # If user didn't provide a class id, we'll use the class that the network predicted
         
