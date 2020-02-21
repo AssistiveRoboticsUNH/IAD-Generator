@@ -130,6 +130,8 @@ class I3DBackBone(BackBone):
             rst = self.net(data_in)
             #rst = var(data_in)
 
+            print("act", self.activations[0])
+
 
             print("rst", rst.shape)
 
@@ -285,10 +287,10 @@ class I3DBackBone(BackBone):
 
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
-                #activation = output.detach()
+                activation = output#.detach()
                 #print("activation:", activation.shape)
-                #self.activations[idx] = activation
-                print("in_function", input[0].get_params(), output.get_params())
+                self.activations[idx] = activation
+                #print("in_function", input[0].get_params(), output.get_params())
  
             return hook
 
