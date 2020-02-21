@@ -700,6 +700,7 @@ class I3D_ResNetV1(HybridBlock):
         self.activation_points = outs
 
         if self.feat_ext:
+            x.attach_grad()
             return x#outs#[x, self.res_layers[0]]#+layers
             #return x
 
