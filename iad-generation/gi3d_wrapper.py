@@ -125,6 +125,8 @@ class I3DBackBone(BackBone):
         print("one_hot_target:", one_hot_target)
         
         # Return the recorded convolution output and gradient
+        print("grads:", out.grad_arrays)
+
         layers = self.net.activation_points
 
         for i, l in enumerate(layers):
