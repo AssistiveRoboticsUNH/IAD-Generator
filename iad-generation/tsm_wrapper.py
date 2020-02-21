@@ -12,7 +12,8 @@ from ops import dataset_config
 import numpy as np
 from PIL import Image
 
-depth_size = 4
+DEPTH_SIZE = 4
+CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
 class TSMBackBone(BackBone):
          
