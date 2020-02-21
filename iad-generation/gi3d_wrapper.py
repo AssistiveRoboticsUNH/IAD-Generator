@@ -288,10 +288,19 @@ class I3DBackBone(BackBone):
 
             def hook(model, input, output):
                 #prune features and only get those we are investigating 
-                activation = output#.detach()
+                #activation = output#.detach()
                 #print("activation:", activation.shape)
-                self.activations[idx] = activation
+                #self.activations[idx] = activation
                 #print("in_function", input[0].get_params(), output.get_params())
+                sym, arg_params, aux_params = mx.model.load_checkpoint('/home/mbc2004/gluon/gluon_i3d', 0)
+
+                activ = mx.mod.Module(symbol=output, label_names=None, context=mx.gpu())
+                activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
+                activ.set_params(arg_params, aux_params)
+
+                self.activ = activ
+                
+
  
             return hook
 
@@ -315,7 +324,7 @@ class I3DBackBone(BackBone):
             return hook
 
 
-        sym, arg_params, aux_params = mx.model.load_checkpoint('/home/mbc2004/gluon/gluon_i3d', 0)
+        
         print("arg_params:")
         for k in arg_params.keys():
             print(k)
@@ -325,12 +334,7 @@ class I3DBackBone(BackBone):
             print(k)
 
         print(type(layers[0].data))
-        activ = mx.mod.Module(symbol=layers[0], label_names=None, context=mx.gpu())
-        activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
-        activ.set_params(arg_params, aux_params)
-
-        self.activ = activ
-        """
+        
         for idx, layer in enumerate(layers):
             self.activations.append([])
             self.ranks.append([])
@@ -341,7 +345,7 @@ class I3DBackBone(BackBone):
             #if(self.feature_idx == None):
                 # Need to get rank information
                 #layer.register_backward_hook(taylor_expansion_hook(idx))
-        """
+        
         """
 
 
