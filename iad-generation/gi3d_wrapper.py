@@ -268,9 +268,7 @@ class I3DBackBone(BackBone):
         print(net.res_layers)
         print('---------')
         print(net.res_layers[0][2].bottleneck[0])
-        """
-        self.monitor = mx.monitor.Monitor(1, pattern=".*", sort=True)
-        #net.install_monitor(self.monitor)
+        
 
         layers = [
             net.res_layers[0][2].bottleneck[0],
@@ -321,13 +319,13 @@ class I3DBackBone(BackBone):
             self.ranks.append([])
 
             # Will always need the activations (whether for out or for ranking)
-            #layer.register_forward_hook(activation_hook(idx))
+            layer.register_forward_hook(activation_hook(idx))
             print(layer)
             #if(self.feature_idx == None):
                 # Need to get rank information
                 #layer.register_backward_hook(taylor_expansion_hook(idx))
 
-
+        """
 
 
 
