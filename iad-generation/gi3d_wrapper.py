@@ -117,9 +117,7 @@ class I3DBackBone(BackBone):
             out = self.net(data_in)
 
         # If user didn't provide a class id, we'll use the class that the network predicted
-        if class_id == None:
-            model_output = out.asnumpy()
-            target_class = np.argmax(model_output)
+        
 
         # Create a one-hot target with class_id and backprop with the created target
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
