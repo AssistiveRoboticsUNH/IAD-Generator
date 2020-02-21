@@ -128,7 +128,7 @@ class I3DBackBone(BackBone):
         layers = self.net.activation_points
 
         for i, l in enumerate(layers):
-            print(l[0].shape, l.grad[0].shape)
+            print(l[0], l.grad[0])
             #print(l[0].asnumpy(), l.grad[0].asnumpy())
 
 
