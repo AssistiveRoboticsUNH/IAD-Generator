@@ -127,7 +127,7 @@ class I3DBackBone(BackBone):
 
 
             #rst = self.output_layer_you_want(data_in)
-            rst = self.net(data_in)
+            rst = self.net.forward(is_train=True, data_in)
             #rst = var(data_in)
 
             print("act", self.activations[0])
