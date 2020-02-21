@@ -131,8 +131,8 @@ class I3DBackBone(BackBone):
 
         for p in self.net.collect_params():
             print("p:", p, type(p))
-            for g in p.list_grads():
-                print("g:", g)
+            #for g in p.list_grads():
+            #    print("g:", g)
 
         layers = self.net.activation_points
 
