@@ -681,6 +681,7 @@ class I3D_ResNetV1(HybridBlock):
             if i == 0:
                 x = self.pool2(x)
 
+        print("outs:", outs)
         feat = outs[0]
 
         # spatial temporal average
@@ -700,7 +701,7 @@ class I3D_ResNetV1(HybridBlock):
 
 
         if self.feat_ext:
-            return [x, self.res_layers[0][2]]#+layers
+            return [x, self.res_layers[0]]#+layers
             #return x
 
         x = self.head(x)
