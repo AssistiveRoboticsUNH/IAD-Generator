@@ -126,15 +126,15 @@ class I3DBackBone(BackBone):
 
 
             #rst = self.output_layer_you_want(data_in)
-            #rst = self.net(data_in)
-            rst = self.activ(data_in)
+            rst = self.net(data_in)
+            #rst = self.activ(data_in)
 
             #rst = var(data_in)
 
-            print("act", self.activations[0])
+            #print("act", self.activations[0])
 
 
-            print("rst", rst.shape)
+            print("rst", rst)
 
             #print("toc print")
             #self.monitor.toc_print()
@@ -336,7 +336,7 @@ class I3DBackBone(BackBone):
         for k in aux_params.keys():
             print(k)
 
-        print(type(layers[0].get_params()))
+        #print(type(layers[0].get_params()))
         
         """
         for idx, layer in enumerate(layers):
