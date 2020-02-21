@@ -700,7 +700,7 @@ class I3D_ResNetV1(HybridBlock):
 
 
         if self.feat_ext:
-            return layers + [x]
+            return [x]+layers
             #return x
 
         x = self.head(x)
