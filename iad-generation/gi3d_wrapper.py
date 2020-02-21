@@ -116,7 +116,8 @@ class I3DBackBone(BackBone):
         with ag.record(train_mode=False):
 
             out = self.net(data_in)
-            out.attach_grad()
+
+
 
         # If user didn't provide a class id, we'll use the class that the network predicted
         
@@ -128,6 +129,10 @@ class I3DBackBone(BackBone):
         
         # Return the recorded convolution output and gradient
         #print("grads:", out.grad_arrays)
+
+        for p in net.collect_params():
+            for g in p.list_grads():
+                print("g:", g)
 
         layers = self.net.activation_points
 
