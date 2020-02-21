@@ -317,7 +317,7 @@ class I3DBackBone(BackBone):
         net.cast('float32')
         net.collect_params().reset_ctx([self.ctx])
 
-        net.hybridize(static_alloc=True, static_shape=True)
+        #net.hybridize(static_alloc=True, static_shape=True)
         
 
 
