@@ -28,6 +28,7 @@ from gluon_i3d import i3d_resnet50_v1_sthsthv2 as model
 from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
 
 
+
 import numpy as np
 from PIL import Image
 
@@ -112,7 +113,7 @@ class I3DBackBone(BackBone):
 
 
 
-        with autograd.record(train_mode=False):
+        with ag.record(train_mode=False):
             out = self.net(data_in)
 
         # If user didn't provide a class id, we'll use the class that the network predicted
