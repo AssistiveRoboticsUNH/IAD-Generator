@@ -129,15 +129,10 @@ class I3DBackBone(BackBone):
         # Return the recorded convolution output and gradient
         #print("grads:", out.grad_arrays)
 
-        for p in self.net.collect_params():
-            print("p:", p, type(p))
-            #for g in p.list_grads():
-            #    print("g:", g)
-
         layers = self.net.activation_points
 
         for i, l in enumerate(layers):
-            print(l[0], l.grad[0])
+            print("i:", l)#l[0].shape, l.grad[0].shape)
             #print(l[0].asnumpy(), l.grad[0].asnumpy())
 
 
