@@ -675,6 +675,7 @@ class I3D_ResNetV1(HybridBlock):
         x = self.first_stage(x)
         outs = []
         for i, res_layer in enumerate(self.res_layers):
+            print(i, res_layer)
             x = res_layer(x)
             if i in self.out_indices:
                 outs.append(x)
