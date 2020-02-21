@@ -320,7 +320,7 @@ class I3DBackBone(BackBone):
 
             # Will always need the activations (whether for out or for ranking)
             layer.register_forward_hook(activation_hook(idx))
-            print(layer)
+            print("add hook here:", layer)
             #if(self.feature_idx == None):
                 # Need to get rank information
                 #layer.register_backward_hook(taylor_expansion_hook(idx))
