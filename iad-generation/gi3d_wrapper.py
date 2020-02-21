@@ -123,12 +123,7 @@ class I3DBackBone(BackBone):
 
 
 
-            sym, arg_params, aux_params = mx.model.load_checkpoint('i3d_resnet50_v1_sthsthv2', 0)
-            print("arg_params:")
-            print(arg_params)
 
-            print("aux_params:")
-            print(aux_params)
 
             #rst = self.output_layer_you_want(data_in)
             #rst = self.net(data_in)
@@ -319,6 +314,13 @@ class I3DBackBone(BackBone):
 
             return hook
 
+
+        sym, arg_params, aux_params = mx.model.load_checkpoint('i3d_resnet50_v1_sthsthv2', 0)
+        print("arg_params:")
+        print(arg_params)
+
+        print("aux_params:")
+        print(aux_params)
 
         activ = mx.mod.Module(symbol=layers, label_names=None, context=mx.gpu())
         activ.bind(for_training=False, data_shapes=[('data', (1,3,224,224))])
