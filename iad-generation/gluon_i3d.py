@@ -694,7 +694,7 @@ class I3D_ResNetV1(HybridBlock):
         x = F.mean(x, axis=1)
 
         for o in outs:
-            out.attach_grad()
+            o.attach_grad()
         self.activation_points = outs
 
         if self.feat_ext:
