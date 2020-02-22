@@ -109,36 +109,32 @@ class I3DBackBone(BackBone):
         #data_in = self.open_file(csv_input, start_idx = i)
         print("data_in:", data_in.shape)
 
-        
 
-
-
+        # record gradient information
         with ag.record(train_mode=False):
-
             out = self.net(data_in)
 
 
-
-        # If user didn't provide a class id, we'll use the class that the network predicted
-        
-
-        # Create a one-hot target with class_id and backprop with the created target
+        # do backward pass
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         out.backward(one_hot_target, train_mode=False)
         
-        # Return the recorded convolution output and gradient
-        #print("grads:", out.grad_arrays)
-
-        
+        # calculate Taylor Expansion for network
         layers = self.net.activation_points
-
+        rank_out = []
         for i, l in enumerate(layers):
-            print(type(l[0]), type(l.grad[0]))
-            print(l[0].shape, l.grad[0].shape)
-            #print(l[0].asnumpy(), l.grad[0].asnumpy())
+            #print(type(l[0]), type(l.grad[0]))
+            #print(l[0].shape, l.grad[0].shape)
+
+            rank = l[0].asnumpy() * l.grad[0].asnumpy()
+            print("rank:", rank.shape)
+            rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
+            rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
+
+            rank_out.append(rank)
         
         print("return ranks here")
-        return 0
+        return rank_out
 
 
    
@@ -155,8 +151,8 @@ class I3DBackBone(BackBone):
         # pass data through network to obtain activation maps
         # rst is not used and not need to store grads
 
-    
-        activations = self.net(data_in)
+        self.net(data_in)
+        activations = self.net.activation_points
 
         for i in range(len(activations)):
             # convert actvitaion from PyTorch to Numpy
