@@ -19,7 +19,7 @@ CNN_FEATURE_COUNT = [64, 192, 320, 608, 1024]
 
 class TRNBackBone(BackBone):
 
-    def get_adjacent_frames(self, csv_input):
+    def get_adjacent_frames(self, csv_input, start_idx=0):
         folder_name = csv_input['raw_path']
         assert os.path.exists(folder_name), "cannot find frames folder: "+folder_name
         files = os.listdir(folder_name)
