@@ -55,7 +55,8 @@ class TRNBackBone(BackBone):
         
         
 
-        data = self.get_spaced_frames(csv_input)
+        #data = self.get_spaced_frames(csv_input)
+        data = self.get_adjacent_frames(csv_input)
 
         #print(len(data))
 
