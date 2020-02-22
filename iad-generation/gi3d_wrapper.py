@@ -111,8 +111,8 @@ class I3DBackBone(BackBone):
 
 
         # record gradient information
-        #with ag.record(train_mode=False):
-        out = self.net(data_in)
+        with ag.record(train_mode=False):
+            out = self.net(data_in)
 
 
         # do backward pass
