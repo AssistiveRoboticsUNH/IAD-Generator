@@ -134,6 +134,7 @@ class I3DBackBone(BackBone):
             rank_out.append(rank)
         
         print("return ranks here")
+        print (rank_out)
         return rank_out
 
 
