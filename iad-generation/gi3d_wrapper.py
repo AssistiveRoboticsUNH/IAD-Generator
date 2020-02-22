@@ -128,7 +128,7 @@ class I3DBackBone(BackBone):
             activation = l[0].asnumpy()
             gradient = l.grad[0].asnumpy()
 
-            print(type(activation), type(gradient))
+            print("activation", type(activation), "grad", type(gradient))
 
             rank = np.multiply(activation, gradient)
             print("rank:", rank.shape)
