@@ -102,7 +102,7 @@ class I3DBackBone(BackBone):
     def rank(self, csv_input):
 
         summed_ranks = []
-        L = gluon.loss.SoftmaxCrossEntropyLoss()
+        #L = gluon.loss.SoftmaxCrossEntropyLoss()
 
 
         data_in = self.open_file(csv_input)
@@ -111,8 +111,8 @@ class I3DBackBone(BackBone):
 
 
         # record gradient information
-        with ag.record(train_mode=False):
-            out = self.net(data_in)
+        #with ag.record(train_mode=False):
+        out = self.net(data_in)
 
 
         # do backward pass
