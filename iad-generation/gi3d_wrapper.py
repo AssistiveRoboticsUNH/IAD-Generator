@@ -127,6 +127,7 @@ class I3DBackBone(BackBone):
             #print(l[0].shape, l.grad[0].shape)
             print("activation1", type(l[0]), "grad", type(l.grad[0]))
 
+            '''
             activation = l[0].asnumpy()
             gradient = l.grad[0].asnumpy()
 
@@ -137,7 +138,8 @@ class I3DBackBone(BackBone):
             rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
             rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
             print("rank2:", rank.shape)
-
+            '''
+            rank = []
             rank_out.append(rank)
         
         print("return ranks here")
