@@ -134,6 +134,7 @@ class I3DBackBone(BackBone):
 
         for i, l in enumerate(layers):
             print(type(l[0]), type(l.grad[0]))
+            print(l[0].shape, l.grad[0].shape)
             #print(l[0].asnumpy(), l.grad[0].asnumpy())
         
         print("return ranks here")
