@@ -83,7 +83,7 @@ def main(
 	else:
 		csv_contents = [ex for ex in csv_contents if ex['example_id'] == single]
 	#print([ex["example_id"] for ex in csv_contents])
-	#csv_contents = csv_contents[:50]
+	csv_contents = csv_contents[:50]
 	
 	'''
 	if (gpu == "0"):
@@ -131,8 +131,8 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	#convert_csv_chunk(inputs[0])
-	p.map(convert_csv_chunk, inputs)
+	convert_csv_chunk(inputs[0])
+	#p.map(convert_csv_chunk, inputs)
 
 	#summarize operations
 	print("--------------")
