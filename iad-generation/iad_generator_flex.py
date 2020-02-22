@@ -85,13 +85,14 @@ def main(
 	#print([ex["example_id"] for ex in csv_contents])
 	#csv_contents = csv_contents[:50]
 	
+	'''
 	if (gpu == "0"):
 		print("set 1")
 		csv_contents = csv_contents[:len(csv_contents)/2]
 	elif (gpu == "1"):
 		print("set 2")
 		csv_contents = csv_contents[len(csv_contents)/2:]
-	
+	'''
 
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
