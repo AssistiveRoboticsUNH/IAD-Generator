@@ -124,6 +124,9 @@ class I3DBackBone(BackBone):
         rank_out = []
         for i, l in enumerate(layers):
             #print(type(l[0]), type(l.grad[0]))
+            #activ = l[0]
+            #grad = l.grad[0]
+
             print(l[0].shape, l.grad[0].shape)
             print("activation1", type(l[0]), "grad", type(l.grad[0]))
 
@@ -131,7 +134,7 @@ class I3DBackBone(BackBone):
 
             mul = mx.nd.sum(mx.nd.multiply(l[0], l.grad[0]), axis = (1,2,3))
             print(mul.shape)
-            mul.copyto(mx.cpu(0))
+            mul.copyto(mx.gpu(0))
             print(mul)
 
             #activation = l[0].asnumpy()
