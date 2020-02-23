@@ -129,8 +129,8 @@ class I3DBackBone(BackBone):
 
             #print(l[0])
 
-            mul = mx.nd.multiply(l[0], l.grad[0])
-            print(mul)
+            mul = mx.nd.sum(mx.nd.multiply(l[0], l.grad[0]), axis = (1,2,3))
+
 
             #activation = l[0].asnumpy()
             '''
