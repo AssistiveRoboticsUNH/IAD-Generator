@@ -129,6 +129,7 @@ class I3DBackBone(BackBone):
 
             print(l[0].shape, l.grad[0].shape)
             print("activation1", type(l[0]), "grad", type(l.grad[0]))
+            print("activation1", l[0].dtype), "grad", l.grad[0].dtype)
 
             #print(l[0])
 
