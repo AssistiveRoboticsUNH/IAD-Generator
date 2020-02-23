@@ -682,7 +682,8 @@ class I3D_ResNetV1(HybridBlock):
 
             x.attach_grad()
             #if i in self.out_indices:
-            outs.append(x)
+            if(i < 2):
+                outs.append(x)
             if i == 0:
                 x = self.pool2(x)
 
