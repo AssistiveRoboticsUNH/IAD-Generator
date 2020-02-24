@@ -33,6 +33,7 @@ import numpy as np
 from PIL import Image
 
 DEPTH_SIZE = 4
+CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
 class I3DBackBone(BackBone):
          
@@ -203,7 +204,7 @@ class I3DBackBone(BackBone):
 
         self.transform = None
 
-        self.CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
+        
 
         #checkpoint_file = TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth
 
