@@ -153,7 +153,7 @@ class I3DBackBone(BackBone):
                         np.sum(gradient),
                         ))
 
-                if(np.sum(gradient) > 0):
+                if(np.sum(gradient) != 0):
                     #print("activation:", np.sum(activation, axis = (1,2,3)))
                     print("gradient:", np.sum(gradient, axis = (1,2,3)))
 
