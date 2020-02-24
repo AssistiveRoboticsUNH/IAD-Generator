@@ -32,7 +32,7 @@ from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
 import numpy as np
 from PIL import Image
 
-DEPTH_SIZE = 5
+DEPTH_SIZE = 4
 
 class I3DBackBone(BackBone):
          
@@ -126,10 +126,10 @@ class I3DBackBone(BackBone):
             layers = self.net.activation_points
             out.backward()#one_hot_target, train_mode=False)
 
-            print(len(layers), i+1)
+            print(len(layers), i)
 
             for j in range(2):
-                l = layers[i+j]
+                l = layers[i]
 
                 try:
 
