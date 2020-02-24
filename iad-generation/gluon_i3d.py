@@ -673,6 +673,7 @@ class I3D_ResNetV1(HybridBlock):
     def hybrid_forward(self, F, x):
         """Hybrid forward of I3D network"""
         x = self.first_stage(x)
+        x.attach_grad()
         outs = [x]
 
         for i, res_layer in enumerate(self.res_layers):
