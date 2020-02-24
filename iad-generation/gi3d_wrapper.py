@@ -138,7 +138,7 @@ class I3DBackBone(BackBone):
                 rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
                 rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
 
-                print(rank)
+                #print(rank)
 
                 rank_out.append(rank)
             except:
