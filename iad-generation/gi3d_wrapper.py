@@ -157,7 +157,7 @@ class I3DBackBone(BackBone):
 
         return rank_out
 
-"""
+    """
     def rank(self, csv_input):
 
         summed_ranks = []
@@ -230,7 +230,7 @@ class I3DBackBone(BackBone):
                 print("")
 
         return rank_out
-"""
+    """
 
    
     def process(self, csv_input):
