@@ -135,7 +135,7 @@ class I3DBackBone(BackBone):
 
             mul = mx.nd.sum(mx.nd.multiply(l[0], l.grad[0]), axis = (1,2,3))
             print(mul.shape)
-            mul.copyto(mx.gpu(0))
+            mul.copyto(mx.cpu(0))
             mx.nd.save('rank_values', mul)
             #print(mul)
 
