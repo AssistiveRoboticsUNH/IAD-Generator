@@ -117,7 +117,7 @@ class I3DBackBone(BackBone):
             print("out:", out.shape)
             print("one_hot_target:", one_hot_target.shape)
 
-            oht_g.copyto(mx.gpu(0))
+            oht_g = one_hot_target.copyto(mx.gpu(0))
             print("one_hot_target_gpu:", oht_g.shape)
 
             loss = L(out, oht_g)
