@@ -118,19 +118,11 @@ class I3DBackBone(BackBone):
         # do backward pass
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         out.backward(one_hot_target, train_mode=False)
-
-        try:
-            data_in_out = mx.ndarry(data_in).asnumpy()
-            print("SUCCESS: Succesful Conversion")
-        except:
-
-            print("ERROR: failed to print contents")
-
         
         # calculate Taylor Expansion for network
         layers = self.net.activation_points
         rank_out = []
-        for i, l in enumerate(layers):
+        for i, l in enumerate(layers[1:]):
             #print(type(l[0]), type(l.grad[0]))
             #activ = l[0]
             #grad = l.grad[0]
@@ -146,7 +138,7 @@ class I3DBackBone(BackBone):
             mul2 = mul.copyto(mx.cpu())
             print("activation1", mul2.as_in_context(mx.cpu()) is mul2 , "act1",  mul2.as_in_context(mx.gpu(0)) is mul2)
             #mx.nd.save('rank_values', mul2)
-            #
+            
             try:
                 mul_out = mul.asnumpy()
                 print("SUCCESS: Succesful Conversion")
