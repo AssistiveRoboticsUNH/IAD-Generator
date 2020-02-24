@@ -132,7 +132,7 @@ class I3DBackBone(BackBone):
         
         # calculate Taylor Expansion for network
         layers = self.net.activation_points
-        layers[-2].backward()#one_hot_target, train_mode=False)
+        out.backward()#one_hot_target, train_mode=False)
 
 
         rank_out = []
