@@ -1,0 +1,591 @@
+{
+  "node": [
+    {
+      "attr": {
+        "shape": {
+          "shape": {
+            "dim": [
+              {
+                "size": "-1"
+              }, 
+              {
+                "size": "64"
+              }, 
+              {
+                "size": "224"
+              }, 
+              {
+                "size": "224"
+              }, 
+              {
+                "size": "3"
+              }
+            ]
+          }
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "64"
+                  }, 
+                  {
+                    "size": "224"
+                  }, 
+                  {
+                    "size": "224"
+                  }, 
+                  {
+                    "size": "3"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }, 
+      "name": "data", 
+      "op": "DataInput"
+    }, 
+    {
+      "input": [
+        "data"
+      ], 
+      "attr": {
+        "group": {
+          "i": "1"
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "32"
+                  }, 
+                  {
+                    "size": "112"
+                  }, 
+                  {
+                    "size": "112"
+                  }, 
+                  {
+                    "size": "64"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "data_format": {
+          "s": "TkNESFc="
+        }, 
+        "strides": {
+          "list": {
+            "i": [
+              "1", 
+              "2", 
+              "2", 
+              "2", 
+              "1"
+            ]
+          }
+        }, 
+        "pads": {
+          "list": {
+            "i": [
+              "0", 
+              "2", 
+              "3", 
+              "3", 
+              "0", 
+              "0", 
+              "2", 
+              "3", 
+              "3", 
+              "0"
+            ]
+          }
+        }, 
+        "kernel_shape": {
+          "list": {
+            "i": [
+              "5", 
+              "7", 
+              "7", 
+              "3", 
+              "64"
+            ]
+          }
+        }, 
+        "dilations": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "1", 
+              "1", 
+              "1"
+            ]
+          }
+        }, 
+        "use_bias": {
+          "b": false
+        }
+      }, 
+      "name": "conv0_fwd", 
+      "op": "Conv"
+    }, 
+    {
+      "input": [
+        "conv0_fwd"
+      ], 
+      "attr": {
+        "scale": {
+          "b": true
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "32"
+                  }, 
+                  {
+                    "size": "112"
+                  }, 
+                  {
+                    "size": "112"
+                  }, 
+                  {
+                    "size": "64"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "epsilon": {
+          "f": 9.999999747378752e-06
+        }, 
+        "bias": {
+          "b": true
+        }, 
+        "momentum": {
+          "f": 0.8999999761581421
+        }, 
+        "axis": {
+          "i": "4"
+        }
+      }, 
+      "name": "batchnorm0_fwd", 
+      "op": "BatchNorm"
+    }, 
+    {
+      "input": [
+        "batchnorm0_fwd"
+      ], 
+      "attr": {
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "32"
+                  }, 
+                  {
+                    "size": "112"
+                  }, 
+                  {
+                    "size": "112"
+                  }, 
+                  {
+                    "size": "64"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }, 
+      "name": "relu0_fwd", 
+      "op": "Relu"
+    }, 
+    {
+      "input": [
+        "relu0_fwd"
+      ], 
+      "attr": {
+        "global_pooling": {
+          "b": false
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "16"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "64"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "pooling_type": {
+          "s": "TUFY"
+        }, 
+        "strides": {
+          "list": {
+            "i": [
+              "1", 
+              "2", 
+              "2", 
+              "2", 
+              "1"
+            ]
+          }
+        }, 
+        "pads": {
+          "list": {
+            "i": [
+              "0", 
+              "0", 
+              "1", 
+              "1", 
+              "0", 
+              "0", 
+              "0", 
+              "1", 
+              "1", 
+              "0"
+            ]
+          }
+        }, 
+        "kernel_shape": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "3", 
+              "3", 
+              "1"
+            ]
+          }
+        }
+      }, 
+      "name": "pool0_fwd", 
+      "op": "Pool"
+    }, 
+    {
+      "input": [
+        "pool0_fwd"
+      ], 
+      "attr": {
+        "group": {
+          "i": "1"
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "16"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "64"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "data_format": {
+          "s": "TkNESFc="
+        }, 
+        "strides": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "1", 
+              "1", 
+              "1"
+            ]
+          }
+        }, 
+        "pads": {
+          "list": {
+            "i": [
+              "0", 
+              "1", 
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "1", 
+              "0", 
+              "0", 
+              "0"
+            ]
+          }
+        }, 
+        "kernel_shape": {
+          "list": {
+            "i": [
+              "3", 
+              "1", 
+              "1", 
+              "64", 
+              "64"
+            ]
+          }
+        }, 
+        "dilations": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "1", 
+              "1", 
+              "1"
+            ]
+          }
+        }, 
+        "use_bias": {
+          "b": false
+        }
+      }, 
+      "name": "layer1_0_conv0_fwd", 
+      "op": "Conv"
+    }, 
+    {
+      "input": [
+        "pool0_fwd"
+      ], 
+      "attr": {
+        "group": {
+          "i": "1"
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "16"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "256"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "data_format": {
+          "s": "TkNESFc="
+        }, 
+        "strides": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "1", 
+              "1", 
+              "1"
+            ]
+          }
+        }, 
+        "pads": {
+          "list": {
+            "i": [
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "0", 
+              "0"
+            ]
+          }
+        }, 
+        "kernel_shape": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "1", 
+              "64", 
+              "256"
+            ]
+          }
+        }, 
+        "dilations": {
+          "list": {
+            "i": [
+              "1", 
+              "1", 
+              "1", 
+              "1", 
+              "1"
+            ]
+          }
+        }, 
+        "use_bias": {
+          "b": false
+        }
+      }, 
+      "name": "layer1_downsample_conv0_fwd", 
+      "op": "Conv"
+    }, 
+    {
+      "input": [
+        "layer1_0_conv0_fwd"
+      ], 
+      "attr": {
+        "scale": {
+          "b": true
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "16"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "64"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "epsilon": {
+          "f": 9.999999747378752e-06
+        }, 
+        "bias": {
+          "b": true
+        }, 
+        "momentum": {
+          "f": 0.8999999761581421
+        }, 
+        "axis": {
+          "i": "4"
+        }
+      }, 
+      "name": "layer1_0_batchnorm0_fwd", 
+      "op": "BatchNorm"
+    }, 
+    {
+      "input": [
+        "layer1_downsample_conv0_fwd"
+      ], 
+      "attr": {
+        "scale": {
+          "b": true
+        }, 
+        "_output_shapes": {
+          "list": {
+            "shape": [
+              {
+                "dim": [
+                  {
+                    "size": "1"
+                  }, 
+                  {
+                    "size": "16"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "56"
+                  }, 
+                  {
+                    "size": "256"
+                  }
+                ]
+              }
+            ]
+          }
+        }, 
+        "epsilon": {
+          "f": 9.999999747378752e-06
+        }, 
+        "bias": {
+          "b": true
+        }, 
+        "momentum": {
+          "f": 0.8999999761581421
+        }, 
+        "axis": {
+          "i": "4"
+        }
+      }, 
+      "name": "layer1_downsample_batchnorm0_fwd", 
+      "op": "BatchNorm"
+    }
+  ]
+}
