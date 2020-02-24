@@ -122,6 +122,7 @@ class I3DBackBone(BackBone):
             oht_g = mx.nd.array([csv_input["label"]]).copyto(mx.gpu(0))
 
             loss = L(out, oht_g)
+            print("loss:", loss)
         print("out:", out)
 
         # do backward pass
