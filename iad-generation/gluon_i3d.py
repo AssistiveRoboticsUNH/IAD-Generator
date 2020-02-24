@@ -510,6 +510,8 @@ class I3D_ResNetV1(HybridBlock):
                  **kwargs):
         super(I3D_ResNetV1, self).__init__()
 
+        self.record_point = -1
+
         if depth not in self.arch_settings:
             raise KeyError('invalid depth {} for resnet'.format(depth))
 
@@ -753,7 +755,7 @@ def i3d_resnet50_v1_sthsthv2(nclass=174, pretrained=False, pretrained_base=True,
                          partial_bn=partial_bn,
                          ctx=ctx,
                          **kwargs)
-    model.record_point = -1
+
 
     if pretrained:
         from gluoncv.model_zoo.model_store import get_model_file
