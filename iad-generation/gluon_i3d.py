@@ -682,7 +682,8 @@ class I3D_ResNetV1(HybridBlock):
             x = res_layer(x)
             #print(type(res_layer), type(x))
 
-            x.attach_grad()
+            if i < 3:
+                x.attach_grad()
             #if i in self.out_indices:
             #if i > 0:
             outs.append(x)
