@@ -127,7 +127,7 @@ class I3DBackBone(BackBone):
 
         # do backward pass
         #one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
-        out.backward()#one_hot_target, train_mode=False)
+        #out.backward()#one_hot_target, train_mode=False)
         #out.backward(one_hot_target, train_mode=True)
         #loss.backward(one_hot_target)
         
@@ -138,6 +138,8 @@ class I3DBackBone(BackBone):
             #print(type(l[0]), type(l.grad[0]))
             #activ = l[0]
             #grad = l.grad[0]
+            l.backward()
+
             try:
 
                 activation = l[0].asnumpy()
