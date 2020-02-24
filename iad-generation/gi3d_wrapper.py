@@ -128,7 +128,7 @@ class I3DBackBone(BackBone):
 
             print(len(layers), i)
 
-            for j in range(2):
+            for j in range(1):
                 l = layers[i]
 
                 try:
@@ -142,9 +142,9 @@ class I3DBackBone(BackBone):
                             np.sum(gradient),
                             ))
 
-                    if(np.sum(gradient) != 0):
+                    #if(np.sum(gradient) != 0):
                         #print("activation:", np.sum(activation, axis = (1,2,3)))
-                        print("gradient:", np.sum(gradient, axis = (1,2,3)))
+                        #print("gradient:", np.sum(gradient, axis = (1,2,3)))
 
                     rank = np.multiply(activation, gradient)
                     rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
