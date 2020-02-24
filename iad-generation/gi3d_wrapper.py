@@ -32,7 +32,7 @@ from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
 import numpy as np
 from PIL import Image
 
-depth_size = 5
+DEPTH_SIZE = 4
 
 class I3DBackBone(BackBone):
          
@@ -110,7 +110,7 @@ class I3DBackBone(BackBone):
 
         rank_out = []
 
-        for i in range(4):
+        for i in range(DEPTH_SIZE):
 
             self.net.record_point = i
 
@@ -127,33 +127,35 @@ class I3DBackBone(BackBone):
             out.backward()#one_hot_target, train_mode=False)
 
 
-        
-            try:
+            for j in range(2):
+                l = layers[i+j]
 
-                activation = l[0].asnumpy()
-                gradient = l.grad[0].asnumpy()
+                try:
 
-                print("{0}: activ {1}, grad {2}".format(
-                        i,
-                        np.sum(activation),
-                        np.sum(gradient),
-                        ))
+                    activation = l[0].asnumpy()
+                    gradient = l.grad[0].asnumpy()
 
-                if(np.sum(gradient) != 0):
-                    #print("activation:", np.sum(activation, axis = (1,2,3)))
-                    print("gradient:", np.sum(gradient, axis = (1,2,3)))
+                    print("{0}: activ {1}, grad {2}".format(
+                            i,
+                            np.sum(activation),
+                            np.sum(gradient),
+                            ))
 
-                rank = np.multiply(activation, gradient)
-                rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
-                rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
+                    if(np.sum(gradient) != 0):
+                        #print("activation:", np.sum(activation, axis = (1,2,3)))
+                        print("gradient:", np.sum(gradient, axis = (1,2,3)))
 
-                #print(rank)
+                    rank = np.multiply(activation, gradient)
+                    rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
+                    rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
 
-                rank_out.append(rank)
-            except:
-                # we need to skip the first asnumpy call on the activation to prevent the 
-                # asnumpy conversion error
-                print("")
+                    #print(rank)
+
+                    rank_out.append(rank)
+                except:
+                    # we need to skip the first asnumpy call on the activation to prevent the 
+                    # asnumpy conversion error
+                    print("")
 
         return rank_out
 
