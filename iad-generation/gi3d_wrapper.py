@@ -113,7 +113,7 @@ class I3DBackBone(BackBone):
         # record gradient information
         with ag.record(train_mode=False):
             out = self.net(data_in)
-            loss = L(out, mx.nd.array([csv_input["label"]]))
+            loss = L(out, mx.nd.array([csv_input["label"]]).copyto(mx.gpu(0)))
         print("out:", out)
 
         # do backward pass
@@ -130,8 +130,8 @@ class I3DBackBone(BackBone):
             #grad = l.grad[0]
             try:
 
-                activation = l[0].copyto(mx.cpu()).asnumpy()
-                gradient = l.grad[0].copyto(mx.cpu()).asnumpy()
+                activation = l[0].asnumpy()
+                gradient = l.grad[0].asnumpy()
 
                 print("activation:", np.sum(activation, axis = (1,2,3)))
                 print("gradient:", np.sum(gradient, axis = (1,2,3)))
