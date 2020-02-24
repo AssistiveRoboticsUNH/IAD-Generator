@@ -130,7 +130,7 @@ class I3DBackBone(BackBone):
             print(l[0].shape, l.grad[0].shape)
             print("activation1", type(l[0]), "grad", type(l.grad[0]))
             print("activation1", l[0].dtype, "grad", l.grad[0].dtype)
-            print("activation1", l[0].as_in_context(mx.cpu()), "grad", l.as_in_context(mx.gpu(0)))
+            print("activation1", l[0] is l[0].as_in_context(mx.cpu()), "act1", l[0] is l.as_in_context(mx.gpu(0)))
             #print(l[0])
 
             mul = mx.nd.sum(mx.nd.multiply(l[0], l.grad[0]), axis = (1,2,3))
