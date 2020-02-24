@@ -258,7 +258,7 @@ class I3DBackBone(BackBone):
 
         
         #net = get_model(name=model_name, nclass=classes, pretrained=opt.use_pretrained, num_segments=opt.num_segments, num_crop=opt.num_crop)
-        net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1, feat_ext=True)
+        net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1, feat_ext=False)
         
         net.cast('float32')
         net.collect_params().reset_ctx([self.ctx])
