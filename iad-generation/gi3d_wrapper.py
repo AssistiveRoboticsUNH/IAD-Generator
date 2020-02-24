@@ -113,7 +113,7 @@ class I3DBackBone(BackBone):
         # record gradient information
         with ag.record(train_mode=False):
             out = self.net(data_in)
-
+        print("out:", out)
 
         # do backward pass
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
