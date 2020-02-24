@@ -182,7 +182,7 @@ class I3DBackBone(BackBone):
 
         for i in range(len(activations)):
             # convert actvitaion from PyTorch to Numpy
-            activations[i] = activations[i].cpu().numpy()
+            activations[i] = activations[i].asnumpy()
 
             # prune low-quality filters
             activations[i] = activations[i][:, self.feature_idx[i], :, :]
