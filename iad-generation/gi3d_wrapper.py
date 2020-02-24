@@ -102,7 +102,7 @@ class I3DBackBone(BackBone):
     def rank(self, csv_input):
 
         summed_ranks = []
-        #L = gluon.loss.SoftmaxCrossEntropyLoss()
+        L = gluon.loss.SoftmaxCrossEntropyLoss()
 
 
         data_in = self.open_file(csv_input)
@@ -113,11 +113,13 @@ class I3DBackBone(BackBone):
         # record gradient information
         with ag.record(train_mode=False):
             out = self.net(data_in)
+            loss = L(out, mx.nd.array([csv_input["label"]]))
         print("out:", out)
 
         # do backward pass
-        one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
-        out.backward(one_hot_target, train_mode=False)
+        #one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
+        #out.backward(one_hot_target, train_mode=False)
+        loss.backward(one_hot_target, train_mode=False)
         
         # calculate Taylor Expansion for network
         layers = self.net.activation_points
