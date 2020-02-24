@@ -126,45 +126,21 @@ class I3DBackBone(BackBone):
             #print(type(l[0]), type(l.grad[0]))
             #activ = l[0]
             #grad = l.grad[0]
-
-            print(l[0].shape, l.grad[0].shape)
-            print("activation1", type(l[0]), "grad", type(l.grad[0]))
-            print("activation1", l[0].dtype, "grad", l.grad[0].dtype)
-            #print("activation1", l[0].as_in_context(mx.cpu()) is l[0] , "act1",  l.as_in_context(mx.gpu(0)) is l[0])
-            #print(l[0])
-
-            mul = mx.nd.sum(mx.nd.multiply(l[0], l.grad[0]), axis = (1,2,3))
-            print(mul.shape)
-            mul2 = mul.copyto(mx.cpu())
-            print("activation1", mul2.as_in_context(mx.cpu()) is mul2 , "act1",  mul2.as_in_context(mx.gpu(0)) is mul2)
-            #mx.nd.save('rank_values', mul2)
-            
             try:
-                mul_out = mul.asnumpy()
-                print("SUCCESS: Succesful Conversion")
+
+                activation = l[0].asnumpy()
+                gradient = l.grad[0].asnumpy()
+
+                rank = np.multiply(activation, gradient)
+                rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
+                rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
+
+                rank_out.append(rank)
             except:
+                # we need to skip the first asnumpy call on the activation to prevent the 
+                # asnumpy conversion error
+                print("skip")
 
-                print("ERROR: failed to print contents")
-
-
-
-            #activation = l[0].asnumpy()
-            '''
-            gradient = l.grad[0].asnumpy()
-
-            print("activation2", type(activation), "grad", type(gradient))
-
-            rank = np.multiply(activation, gradient)
-            print("rank1:", rank.shape)
-            rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
-            rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
-            print("rank2:", rank.shape)
-            '''
-            rank = []
-            rank_out.append(rank)
-        
-        print("return ranks here")
-        print (rank_out)
         return rank_out
 
 
