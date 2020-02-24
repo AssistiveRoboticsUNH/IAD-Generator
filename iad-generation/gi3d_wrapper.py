@@ -106,12 +106,72 @@ class I3DBackBone(BackBone):
 
 
         data_in = self.open_file(csv_input)
+        print("data_in:", data_in.shape)
+
+        rank_out = []
+
+        for i in range(4):
+
+            self.net.record_point = i
+
+            # record gradient information
+            with ag.record():
+                out = self.net(data_in)
+                label_correct = mx.nd.array([csv_input["label"]]).copyto(mx.gpu(0))
+                loss = L(out, label_correct)
+
+            # do backward pass
+            
+            # calculate Taylor Expansion for network
+            layers = self.net.activation_points
+            out.backward()#one_hot_target, train_mode=False)
+
+
+        
+            try:
+
+                activation = l[0].asnumpy()
+                gradient = l.grad[0].asnumpy()
+
+                print("{0}: activ {1}, grad {2}".format(
+                        i,
+                        np.sum(activation),
+                        np.sum(gradient),
+                        ))
+
+                if(np.sum(gradient) != 0):
+                    #print("activation:", np.sum(activation, axis = (1,2,3)))
+                    print("gradient:", np.sum(gradient, axis = (1,2,3)))
+
+                rank = np.multiply(activation, gradient)
+                rank_norm_size = rank.shape[1]*rank.shape[2]*rank.shape[3]
+                rank = np.sum(rank, axis = (1,2,3)) / float(rank_norm_size)
+
+                #print(rank)
+
+                rank_out.append(rank)
+            except:
+                # we need to skip the first asnumpy call on the activation to prevent the 
+                # asnumpy conversion error
+                print("")
+
+        return rank_out
+
+"""
+    def rank(self, csv_input):
+
+        summed_ranks = []
+        L = gluon.loss.SoftmaxCrossEntropyLoss()
+
+
+        data_in = self.open_file(csv_input)
         #data_in = self.open_file(csv_input, start_idx = i)
         print("data_in:", data_in.shape)
 
 
         #one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         # record gradient information
+
         with ag.record():#train_mode=False):
             out = self.net(data_in)
 
@@ -170,7 +230,7 @@ class I3DBackBone(BackBone):
                 print("")
 
         return rank_out
-
+"""
 
    
     def process(self, csv_input):

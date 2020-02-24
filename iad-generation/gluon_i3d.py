@@ -678,19 +678,15 @@ class I3D_ResNetV1(HybridBlock):
         outs = []
 
         for i, res_layer in enumerate(self.res_layers):
-            #res_layer.attach_grad()
             x = res_layer(x)
-            #print(type(res_layer), type(x))
 
-            if i < 2:
+            if i == self.record_point:
                 x.attach_grad()
-            #if i in self.out_indices:
-            #if i > 0:
+
             outs.append(x)
             if i == 0:
                 x = self.pool2(x)
 
-        #print("outs:", outs)
         feat = outs[-1]
 
         # spatial temporal average
@@ -703,17 +699,10 @@ class I3D_ResNetV1(HybridBlock):
         
         x = F.mean(x, axis=1)
 
-
-        #for o in outs:
-        #    o.attach_grad()
         self.activation_points = outs
-        #print(self.activation_points[0])
 
         if self.feat_ext:
-            #print("x:", type(x))
-            #x.attach_grad()
-            return x#outs#[x, self.res_layers[0]]#+layers
-            #return x
+            return x
 
         x = self.head(x)
         return x
