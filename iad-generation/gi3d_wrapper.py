@@ -127,8 +127,8 @@ class I3DBackBone(BackBone):
         # do backward pass
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         #out.backward(one_hot_target, train_mode=False)
-        out.backward(one_hot_target, train_mode=True)
-        #loss.backward()
+        #out.backward(one_hot_target, train_mode=True)
+        loss.backward(one_hot_target)
         
         # calculate Taylor Expansion for network
         layers = self.net.activation_points
