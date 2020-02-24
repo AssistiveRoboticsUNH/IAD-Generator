@@ -130,8 +130,8 @@ class I3DBackBone(BackBone):
             #grad = l.grad[0]
             try:
 
-                activation = l[0].asnumpy()
-                gradient = l.grad[0].asnumpy()
+                activation = l[0].copyto(mx.cpu()).asnumpy()
+                gradient = l.grad[0].copyto(mx.cpu()).asnumpy()
 
                 print("activation:", np.sum(activation, axis = (1,2,3)))
                 print("gradient:", np.sum(gradient, axis = (1,2,3)))
