@@ -142,7 +142,7 @@ class I3DBackBone(BackBone):
             try:
                 mul_out = mul.asnumpy()
             except:
-                print("failed to print contents")
+                print("ERROR: failed to print contents")
 
 
 
