@@ -114,14 +114,16 @@ class I3DBackBone(BackBone):
         # record gradient information
         with ag.record():#train_mode=False):
             out = self.net(data_in)
+
+            #loss = L(out, )
             #print("out:", out.shape)
             #print("one_hot_target:", one_hot_target.shape)
 
             #oht_g = one_hot_target.copyto(mx.gpu(0))
             #print("one_hot_target_gpu:", oht_g.shape)
-            #oht_g = mx.nd.array([csv_input["label"]]).copyto(mx.gpu(0))
+            label_correct = mx.nd.array([csv_input["label"]]).copyto(mx.gpu(0))
 
-            #loss = L(out, oht_g)
+            loss = L(out, label_correct)
             #print("loss:", loss)
         #print("out:", out)
 
@@ -132,7 +134,7 @@ class I3DBackBone(BackBone):
         
         # calculate Taylor Expansion for network
         layers = self.net.activation_points
-        out.backward()#one_hot_target, train_mode=False)
+        loss.backward()#one_hot_target, train_mode=False)
 
 
         rank_out = []
