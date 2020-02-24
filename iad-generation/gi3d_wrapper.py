@@ -32,7 +32,7 @@ from gluoncv.utils import makedirs, LRSequential, LRScheduler, split_and_load
 import numpy as np
 from PIL import Image
 
-DEPTH_SIZE = 4
+DEPTH_SIZE = 5
 
 class I3DBackBone(BackBone):
          
