@@ -694,11 +694,23 @@ class I3D_ResNetV1(HybridBlock):
 
         # spatial temporal average
         pooled_feat = self.st_avg(feat)
+
+        x.attach_grad() 
+        outs.append(x)
+
         x = F.squeeze(pooled_feat, axis=(2, 3, 4))
+
+        x.attach_grad() 
+        outs.append(x)
 
         # segmental consensus
         x = F.reshape(x, shape=(-1, self.num_segments * self.num_crop, self.feat_dim))
+        
+        x.attach_grad() 
+        outs.append(x)   
+
         x = F.mean(x, axis=1)
+
 
         #for o in outs:
         #    o.attach_grad()
