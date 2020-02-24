@@ -126,6 +126,7 @@ class I3DBackBone(BackBone):
             layers = self.net.activation_points
             out.backward()#one_hot_target, train_mode=False)
 
+            print(len(layers), i+1)
 
             for j in range(2):
                 l = layers[i+j]
