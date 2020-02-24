@@ -672,7 +672,6 @@ class I3D_ResNetV1(HybridBlock):
 
     def hybrid_forward(self, F, x):
         """Hybrid forward of I3D network"""
-        print(F)
 
         x = self.first_stage(x)
         x.attach_grad()
@@ -695,11 +694,17 @@ class I3D_ResNetV1(HybridBlock):
 
         # spatial temporal average
         pooled_feat = self.st_avg(feat)
+        pooled_feat.attach_grad()
+
         x = F.squeeze(pooled_feat, axis=(2, 3, 4))
+        x.attach_grad()
 
         # segmental consensus
         x = F.reshape(x, shape=(-1, self.num_segments * self.num_crop, self.feat_dim))
+        x.attach_grad()
+
         x = F.mean(x, axis=1)
+        x.attach_grad()
 
         #for o in outs:
         #    o.attach_grad()
