@@ -118,6 +118,14 @@ class I3DBackBone(BackBone):
         # do backward pass
         one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         out.backward(one_hot_target, train_mode=False)
+
+        try:
+            data_in_out = mx.ndarry(data_in).asnumpy()
+            print("SUCCESS: Succesful Conversion")
+        except:
+
+            print("ERROR: failed to print contents")
+
         
         # calculate Taylor Expansion for network
         layers = self.net.activation_points
@@ -143,7 +151,7 @@ class I3DBackBone(BackBone):
                 mul_out = mul.asnumpy()
                 print("SUCCESS: Succesful Conversion")
             except:
-                
+
                 print("ERROR: failed to print contents")
 
 
