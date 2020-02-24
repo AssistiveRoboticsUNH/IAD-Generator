@@ -753,7 +753,7 @@ def i3d_resnet50_v1_sthsthv2(nclass=174, pretrained=False, pretrained_base=True,
                          partial_bn=partial_bn,
                          ctx=ctx,
                          **kwargs)
-    model.self.record_point = -1
+    model.record_point = -1
 
     if pretrained:
         from gluoncv.model_zoo.model_store import get_model_file
