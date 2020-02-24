@@ -110,15 +110,16 @@ class I3DBackBone(BackBone):
         print("data_in:", data_in.shape)
 
 
-        one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
+        #one_hot_target = mx.nd.one_hot(mx.nd.array([csv_input["label"]]), self.num_classes)
         # record gradient information
         with ag.record(train_mode=False):
             out = self.net(data_in)
             print("out:", out.shape)
-            print("one_hot_target:", one_hot_target.shape)
+            #print("one_hot_target:", one_hot_target.shape)
 
-            oht_g = one_hot_target.copyto(mx.gpu(0))
-            print("one_hot_target_gpu:", oht_g.shape)
+            #oht_g = one_hot_target.copyto(mx.gpu(0))
+            #print("one_hot_target_gpu:", oht_g.shape)
+            oht_g = mx.nd.array([csv_input["label"]]).copyto(mx.gpu(0))
 
             loss = L(out, oht_g)
         print("out:", out)
