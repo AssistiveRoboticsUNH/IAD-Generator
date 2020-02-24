@@ -137,8 +137,12 @@ class I3DBackBone(BackBone):
             print(mul.shape)
             mul2 = mul.copyto(mx.cpu())
             print("activation1", mul2.as_in_context(mx.cpu()) is mul2 , "act1",  mul2.as_in_context(mx.gpu(0)) is mul2)
-            mx.nd.save('rank_values', mul2)
-            #print(mul)
+            #mx.nd.save('rank_values', mul2)
+            #
+            try:
+                mul_out = mul.asnumpy()
+            except:
+                print("failed to print contents")
 
 
 
