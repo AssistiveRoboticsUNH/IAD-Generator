@@ -674,7 +674,7 @@ class I3D_ResNetV1(HybridBlock):
         """Hybrid forward of I3D network"""
         x = self.first_stage(x)
         x.attach_grad()
-        outs = []
+        outs = [x]
 
         for i, res_layer in enumerate(self.res_layers):
             #res_layer.attach_grad()
@@ -701,7 +701,7 @@ class I3D_ResNetV1(HybridBlock):
 
         #for o in outs:
         #    o.attach_grad()
-        self.activation_points = outs
+        self.activation_points = outs[1:]
         #print(self.activation_points[0])
 
         if self.feat_ext:
