@@ -22,19 +22,21 @@ class WorkerStopException(Exception):
 def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 	#save to disk
 	for layer in range(len(data)):
+		print("t0")
 		label_path = os.path.join(iad_data_path, csv_input['label_name'])
 		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
-
+		print("t1")
 		csv_input['iad_path_'+str(layer)] = os.path.join(label_path, csv_input['example_id'])+"_"+str(layer)+".npz"
 
 		print(data[layer].shape, length_ratio)
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
+		print("t2")
 		data[layer] = np.squeeze(data[layer])
 		#print(data[layer].shape)
-
+		print("t3")
 		np.savez_compressed(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
-
+		print("t4")
 def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
@@ -63,6 +65,8 @@ def convert_csv_chunk(inputs):
 	#define the model
 	if(model_type == 'i3d'):
 		from gi3d_wrapper import I3DBackBone as bb
+	if(model_type == 'rn50'):
+		from rn50_wrapper import RN50BackBone as bb
 	if(model_type == 'trn'):
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
