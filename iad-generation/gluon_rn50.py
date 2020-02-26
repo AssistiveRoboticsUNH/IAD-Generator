@@ -7,14 +7,6 @@ from mxnet.gluon.block import HybridBlock
 from mxnet.gluon import nn
 from mxnet.gluon.nn import BatchNorm
 
-__all__ = ['ResNetV1b', 'resnet18_v1b', 'resnet34_v1b',
-           'resnet50_v1b', 'resnet50_v1b_gn',
-           'resnet101_v1b', 'resnet101_v1b_gn',
-           'resnet152_v1b', 'BasicBlockV1b', 'BottleneckV1b',
-           'resnet50_v1c', 'resnet101_v1c', 'resnet152_v1c',
-           'resnet50_v1d', 'resnet101_v1d', 'resnet152_v1d',
-           'resnet50_v1e', 'resnet101_v1e', 'resnet152_v1e',
-           'resnet50_v1s', 'resnet101_v1s', 'resnet152_v1s']
 
 class BasicBlockV1b(HybridBlock):
     """ResNetV1b BasicBlockV1b
