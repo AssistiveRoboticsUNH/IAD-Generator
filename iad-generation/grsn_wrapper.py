@@ -17,13 +17,13 @@ from mxnet.gluon.data.vision import transforms
 from mxnet.contrib.quantization import *
 
 from gluoncv.data.transforms import video
-from gluon_i3d import i3d_resnet50_v1_sthsthv2 as model
+from gluon_rn50 import resnet50_v1b as model
 
 
 DEPTH_SIZE = 4
 CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
-class I3DBackBone(BackBone):
+class RN50BackBone(BackBone):
          
     def open_file(self, csv_input, start_idx=0, batch_now=True):
         
@@ -55,6 +55,7 @@ class I3DBackBone(BackBone):
         out = data.reshape(self.max_length, 3, 224,224)
         return np.transpose(out, [1,0,2,3])
 
+
     def open_file_as_batch(self, csv_input):
         
         folder_name = csv_input['raw_path']
@@ -71,6 +72,7 @@ class I3DBackBone(BackBone):
     def predict(self, csv_input):
 
         print("data_in:", data_in.shape)
+
         self.net.forward(is_train=False, data=data_in)
 
     def rank(self, csv_input):
@@ -98,7 +100,7 @@ class I3DBackBone(BackBone):
             
             # calculate Taylor Expansion for network
             layers = self.net.activation_points
-            out.backward()
+            out.backward()#one_hot_target, train_mode=False)
 
             print(len(layers), i)
 
@@ -109,7 +111,7 @@ class I3DBackBone(BackBone):
 
                     activation = l[0].asnumpy()
                     gradient = l.grad[0].asnumpy()
-
+                    
                     print(activation.shape)
                     
                     rank = np.multiply(activation, gradient)
@@ -165,6 +167,7 @@ class I3DBackBone(BackBone):
 
         self.transform = None
 
+        
         # get data
         image_norm_mean = [0.485, 0.456, 0.406]
         image_norm_std = [0.229, 0.224, 0.225]
