@@ -15,6 +15,10 @@ from multiprocessing import Pool
 
 batch_size = 1
 
+class WorkerStopException(Exception):
+    pass
+
+
 def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 	#save to disk
 	for layer in range(len(data)):
@@ -46,7 +50,7 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 			# write the am_layers to file and get the minimum and maximum values for each feature row
 			convert_to_iad(iad_data, csv_ex, length_ratio, iad_data_path)
 
-			print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
+			print("converted video {:d} to IAD: {:6d}/{:6d}, time: {:8.2}".format(int(csv_ex['example_id']), i, len(csv_contents), time.time()-t_s))
 		except:
 			print("Failed on file: ", csv_ex["example_id"])
 			raise WorkerStopException()
