@@ -34,7 +34,7 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
-
+	sys.exit(-1)
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
 		try:
@@ -49,6 +49,7 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 			print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
 		except:
 			print("Failed on file: ", csv_ex["example_id"])
+			sys.exit(-1)
 
 def convert_csv_chunk(inputs):
 	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
