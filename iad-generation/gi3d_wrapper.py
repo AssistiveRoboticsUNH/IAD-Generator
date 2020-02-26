@@ -144,11 +144,11 @@ class I3DBackBone(BackBone):
 
         for i in range(len(activations)):
             # convert actvitaion from PyTorch to Numpy
-            activations[i] = activations[i].asnumpy()
+            activations[i] = activations[i].asnumpy()[0]
 
             print("a0:", activations[i].shape)
             # prune low-quality filters
-            activations[i] = activations[i][:, self.feature_idx[i], :, :]
+            activations[i] = activations[i][self.feature_idx[i]]
             print("a1:", activations[i].shape)
 
             # compress spatial dimensions
