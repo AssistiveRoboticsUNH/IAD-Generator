@@ -17,7 +17,7 @@ from mxnet.gluon.data.vision import transforms
 from mxnet.contrib.quantization import *
 
 from gluoncv.data.transforms import video
-from gluon_rn50 import resnet50_v1b as model
+from gluon_rn50 import resnet50_v1b_sthsthv2 as model
 
 
 DEPTH_SIZE = 4
