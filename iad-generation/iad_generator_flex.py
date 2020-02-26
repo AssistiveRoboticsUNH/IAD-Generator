@@ -26,7 +26,7 @@ def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 		data[layer] = np.squeeze(data[layer])
-		print(data[layer].shape)
+		#print(data[layer].shape)
 
 		np.savez_compressed(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
 
