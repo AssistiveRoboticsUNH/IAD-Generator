@@ -34,7 +34,6 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
-	sys.exit(-1)
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
 		try:
