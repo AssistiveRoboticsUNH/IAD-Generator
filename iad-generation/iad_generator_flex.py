@@ -37,25 +37,26 @@ def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 		print("t3")
 		np.savez_compressed(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
 		print("t4")
+
 def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
 	# set to None initiially and then accumulates over time
 	summed_ranks = None
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
-		try:
-			t_s = time.time()
+		#try:
+		t_s = time.time()
 
-			# generate activation map
-			iad_data, length_ratio = model.process(csv_ex)
+		# generate activation map
+		iad_data, length_ratio = model.process(csv_ex)
 
-			# write the am_layers to file and get the minimum and maximum values for each feature row
-			convert_to_iad(iad_data, csv_ex, length_ratio, iad_data_path)
+		# write the am_layers to file and get the minimum and maximum values for each feature row
+		convert_to_iad(iad_data, csv_ex, length_ratio, iad_data_path)
 
-			print("converted video {:d} to IAD: {:6d}/{:6d}, time: {:8.2}".format(int(csv_ex['example_id']), i, len(csv_contents), time.time()-t_s))
-		except:
-			print("Failed on file: ", csv_ex["example_id"])
-			raise WorkerStopException()
+		print("converted video {:d} to IAD: {:6d}/{:6d}, time: {:8.2}".format(int(csv_ex['example_id']), i, len(csv_contents), time.time()-t_s))
+		#except:
+		#	print("Failed on file: ", csv_ex["example_id"])
+		#	raise WorkerStopException()
 
 def convert_csv_chunk(inputs):
 	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
@@ -145,12 +146,13 @@ def main(
 		last += chunk_size
 
 	#convert files to IAD in parallel
-	#convert_csv_chunk(inputs[0])
+	convert_csv_chunk(inputs[0])
+	'''
 	try:
 		p.map(convert_csv_chunk, inputs)
 	except WorkerStopException:
 		sys.exit("generate failed")
-
+	'''
 	#summarize operations
 	print("--------------")
 	print("Summary")
