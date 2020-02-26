@@ -49,7 +49,7 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 			print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
 		except:
 			print("Failed on file: ", csv_ex["example_id"])
-			sys.exit(-1)
+			raise WorkerStopException()
 
 def convert_csv_chunk(inputs):
 	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
@@ -66,7 +66,7 @@ def convert_csv_chunk(inputs):
 	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
 	
 	#generate IADs
-	convert_dataset_to_iad(csv_contents, model, iad_data_path)
+	return convert_dataset_to_iad(csv_contents, model, iad_data_path)
 
 def main(
 	model_type, model_filename, 
@@ -138,7 +138,10 @@ def main(
 
 	#convert files to IAD in parallel
 	#convert_csv_chunk(inputs[0])
-	p.map(convert_csv_chunk, inputs)
+	try:
+		p.map(convert_csv_chunk, inputs)
+	except WorkerStopException:
+		sys.exit("generate failed")
 
 	#summarize operations
 	print("--------------")
