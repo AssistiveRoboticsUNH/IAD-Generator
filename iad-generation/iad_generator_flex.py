@@ -127,7 +127,6 @@ def main(
 
 	feature_idx = get_top_n_feature_indexes(feature_rank_file, num_features)
 
-	num_procs = 1
 
 	p = Pool(num_procs)
 
