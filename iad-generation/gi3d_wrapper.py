@@ -154,7 +154,7 @@ class I3DBackBone(BackBone):
             # compress spatial dimensions
             activations[i] = np.max(activations[i], axis=(2,3))
             print("a2:", activations[i].shape)
-            activations[i] = activations[i].T
+            #activations[i] = activations[i].T
             print("a3:", activations[i].shape)
         
         return activations, length_ratio
