@@ -37,19 +37,23 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 
 	# process files
 	for i, csv_ex in enumerate(csv_contents):
-		t_s = time.time()
+		try:
+			t_s = time.time()
 
-		# generate activation map
-		iad_data, length_ratio = model.process(csv_ex)
+			# generate activation map
+			iad_data, length_ratio = model.process(csv_ex)
 
-		# write the am_layers to file and get the minimum and maximum values for each feature row
-		convert_to_iad(iad_data, csv_ex, length_ratio, iad_data_path)
+			# write the am_layers to file and get the minimum and maximum values for each feature row
+			convert_to_iad(iad_data, csv_ex, length_ratio, iad_data_path)
 
-		print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
+			print("converted video to IAD: {:6d}/{:6d}, time: {:8.2}".format(i, len(csv_contents), time.time()-t_s))
+		except:
+			print("Failed on file: ", csv_ex["example_id"])
 
 def convert_csv_chunk(inputs):
 	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
 	#print([ex['example_id'] for ex in csv_contents])
+
 
 	#define the model
 	if(model_type == 'i3d'):
@@ -126,7 +130,7 @@ def main(
 			iad_data_path,
 			num_classes, 
 			max_length, 
-			feature_idx
+			feature_idx,
 			)
 		)
 		last += chunk_size
