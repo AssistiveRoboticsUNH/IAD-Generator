@@ -32,7 +32,7 @@ def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 		print(data[layer].shape, length_ratio)
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
 		print("t2", data[layer].shape)
-		data[layer] = np.squeeze(data[layer])
+		#data[layer] = np.squeeze(data[layer])
 		#print(data[layer].shape)
 		print("t3")
 		print(data[layer].shape)
