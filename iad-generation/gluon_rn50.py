@@ -338,7 +338,7 @@ class ActionRecResNetV1b(HybridBlock):
                  num_segments=1, num_crop=1,
                  partial_bn=False, **kwargs):
         super(ActionRecResNetV1b, self).__init__()
-
+        self.record_point = -1
         '''
         if depth == 18:
             pretrained_model = resnet18_v1b(pretrained=pretrained_base, **kwargs)
