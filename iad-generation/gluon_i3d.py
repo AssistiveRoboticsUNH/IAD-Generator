@@ -711,7 +711,7 @@ class I3D_ResNetV1(HybridBlock):
 
 
 def i3d_resnet50_v1_sthsthv2(nclass=174, pretrained=False, pretrained_base=True, ctx=cpu(),
-                             root='~/.mxnet/models', use_tsn=False, num_segments=1, num_crop=1,
+                             root='~/.mxnet/models', use_tsn=False, num_segments=8, num_crop=1,
                              partial_bn=False, feat_ext=False, **kwargs):
     r"""Inflated 3D model (I3D) with ResNet50 backbone trained on Something-Something-V2 dataset.
 

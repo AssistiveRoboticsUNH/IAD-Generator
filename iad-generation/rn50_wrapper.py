@@ -175,7 +175,7 @@ class RN50BackBone(BackBone):
         self.transform = video.VideoGroupValTransform(size=224, mean=image_norm_mean, std=image_norm_std)
         self.ctx = mx.gpu(gpu)
 
-        net = model(nclass=self.num_classes, pretrained=False, num_segments=1, num_crop=1, feat_ext=False)
+        net = model(nclass=self.num_classes, pretrained=False, num_segments=8, num_crop=1, feat_ext=False)
         
         net.cast('float32')
         net.collect_params().reset_ctx([self.ctx])
