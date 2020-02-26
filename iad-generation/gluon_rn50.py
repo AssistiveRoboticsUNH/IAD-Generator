@@ -1,14 +1,14 @@
 # pylint: disable=line-too-long,too-many-lines,missing-docstring,arguments-differ,unused-argument
 import mxnet as mx
 from mxnet import init
-from mxnet.gluon import nn
-from mxnet.gluon.nn import HybridBlock
-from ..resnetv1b import resnet18_v1b, resnet34_v1b, resnet50_v1b, resnet101_v1b, resnet152_v1b
+#from mxnet.gluon import nn
+#from mxnet.gluon.nn import HybridBlock
+#from ..resnetv1b import resnet18_v1b, resnet34_v1b, resnet50_v1b, resnet101_v1b, resnet152_v1b
 
 
 """ResNetV1bs, implemented in Gluon."""
 # pylint: disable=arguments-differ,unused-argument,missing-docstring
-from __future__ import division
+#from __future__ import division
 
 from mxnet.context import cpu
 from mxnet.gluon.block import HybridBlock
