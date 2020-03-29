@@ -125,9 +125,9 @@ def view_feature_rankings(file):
 	for i in range(50):
 		print(depth[i], index[i], rank[i])
 
-	end = file.split('/')[-1]
+	end = file.split('/')[-1][:-4]+"_chk.npz"
 	print("end: ", end)
-	np.save(index[:50], end[:-4]+"_chk.npz")
+	np.save(index[:50], end)
 
 	'''
 	#define color on layer
