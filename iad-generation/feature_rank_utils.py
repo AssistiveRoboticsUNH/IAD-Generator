@@ -118,9 +118,9 @@ def view_feature_rankings(file):
 	depth, index, rank = order_feature_ranks(file)
 
 	loc = depth == 3
-	depth = depth[loc]
-	index = index[loc]
-	rank = rank[loc]
+	depth = depth[loc][::-1]
+	index = index[loc][::-1]
+	rank = rank[loc][::-1]
 
 	for i in range(50):
 		print(depth[i], index[i], rank[i])
