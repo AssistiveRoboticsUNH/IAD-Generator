@@ -117,8 +117,13 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 def view_feature_rankings(file):
 	depth, index, rank = order_feature_ranks(file)
 
+	loc = depth == 3
+	depth = depth[loc]
+	index = index[loc]
+	rank = rank[loc]
+
 	for i in range(50):
-		print(depth[i], index[i])
+		print(depth[i], index[i], rank[i])
 
 	'''
 	#define color on layer
