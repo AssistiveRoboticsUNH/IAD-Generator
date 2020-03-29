@@ -117,6 +117,10 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 def view_feature_rankings(file):
 	depth, index, rank = order_feature_ranks(file)
 
+	for i in range(50):
+		print(depth[i], index[i])
+
+	'''
 	#define color on layer
 	colors = ['r', 'g', 'b', 'y', 'k']
 	c = []
@@ -127,6 +131,7 @@ def view_feature_rankings(file):
 
 	plt.scatter(np.arange(len(rank)), rank, facecolors='none', edgecolors=c)
 	plt.show()
+	'''
 
 if __name__ == '__main__':
 
