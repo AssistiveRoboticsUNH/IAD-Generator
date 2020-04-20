@@ -113,7 +113,6 @@ def get_top_n_feature_indexes_combined(frames_file, flow_file, n, weights=np.one
 
 	return pruning_indexes
 
-
 def view_feature_rankings(file):
 	depth, index, rank = order_feature_ranks(file)
 

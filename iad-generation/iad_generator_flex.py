@@ -18,27 +18,17 @@ batch_size = 1
 class WorkerStopException(Exception):
     pass
 
-
 def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 	#save to disk
 	for layer in range(len(data)):
-		#print("t0")
 		label_path = os.path.join(iad_data_path, csv_input['label_name'])
 		if(not os.path.exists(label_path)):
 			os.makedirs(label_path)
-		#print("t1")
 		csv_input['iad_path_'+str(layer)] = os.path.join(label_path, csv_input['example_id'])+"_"+str(layer)+".npz"
 
-		#print(data[layer].shape, length_ratio)
 		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
-		#print("t2", data[layer].shape)
-		#data[layer] = np.squeeze(data[layer])
-		#print(data[layer].shape)
-		#print("t3")
-		#print(data[layer].shape)
 
 		np.savez_compressed(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
-		#print("t4")
 
 def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
@@ -99,18 +89,7 @@ def main(
 		csv_contents = [ex for ex in csv_contents if ex['dataset_id'] >= dataset_id or ex['dataset_id'] == 0]
 	else:
 		csv_contents = [ex for ex in csv_contents if ex['example_id'] == single]
-	#print([ex["example_id"] for ex in csv_contents])
-	#csv_contents = csv_contents[:50]
 	
-	'''
-	if (gpu == "0"):
-		print("set 1")
-		csv_contents = csv_contents[:len(csv_contents)/2]
-	elif (gpu == "1"):
-		print("set 2")
-		csv_contents = csv_contents[len(csv_contents)/2:]
-	'''
-
 	# get the maximum frame length among the dataset and add the 
 	# full path name to the dict
 	max_frame_length = 0
@@ -162,7 +141,6 @@ def main(
 	print("Number of videos into IADs: {0}".format(len(csv_contents)))
 	print("IADs are padded/pruned to a length of: {0}".format(max_length))
 	print("Files place in: {0}".format(iad_data_path))
-	#print("Min/Max File was Saved: {0}".format(update_min_maxes))
 
 if __name__ == '__main__':
 	import argparse
