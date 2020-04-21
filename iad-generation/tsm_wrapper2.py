@@ -186,7 +186,7 @@ class TSMBackBone(BackBone):
                 K1_1 = int(params_1[2])
                 K2_1 = int(params_1[3])
                 x = Variable(torch.randn(1,3, 32, 32))
-                nett_1 = nn.Sequential(*list(net.features.children())[:rr])
+                nett_1 = nn.Sequential(*list(self.net.features.children())[:rr])
                 out_1 = nett_1(x)
                 img_size_1 = out_1.size()
                 # print('feature map size is:', img_size_1)
