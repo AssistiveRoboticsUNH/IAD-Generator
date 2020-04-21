@@ -129,12 +129,8 @@ class TSMBackBone(BackBone):
 
             if isinstance(layer, nn.Conv2d):
 
-                print("weight:", layer.weight)
-                print("weight:", layer.b)
-
                 # get weights and biases
                 weight = layer.weight.data.cpu().numpy()
-                
 
                 #reshape weights for clustering
                 if first_ele is not None:
@@ -152,8 +148,6 @@ class TSMBackBone(BackBone):
 
                 # prune filters
                 weight_pruned = weight_layers_rearranged[first_ele]
-
-                
 
                 # correct pruned weight shape
                 weight_pruned = np.reshape(weight_pruned, [n_clusters_, weight_layers_rearranged_pruned.shape[1],weight_layers_rearranged_pruned.shape[2],weight_layers_rearranged_pruned.shape[3]])
