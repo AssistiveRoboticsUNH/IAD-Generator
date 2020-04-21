@@ -12,6 +12,8 @@ from ops import dataset_config
 import numpy as np
 from PIL import Image
 
+# added for pruning
+from torch.autograd import Variable
 import scipy.cluster.hierarchy as hcluster
 import scipy.cluster.hierarchy as hac
 import scipy.cluster.hierarchy as fclusterdata
