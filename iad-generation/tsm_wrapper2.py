@@ -32,7 +32,7 @@ def cluster_weights_agglo(weight, threshold, average=True):
     n_clusters_ = len(labels_unique)
 
     #print(n_clusters_)
-    elapsed_time = time.time() - t0
+    #elapsed_time = time.time() - t0
     # print(elapsed_time)
 
     a=np.array(labels)
