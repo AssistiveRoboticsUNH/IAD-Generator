@@ -194,11 +194,12 @@ class TSMBackBone(BackBone):
                 C2_1 = int(params_1[1])
                 K1_1 = int(params_1[2])
                 K2_1 = int(params_1[3])
-                x = Variable(torch.randn(1,3, 32, 32))
+                
 
                 print("====================")
                 print("self.net.base_model:", self.net.base_model.children())
 
+                x = Variable(torch.randn(1,3, 256,256))
                 nett_1 = nn.Sequential(*list(self.net.base_model.children())[:rr])
                 out_1 = nett_1(x)
                 img_size_1 = out_1.size()
