@@ -201,7 +201,11 @@ class TSMBackBone(BackBone):
                 print("self.net.base_model:", self.net.base_model.children())
 
                 x = Variable(torch.randn(36, 3, 256, 256))
+                print("x.shape:", x.shape)
+
                 nett_1 = nn.Sequential(*list(self.net.base_model.children())[:rr])
+                print("nett_1:", nett_1)
+
                 out_1 = nett_1(x)
                 img_size_1 = out_1.size()
                 # print('feature map size is:', img_size_1)
