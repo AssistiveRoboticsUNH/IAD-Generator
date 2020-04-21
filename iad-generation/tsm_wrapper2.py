@@ -199,7 +199,7 @@ class TSMBackBone(BackBone):
                 print("====================")
                 print("self.net.base_model:", self.net.base_model.children())
 
-                x = Variable(torch.randn(64, 3, 256, 256))
+                x = Variable(torch.randn(36, 3, 256, 256))
                 nett_1 = nn.Sequential(*list(self.net.base_model.children())[:rr])
                 out_1 = nett_1(x)
                 img_size_1 = out_1.size()
