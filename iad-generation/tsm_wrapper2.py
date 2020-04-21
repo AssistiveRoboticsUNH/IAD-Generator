@@ -16,7 +16,6 @@ DEPTH_SIZE = 4
 CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
 def cluster_weights_agglo(weight, threshold, average=True):
-    t0 = time.time()
     weight = weight.T
     weight = normalize(weight, norm='l2', axis=1)
     threshold =  1.0-threshold   # Conversion to distance measure
