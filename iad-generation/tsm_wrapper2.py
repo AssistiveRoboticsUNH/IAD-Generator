@@ -150,6 +150,7 @@ class TSMBackBone(BackBone):
             if isinstance(layer, nn.Conv2d):
                 print("")
                 print("layer:", layer)
+                print("layer.kernel_size:", layer.kernel_size)
 
 
                 # get weights and biases
