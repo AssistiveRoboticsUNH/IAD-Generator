@@ -146,7 +146,10 @@ class TSMBackBone(BackBone):
 
 
             if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.MaxPool2d) or isinstance(layer, nn.ReLU) or isinstance(layer, nn.BatchNorm2d):
-                print("layer:", layer)
+                print("layer "+str(rr)+" :", layer)
+                print("-----------")
+                print(nn.Sequential(*list(self.net.base_model.children())[:rr]))
+                rr += 1
                 print("======================")
 
 
