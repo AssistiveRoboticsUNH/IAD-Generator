@@ -139,9 +139,15 @@ class TSMBackBone(BackBone):
         rr = 1
 
         for layer in self.net.modules():
-            print("layer:", layer)
+
+            if isinstance(layer, nn.ReLU):
+                rr+=1
+            if isinstance(layer, nn.MaxPool2d):
+                rr+=1
 
             if isinstance(layer, nn.Conv2d):
+                print("layer:", layer)
+
 
                 # get weights and biases
                 weight = layer.weight.data.cpu().numpy()
@@ -209,6 +215,8 @@ class TSMBackBone(BackBone):
                 rr+=1
 
             if isinstance(layer, nn.BatchNorm2d) and first_ele is not None:
+                print("layer:", layer)
+
                 # fix BatchNorm2D layers so that the pruned layers still work
 
                 bnorm_weight = layer.weight.data.cpu().numpy()
@@ -233,6 +241,8 @@ class TSMBackBone(BackBone):
                 rr+=1
 
             if isinstance(layer, nn.Linear):
+                print("layer:", layer)
+
                 # fix Linear layers so that the pruned layers still work
 
                 weight_linear = layer.weight.data.cpu().numpy()
