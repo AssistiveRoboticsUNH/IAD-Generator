@@ -370,7 +370,7 @@ class TSMBackBone(BackBone):
         else:
         '''
         # Need to shorten network so that base_model doesn't get to FC layers
-        net.base_model.fc = nn.Identity()
+        #net.base_model.fc = nn.Identity()
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
@@ -403,6 +403,7 @@ class TSMBackBone(BackBone):
         net = torch.nn.DataParallel(net.cuda())
         net.eval()
         '''
+
         # network variable
         self.net = net
 
