@@ -141,6 +141,11 @@ class TSMBackBone(BackBone):
         rr = 1
 
         for layer in self.net.modules():
+            print("layer:", layer)
+            print("======================")
+            '''
+
+
 
             if isinstance(layer, nn.ReLU):
                 rr+=1
@@ -273,7 +278,7 @@ class TSMBackBone(BackBone):
 
                 flops_1 = C1_1*C2_1
                 total_flop_after_pruning +=flops_1
-
+        '''
 
     def process(self, csv_input):
 
