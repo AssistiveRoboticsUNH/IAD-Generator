@@ -186,6 +186,9 @@ class TSMBackBone(BackBone):
                 K1_1 = int(params_1[2])
                 K2_1 = int(params_1[3])
                 x = Variable(torch.randn(1,3, 32, 32))
+
+                print("self.net.base_model:", self.net.base_model)
+
                 nett_1 = nn.Sequential(*list(self.net.features.children())[:rr])
                 out_1 = nett_1(x)
                 img_size_1 = out_1.size()
@@ -370,7 +373,7 @@ class TSMBackBone(BackBone):
         else:
         '''
         # Need to shorten network so that base_model doesn't get to FC layers
-        #net.base_model.fc = nn.Identity()
+        net.base_model.fc = nn.Identity()
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
