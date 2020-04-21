@@ -124,6 +124,8 @@ class TSMBackBone(BackBone):
 
     def prune(self):
 
+        threshold = 0.54
+
         ii = 0
         first_ele = None
         nb_remanining_filters = []
