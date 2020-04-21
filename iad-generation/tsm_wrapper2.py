@@ -188,7 +188,7 @@ class TSMBackBone(BackBone):
                 x = Variable(torch.randn(1,3, 32, 32))
 
                 print("====================")
-                print("self.net.base_model:", self.net.base_model)
+                print("self.net.base_model:", self.net.base_model.children())
 
                 nett_1 = nn.Sequential(*list(self.net.features.children())[:rr])
                 out_1 = nett_1(x)
