@@ -130,7 +130,9 @@ class TSMBackBone(BackBone):
 
     def prune(self):
 
-        #print(self.net)
+        print(self.net)
+        print("======================")
+        print("======================")
 
         threshold = 0.54
 
