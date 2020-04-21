@@ -147,7 +147,7 @@ class TSMBackBone(BackBone):
             if isinstance(layer, nn.MaxPool2d):
                 rr+=1
 
-            if isinstance(layer, nn.Conv2d):
+            if isinstance(layer, nn.Conv2d) and layer.kernel_size != (1,1):
                 print("")
                 print("layer:", layer)
                 print("layer.kernel_size:", layer.kernel_size)
