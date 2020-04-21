@@ -398,10 +398,11 @@ class TSMBackBone(BackBone):
                            GroupNormalize(net.input_mean, net.input_std),
                            ])
 
+        '''
         # place net onto GPU and finalize network
         net = torch.nn.DataParallel(net.cuda())
         net.eval()
-
+        '''
         # network variable
         self.net = net
 
