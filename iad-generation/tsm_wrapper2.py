@@ -129,6 +129,9 @@ class TSMBackBone(BackBone):
 
             if isinstance(layer, nn.Conv2d):
 
+                print("weight:", layer.weight)
+                print("weight:", layer.bias)
+
                 # get weights and biases
                 weight = layer.weight.data.cpu().numpy()
                 bias = layer.bias.data.cpu().numpy()
