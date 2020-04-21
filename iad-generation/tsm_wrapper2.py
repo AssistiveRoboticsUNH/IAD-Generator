@@ -12,6 +12,8 @@ from ops import dataset_config
 import numpy as np
 from PIL import Image
 
+from sklearn.preprocessing import normalize
+
 DEPTH_SIZE = 4
 CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
