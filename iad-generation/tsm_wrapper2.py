@@ -15,6 +15,34 @@ from PIL import Image
 DEPTH_SIZE = 4
 CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
 
+def cluster_weights_agglo(weight, threshold, average=True):
+    t0 = time.time()
+    weight = weight.T
+    weight = normalize(weight, norm='l2', axis=1)
+    threshold =  1.0-threshold   # Conversion to distance measure
+    clusters = hcluster.fclusterdata(weight, threshold, criterion="distance", metric='cosine', depth=1, method='centroid')
+    z = hac.linkage(weight, metric='cosine', method='complete')
+    labels = hac.fcluster(z, threshold, criterion="distance")
+
+    labels_unique = np.unique(labels)
+    n_clusters_ = len(labels_unique)
+
+    #print(n_clusters_)
+    elapsed_time = time.time() - t0
+    # print(elapsed_time)
+
+    a=np.array(labels)
+    sort_idx = np.argsort(a)
+    a_sorted = a[sort_idx]
+    unq_first = np.concatenate(([True], a_sorted[1:] != a_sorted[:-1]))
+    unq_items = a_sorted[unq_first]
+    unq_count = np.diff(np.nonzero(unq_first)[0])
+    unq_idx = np.split(sort_idx, np.cumsum(unq_count))
+    first_ele = [unq_idx[idx][-1] for idx in xrange(len(unq_idx))]
+    return n_clusters_, first_ele
+
+
+
 class TSMBackBone(BackBone):
          
     def open_file(self, csv_input, start_idx=0, batch_now=True):
@@ -94,6 +122,115 @@ class TSMBackBone(BackBone):
 
         return summed_ranks
 
+    def prune(self):
+
+        for layer in self.net.modules():
+            if isinstance(layer, nn.Conv2d):
+
+                # get weights and biases
+                weight = layer.weight.data.cpu().numpy()
+                bias = layer.bias.data.cpu().numpy()
+
+                #reshape weights for clustering
+                if first_ele is not None:
+                    weight_layers_rearranged = np.transpose(weight, (1, 0, 2, 3))
+                    weight_layers_rearranged_pruned = weight_layers_rearranged[first_ele]
+                    weight_layers_rearranged_pruned = np.transpose(weight_layers_rearranged_pruned, (1, 0, 2, 3))
+                else:
+                    weight_layers_rearranged_pruned = weight
+                weight_layers_rearranged = np.reshape(weight_layers_rearranged_pruned, [weight_layers_rearranged_pruned.shape[0], -1])
+                
+                # cluster weights and identify which features to retain (first_ele)
+                n_clusters_,first_ele = cluster_weights_agglo(weight_layers_rearranged.T, threshold)
+                first_ele = sorted(first_ele)
+                nb_remanining_filters.append(n_clusters_)
+
+                # prune filters
+                weight_pruned = weight_layers_rearranged[first_ele]
+                bias_pruned = bias[first_ele]
+
+                # correct pruned weight shape
+                weight_pruned = np.reshape(weight_pruned, [n_clusters_, weight_layers_rearranged_pruned.shape[1],weight_layers_rearranged_pruned.shape[2],weight_layers_rearranged_pruned.shape[3]])
+
+                params_1 = np.shape(weight_pruned)
+                layer.out_channels = params_1[0]
+                layer.in_channels = params_1[1]
+
+                weight_tensor = torch.from_numpy(weight_pruned)
+                bias_tensor = torch.from_numpy(bias_pruned)
+                layer.weight = torch.nn.Parameter(weight_tensor)
+                layer.bias = torch.nn.Parameter(bias_tensor)
+
+                params_1 = np.shape(weight_pruned)
+                C1_1 = int(params_1[0])
+                C2_1 = int(params_1[1])
+                K1_1 = int(params_1[2])
+                K2_1 = int(params_1[3])
+                x = Variable(torch.randn(1,3, 32, 32))
+                nett_1 = nn.Sequential(*list(net.features.children())[:rr])
+                out_1 = nett_1(x)
+                img_size_1 = out_1.size()
+                # print('feature map size is:', img_size_1)
+                # print('weight size is:', params_1)
+
+                H_1 = img_size_1[2]
+                W_1 = img_size_1[3]
+                if ii==0:
+                    H_1 = 32
+                    W_1 = 32
+
+                flops_1 = C1_1*C2_1*K1_1*K2_1*H_1*W_1
+                print('flop is ',flops_1, '\n')
+                total_flop_after_pruning +=flops_1
+                ii+=1
+                rr+=1
+
+            if isinstance(layer, nn.BatchNorm2d) and first_ele is not None:
+                # fix BatchNorm2D layers so that the pruned layers still work
+
+                bnorm_weight = layer.weight.data.cpu().numpy()
+                bnorm_weight = bnorm_weight[first_ele]
+                bnorm_bias = layer.bias.data.cpu().numpy()
+                bnorm_bias = bnorm_bias[first_ele]
+
+                bnorm_tensor = torch.from_numpy(bnorm_weight)
+                bias_tensor = torch.from_numpy(bnorm_bias)
+                layer.weight = torch.nn.Parameter(bnorm_tensor)
+                layer.bias = torch.nn.Parameter(bias_tensor)
+
+                layer.num_features = int(np.shape(bnorm_weight)[0])
+                bnorm_rm = layer.running_mean.cpu().numpy()
+                bnorm_rm = bnorm_rm[first_ele]
+                bnorm_rv = layer.running_var.cpu().numpy()
+                bnorm_rv = bnorm_rv[first_ele]
+                running_mean = torch.from_numpy(bnorm_rm)
+                layer.running_mean = running_mean
+                running_var = torch.from_numpy(bnorm_rv)
+                layer.running_var = running_var
+                rr+=1
+
+            if isinstance(layer, nn.Linear):
+                # fix Linear layers so that the pruned layers still work
+
+                weight_linear = layer.weight.data.cpu().numpy()
+                weight_linear_rearranged = np.transpose(weight_linear, (1, 0))
+                weight_linear_rearranged_pruned = weight_linear_rearranged[first_ele]
+                weight_linear_rearranged_pruned = np.transpose(weight_linear_rearranged_pruned, (1, 0))
+                layer.in_features = int(np.shape(weight_linear_rearranged_pruned)[1])
+                linear_tensor = torch.from_numpy(weight_linear_rearranged_pruned)
+                layer.weight = torch.nn.Parameter(linear_tensor)
+
+                #update nn.Linear to comply with newer Pytorch versions
+                layer.track_running_stats = 1
+
+                params_linear = np.shape(weight_linear_rearranged_pruned)
+                C1_1 = params_linear[0]
+                C2_1 = params_linear[1]
+
+                flops_1 = C1_1*C2_1
+                total_flop_after_pruning +=flops_1
+
+
     def process(self, csv_input):
 
         data_in = self.open_file(csv_input)
@@ -123,7 +260,6 @@ class TSMBackBone(BackBone):
 
         return self.activations, length_ratio
 
-    def determine_feature_similarity(layer):
     
 
 
@@ -251,3 +387,12 @@ class TSMBackBone(BackBone):
         # loss variable (used for generating gradients when ranking)
         if(self.feature_idx == None):
             self.loss = torch.nn.CrossEntropyLoss().cuda()
+
+if __name__ == '__main__':
+
+    model_filename = "~/models/TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth"
+    num_classes=174
+
+    model = TSMBackBone(model_filename, num_classes)
+    model.prune()
+
