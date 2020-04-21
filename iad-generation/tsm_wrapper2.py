@@ -12,6 +12,9 @@ from ops import dataset_config
 import numpy as np
 from PIL import Image
 
+import scipy.cluster.hierarchy as hcluster
+import scipy.cluster.hierarchy as hac
+import scipy.cluster.hierarchy as fclusterdata
 from sklearn.preprocessing import normalize
 
 DEPTH_SIZE = 4
