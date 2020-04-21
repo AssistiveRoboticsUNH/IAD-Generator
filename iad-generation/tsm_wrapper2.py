@@ -125,6 +125,8 @@ class TSMBackBone(BackBone):
     def prune(self):
 
         for layer in self.net.modules():
+            print("layer:", layer)
+
             if isinstance(layer, nn.Conv2d):
 
                 # get weights and biases
@@ -341,6 +343,7 @@ class TSMBackBone(BackBone):
         net.base_model.layer3.register_forward_hook(activation_hook(2))
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
+        '''
         if(self.feature_idx == None):
             # Need to get rank information
             net.base_model.layer1.register_backward_hook(taylor_expansion_hook(0))
@@ -348,8 +351,9 @@ class TSMBackBone(BackBone):
             net.base_model.layer3.register_backward_hook(taylor_expansion_hook(2))
             net.base_model.layer4.register_backward_hook(taylor_expansion_hook(3))
         else:
-            # Need to shorten network so that base_model doesn't get to FC layers
-            net.base_model.fc = nn.Identity()
+        '''
+        # Need to shorten network so that base_model doesn't get to FC layers
+        net.base_model.fc = nn.Identity()
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
