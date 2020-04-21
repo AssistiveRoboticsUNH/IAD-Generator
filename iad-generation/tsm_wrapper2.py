@@ -141,12 +141,15 @@ class TSMBackBone(BackBone):
         rr = 1
 
         for layer in self.net.modules():
-            print("layer:", layer)
-            print("======================")
+
+
+            if isinstance(layer, nn.Conv2d) or isinstance(layer, nn.MaxPool2d) or isinstance(layer, nn.ReLU) or isinstance(layer, nn.BatchNorm2d):
+                print("layer:", layer)
+                print("======================")
+
+
+
             '''
-
-
-
             if isinstance(layer, nn.ReLU):
                 rr+=1
             if isinstance(layer, nn.MaxPool2d):
