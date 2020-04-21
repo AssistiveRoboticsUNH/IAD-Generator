@@ -187,6 +187,7 @@ class TSMBackBone(BackBone):
                 K2_1 = int(params_1[3])
                 x = Variable(torch.randn(1,3, 32, 32))
 
+                print("====================")
                 print("self.net.base_model:", self.net.base_model)
 
                 nett_1 = nn.Sequential(*list(self.net.features.children())[:rr])
