@@ -190,7 +190,7 @@ class TSMBackBone(BackBone):
                 print("====================")
                 print("self.net.base_model:", self.net.base_model.children())
 
-                nett_1 = nn.Sequential(*list(self.net.features.children())[:rr])
+                nett_1 = nn.Sequential(*list(self.net.base_model.children())[:rr])
                 out_1 = nett_1(x)
                 img_size_1 = out_1.size()
                 # print('feature map size is:', img_size_1)
