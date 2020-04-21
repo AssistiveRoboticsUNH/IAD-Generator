@@ -390,7 +390,7 @@ class TSMBackBone(BackBone):
 
 if __name__ == '__main__':
 
-    model_filename = "~/models/TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth"
+    model_filename = "/home/mbc2004/models/TSM_somethingv2_RGB_resnet101_shift8_blockres_avg_segment8_e45.pth"
     num_classes=174
 
     model = TSMBackBone(model_filename, num_classes)
