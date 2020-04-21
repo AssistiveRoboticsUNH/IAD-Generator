@@ -146,7 +146,8 @@ class TSMBackBone(BackBone):
                 rr+=1
 
             if isinstance(layer, nn.Conv2d):
-                print("\nlayer:", layer)
+                print("")
+                print("layer:", layer)
 
 
                 # get weights and biases
@@ -215,7 +216,8 @@ class TSMBackBone(BackBone):
                 rr+=1
 
             if isinstance(layer, nn.BatchNorm2d) and first_ele is not None:
-                print("\nlayer:", layer)
+                print("")
+                print("layer:", layer)
 
                 # fix BatchNorm2D layers so that the pruned layers still work
 
@@ -241,7 +243,8 @@ class TSMBackBone(BackBone):
                 rr+=1
 
             if isinstance(layer, nn.Linear):
-                print("\nlayer:", layer)
+                print("")
+                print("layer:", layer)
 
                 # fix Linear layers so that the pruned layers still work
 
