@@ -124,6 +124,12 @@ class TSMBackBone(BackBone):
 
     def prune(self):
 
+        ii = 0
+        first_ele = None
+        nb_remanining_filters = []
+        total_flop_after_pruning = 0
+        rr = 1
+
         for layer in self.net.modules():
             print("layer:", layer)
 
