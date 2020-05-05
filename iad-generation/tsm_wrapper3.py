@@ -202,14 +202,13 @@ class TSMBackBone(BackBone):
         print(net)
 
         # Will always need the activations (whether for out or for ranking)
-        #net.base_model.layer1.register_forward_hook(activation_hook(0))
-        #net.base_model.layer2.register_forward_hook(activation_hook(1))
-        #net.base_model.layer3.register_forward_hook(activation_hook(2))
+        
+        # add bottllneck
         net.base_model.layer4.register_forward_hook(activation_hook(3))
 
         if(self.feature_idx == None):
             # Need to get rank information
-            # add bottllneck
+            pass
         else:
             # Need to shorten network so that base_model doesn't get to FC layers
             net.base_model.fc = nn.Identity()
