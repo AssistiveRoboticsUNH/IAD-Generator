@@ -20,7 +20,7 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 	if(model_type == 'trn'):
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
-		from tsm_wrapper import TSMBackBone as bb
+		from tsm_wrapper3 import TSMBackBone as bb
 	model = bb(model_filename, num_classes)
 
 
