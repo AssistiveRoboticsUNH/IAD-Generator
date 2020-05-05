@@ -124,7 +124,6 @@ class TSMBackBone(BackBone):
 
         return self.activations, length_ratio
     '''
-    def determine_feature_similarity(layer):
     
 
 

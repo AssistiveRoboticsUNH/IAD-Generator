@@ -6,7 +6,7 @@ from csv_utils import read_csv
 
 import os, sys, random
 
-import tensorflow as tf
+#import tensorflow as tf
 import numpy as np
 
 
