@@ -198,6 +198,7 @@ class TSMBackBone(BackBone):
 
             return hook
 
+        net.base_model.fc = nn.Identity()
         print("TSM wrapper")
         print(net)
 
