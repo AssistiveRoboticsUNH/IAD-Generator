@@ -234,7 +234,7 @@ class TSMBackBone(BackBone):
             if k in base_dict:
                 base_dict[v] = base_dict.pop(k)
 
-        net.load_state_dict(base_dict)
+        net.load_state_dict(base_dict, strict=False)
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
