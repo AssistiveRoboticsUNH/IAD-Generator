@@ -199,7 +199,8 @@ class TSMBackBone(BackBone):
             return hook
 
         #net.base_model.fc = nn.Identity()
-        net.base_model.new_fc = nn.Sequential(
+
+        net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
             nn.ReLU()
             )# nn.Identity()
