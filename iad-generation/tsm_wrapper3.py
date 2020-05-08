@@ -200,7 +200,7 @@ class TSMBackBone(BackBone):
 
         #net.base_model.fc = nn.Identity()
         net.base_model.new_fc = nn.Sequential(
-            nn.Conv2D(2048, 128, (1,1)),
+            nn.Conv2d(2048, 128, (1,1)),
             nn.ReLU()
             )# nn.Identity()
         print("TSM wrapper")
