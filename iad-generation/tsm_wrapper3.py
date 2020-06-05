@@ -340,7 +340,7 @@ def get_train_loader():
             num_workers=workers, pin_memory=True,
             drop_last=True)  # prevent something not % n_GPU
 
-def train(model, epoch)#, log, tf_writer):
+def train(model, epoch):#, log, tf_writer):
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
