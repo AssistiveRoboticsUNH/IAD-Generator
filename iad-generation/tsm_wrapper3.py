@@ -339,7 +339,7 @@ def get_train_loader(model):
                        train_augmentation,
                        Stack(roll=(arch in ['BNInception', 'InceptionV3'])),
                        ToTorchFormatTensor(div=(arch not in ['BNInception', 'InceptionV3'])),
-                       normalize,
+                       IdentityTransform(),
                    ]), dense_sample=dense_sample),
             batch_size=batch_size, shuffle=True,
             num_workers=workers, pin_memory=True,
