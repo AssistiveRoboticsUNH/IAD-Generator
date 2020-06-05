@@ -299,6 +299,7 @@ class TSMBackBone(BackBone):
                            ])
 
         # place net onto GPU and finalize network
+        self.model = net
         net = torch.nn.DataParallel(net.cuda())
         net.eval()
 
@@ -363,7 +364,7 @@ def train(model, epoch):#, log, tf_writer):
     momentum = 0.9
     weight_decay = 0.0005
 
-    policies = [model.net.new_fc]
+    policies = [model.model.new_fc]
 
     optimizer = torch.optim.SGD(policies,#model.get_optim_policies(),
                                 lr,
