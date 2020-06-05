@@ -25,7 +25,7 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 
 
 	# wrapper should take care of the bottlenecking steps
-	train(csv_contents, model, dataset_id, iad_data_path)
+	train_model(csv_contents, model, dataset_id, iad_data_path)
 
 def main(
 	model_type, model_filename, 
