@@ -427,7 +427,7 @@ class TSMBackBone(BackBone):
 
         net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
-            nn.ReLU()
+            nn.ReLU(),
             nn.Linear(128, 174)
             )# nn.Identity()
         print("TSM wrapper")
