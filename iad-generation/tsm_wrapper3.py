@@ -326,7 +326,7 @@ def get_train_loader(model):
         workers = 16
         arch = 'resnet50'
 
-        prefix = '{:05d}.jpg'
+        prefix = '{:06d}.jpg'
 
         print('#' * 20, 'NO FLIP!!!')
         train_augmentation = torchvision.transforms.Compose([GroupMultiScaleCrop(224, [1, .875, .75, .66])])
