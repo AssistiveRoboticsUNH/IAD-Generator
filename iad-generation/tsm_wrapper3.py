@@ -317,7 +317,7 @@ class TSMBackBone(BackBone):
 
 
 def get_train_loader(model):
-        root_path = '/home/mbc2004/datasets/Something-Something/'
+        root_path = '/home/mbc2004/datasets/Something-Something/frames/'
         train_list = '/home/mbc2004/datasets/Something-Something/annotations/train_videofolder.txt'
         num_segments = 8
         modality = 'RGB'
