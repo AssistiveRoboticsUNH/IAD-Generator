@@ -341,12 +341,13 @@ def get_train_loader():
             drop_last=True)  # prevent something not % n_GPU
 
 def train(model, epoch):#, log, tf_writer):
+    '''
     batch_time = AverageMeter()
     data_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-
+    '''
     train_loader = get_train_loader()
     model.module.partialBN(True)
 
@@ -378,11 +379,12 @@ def train(model, epoch):#, log, tf_writer):
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
+        '''
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
         losses.update(loss.item(), input.size(0))
         top1.update(prec1.item(), input.size(0))
         top5.update(prec5.item(), input.size(0))
-
+        '''
         # compute gradient and do SGD step
         loss.backward()
 
