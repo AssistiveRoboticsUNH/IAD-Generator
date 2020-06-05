@@ -372,7 +372,7 @@ def train(model, epoch):#, log, tf_writer):
                                 weight_decay=weight_decay)
 
     # switch to train mode
-    model.train()
+    #model.train()
 
     end = time.time()
     for i, (input, target) in enumerate(train_loader):
