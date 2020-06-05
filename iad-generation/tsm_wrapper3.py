@@ -362,7 +362,10 @@ def train(model, epoch):#, log, tf_writer):
     lr = 0.01
     momentum = 0.9
     weight_decay = 0.0005
-    optimizer = torch.optim.SGD(model.get_optim_policies(),
+
+    policies = [model.net.new_fc]
+
+    optimizer = torch.optim.SGD(policies#model.get_optim_policies(),
                                 lr,
                                 momentum=momentum,
                                 weight_decay=weight_decay)
