@@ -354,7 +354,7 @@ def train(model, epoch):#, log, tf_writer):
     top5 = AverageMeter()
     '''
     train_loader = get_train_loader(model)
-    model.module.partialBN(True)
+    #model.module.partialBN(True)
 
     criterion = torch.nn.CrossEntropyLoss().cuda()
 
