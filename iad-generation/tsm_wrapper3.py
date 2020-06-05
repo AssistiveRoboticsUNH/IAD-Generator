@@ -365,7 +365,7 @@ def train(model, epoch):#, log, tf_writer):
 
     policies = [model.net.new_fc]
 
-    optimizer = torch.optim.SGD(policies#model.get_optim_policies(),
+    optimizer = torch.optim.SGD(policies,#model.get_optim_policies(),
                                 lr,
                                 momentum=momentum,
                                 weight_decay=weight_decay)
