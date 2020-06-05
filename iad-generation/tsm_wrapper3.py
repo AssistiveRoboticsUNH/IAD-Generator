@@ -315,7 +315,7 @@ class TSMBackBone(BackBone):
 
 
 
-def get_train_loader():
+def get_train_loader(model):
         root_path = '/home/mbc2004/datasets/Something-Something/20bn-something-something-v1'
         train_list = '/home/mbc2004/datasets/Something-Something/train_videofolder.txt'
         num_segments = 8
@@ -324,6 +324,9 @@ def get_train_loader():
         batch_size = 64
         workers = 16
         arch = 'resnet50'
+
+        prefix = '{:05d}.jpg'
+        train_augmentation = model.get_augmentation(flip=False)
 
         return torch.utils.data.DataLoader(
             TSNDataSet(root_path, train_list, num_segments=num_segments,
