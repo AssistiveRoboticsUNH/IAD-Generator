@@ -25,7 +25,13 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 
 
 	# wrapper should take care of the bottlenecking steps
-	model.train_model(csv_contents, dataset_id, iad_data_path)
+	#model.train_model(csv_contents, dataset_id, iad_data_path)
+	#model.train_model(csv_contents)
+	import tsm_wrapper3 as tw3 
+	epoch = 1
+	tw3.train(model, epoch)#, log, tf_writer)
+
+
 
 def main(
 	model_type, model_filename, 

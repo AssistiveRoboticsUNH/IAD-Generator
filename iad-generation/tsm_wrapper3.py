@@ -73,17 +73,30 @@ class TSMBackBone(BackBone):
         
         # process the frames
         return torch.stack(batch).cuda()
-
+    '''
     def trainloader_from_csv_input(csv_input):
 
-        dataset = torch.utils.dataset()
+        #dataset = torch.utils.dataset()
+
+        dataset = TSNDataSet(args.root_path, args.train_list, num_segments=args.num_segments,
+                   new_length=data_length,
+                   modality=args.modality,
+                   image_tmpl=prefix,
+                   transform=torchvision.transforms.Compose([
+                       train_augmentation,
+                       Stack(roll=(args.arch in ['BNInception', 'InceptionV3'])),
+                       ToTorchFormatTensor(div=(args.arch not in ['BNInception', 'InceptionV3'])),
+                       normalize,
+                   ]), dense_sample=args.dense_sample),
+
+
 
         return torch.utils.data.DataLoader(dataset, 
                 batch_size=1, shuffle=False, sampler=None,
                 batch_sampler=None, num_workers=0, collate_fn=None,
                 pin_memory=False, drop_last=False, timeout=0,
                 worker_init_fn=None)
-
+    '''
     def predict(self, csv_input):
 
         data_in = self.open_file_as_batch(csv_input)
@@ -97,7 +110,7 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
             return self.net(data_in)
 
-
+    '''
     def train_model(self, csv_input):
 
         model = torch.nn.DataParallel(self.net).cuda()
@@ -113,7 +126,7 @@ class TSMBackBone(BackBone):
         #end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
         #for i in range(0, end_frame, 4):
 
-        '''
+        
         root_path = ?
         train_list = ?
         num_segments
@@ -137,9 +150,9 @@ class TSMBackBone(BackBone):
             batch_size=batch_size, shuffle=True,
             num_workers=workers, pin_memory=True,
             drop_last=True)  # prevent something not % n_GPU
-        '''
+        
 
-        trainloader = trainloader_from_csv_input(csv_input)
+        #trainloader = trainloader_from_csv_input(csv_input)
 
         for epoch in range(2):
             for i, data in enumerate(trainloader, 0):
@@ -161,196 +174,7 @@ class TSMBackBone(BackBone):
                         summed_ranks.append(rd)
                     else:
                         summed_ranks[j] = np.add(summed_ranks[j], rd)
-
-
     '''
-    def rank(self, csv_input):
-
-        summed_ranks = []
-
-        end_frame = csv_input['length'] - (csv_input['length']%self.max_length)
-        for i in range(0, end_frame, 4):
-            data_in = self.open_file(csv_input, start_idx = i)#self.open_file_as_batch(csv_input)
-
-            # data has shape (batch size, segment length, num_ch, height, width)
-            # (6,8,3,256,256)
-
-            #print("data_in:", data_in.shape)
-            
-            # pass data through network to obtain activation maps
-            # do need grads for taylor expansion
-            rst = self.net(data_in)
-
-            # compute gradient and do SGD step
-            self.loss(rst, torch.tensor( [csv_input['label']]*data_in.size(0) ).cuda() ).backward()
-
-            for j, rd in enumerate(self.ranks):
-                if(i == 0):
-                    summed_ranks.append(rd)
-                else:
-                    summed_ranks[j] = np.add(summed_ranks[j], rd)
-
-        return summed_ranks
-
-    def process(self, csv_input):
-
-        data_in = self.open_file(csv_input)
-        length_ratio = csv_input['length']/float(self.max_length)
-
-        # data has shape (batch size, segment length, num_ch, height, width)
-        # (6,8,3,256,256)
-
-        print("data_in:", data_in.shape)
-        
-        # pass data through network to obtain activation maps
-        # rst is not used and not need to store grads
-        with torch.no_grad():
-
-            rst = self.net(data_in)
-
-            for i in range(len(self.activations)):
-                # convert actvitaion from PyTorch to Numpy
-                self.activations[i] = self.activations[i].cpu().numpy()
-
-                # prune low-quality filters
-                self.activations[i] = self.activations[i][:, self.feature_idx[i], :, :]
-
-                # compress spatial dimensions
-                self.activations[i] = np.max(self.activations[i], axis=(2,3))
-                self.activations[i] = self.activations[i].T
-
-        return self.activations, length_ratio
-    '''
-
-
-
-    def train(train_loader, model, criterion, optimizer, epoch, log, tf_writer):
-        batch_time = AverageMeter()
-        data_time = AverageMeter()
-        losses = AverageMeter()
-        top1 = AverageMeter()
-        top5 = AverageMeter()
-
-        if args.no_partialbn:
-            model.module.partialBN(False)
-        else:
-            model.module.partialBN(True)
-
-        # switch to train mode
-        model.train()
-
-        end = time.time()
-        for i, (input, target) in enumerate(train_loader):
-            # measure data loading time
-            data_time.update(time.time() - end)
-
-            target = target.cuda()
-            input_var = torch.autograd.Variable(input)
-            target_var = torch.autograd.Variable(target)
-
-            # compute output
-            output = model(input_var)
-            loss = criterion(output, target_var)
-
-            # measure accuracy and record loss
-            prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-            losses.update(loss.item(), input.size(0))
-            top1.update(prec1.item(), input.size(0))
-            top5.update(prec5.item(), input.size(0))
-
-            # compute gradient and do SGD step
-            loss.backward()
-
-            if args.clip_gradient is not None:
-                total_norm = clip_grad_norm_(model.parameters(), args.clip_gradient)
-
-            optimizer.step()
-            optimizer.zero_grad()
-
-            # measure elapsed time
-            batch_time.update(time.time() - end)
-            end = time.time()
-
-            if i % args.print_freq == 0:
-                output = ('Epoch: [{0}][{1}/{2}], lr: {lr:.5f}\t'
-                          'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                          'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                          'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                          'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                          'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                    epoch, i, len(train_loader), batch_time=batch_time,
-                    data_time=data_time, loss=losses, top1=top1, top5=top5, lr=optimizer.param_groups[-1]['lr'] * 0.1))  # TODO
-                print(output)
-                log.write(output + '\n')
-                log.flush()
-
-        tf_writer.add_scalar('loss/train', losses.avg, epoch)
-        tf_writer.add_scalar('acc/train_top1', top1.avg, epoch)
-        tf_writer.add_scalar('acc/train_top5', top5.avg, epoch)
-        tf_writer.add_scalar('lr', optimizer.param_groups[-1]['lr'], epoch)
-
-
-    def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
-        batch_time = AverageMeter()
-        losses = AverageMeter()
-        top1 = AverageMeter()
-        top5 = AverageMeter()
-
-        # switch to evaluate mode
-        model.eval()
-
-        end = time.time()
-        with torch.no_grad():
-            for i, (input, target) in enumerate(val_loader):
-                target = target.cuda()
-
-                # compute output
-                output = model(input)
-                loss = criterion(output, target)
-
-                # measure accuracy and record loss
-                prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-
-                losses.update(loss.item(), input.size(0))
-                top1.update(prec1.item(), input.size(0))
-                top5.update(prec5.item(), input.size(0))
-
-                # measure elapsed time
-                batch_time.update(time.time() - end)
-                end = time.time()
-
-                if i % args.print_freq == 0:
-                    output = ('Test: [{0}/{1}]\t'
-                              'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                              'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                              'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                              'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                        i, len(val_loader), batch_time=batch_time, loss=losses,
-                        top1=top1, top5=top5))
-                    print(output)
-                    if log is not None:
-                        log.write(output + '\n')
-                        log.flush()
-
-        output = ('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
-                  .format(top1=top1, top5=top5, loss=losses))
-        print(output)
-        if log is not None:
-            log.write(output + '\n')
-            log.flush()
-
-        if tf_writer is not None:
-            tf_writer.add_scalar('loss/test', losses.avg, epoch)
-            tf_writer.add_scalar('acc/test_top1', top1.avg, epoch)
-            tf_writer.add_scalar('acc/test_top5', top5.avg, epoch)
-
-        return top1.avg
-
-
-
-
-
-
 
     def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
         self.is_shift = None
@@ -484,3 +308,169 @@ class TSMBackBone(BackBone):
         # loss variable (used for generating gradients when ranking)
         if(self.feature_idx == None):
             self.loss = torch.nn.CrossEntropyLoss().cuda()
+
+
+
+
+
+
+
+def get_train_loader():
+        root_path = '/home/mbc2004/datasets/Something-Something/20bn-something-something-v1'
+        train_list = '/home/mbc2004/datasets/Something-Something/train_videofolder.txt'
+        num_segments = 8
+        modality = 'RGB'
+        dense_sample = False
+        batch_size = 64
+        workers = 16
+        arch = 'resnet50'
+
+        return torch.utils.data.DataLoader(
+            TSNDataSet(root_path, train_list, num_segments=num_segments,
+                   new_length=1,
+                   modality=modality,
+                   image_tmpl=prefix,
+                   transform=torchvision.transforms.Compose([
+                       train_augmentation,
+                       Stack(roll=(arch in ['BNInception', 'InceptionV3'])),
+                       ToTorchFormatTensor(div=(arch not in ['BNInception', 'InceptionV3'])),
+                       normalize,
+                   ]), dense_sample=dense_sample),
+            batch_size=batch_size, shuffle=True,
+            num_workers=workers, pin_memory=True,
+            drop_last=True)  # prevent something not % n_GPU
+
+def train(model, epoch)#, log, tf_writer):
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+
+    train_loader = get_train_loader()
+    model.module.partialBN(True)
+
+    criterion = torch.nn.CrossEntropyLoss().cuda()
+
+
+    lr = 0.01
+    momentum = 0.9
+    weight_decay = 0.0005
+    optimizer = torch.optim.SGD(model.get_optim_policies(),
+                                lr,
+                                momentum=momentum,
+                                weight_decay=weight_decay)
+
+    # switch to train mode
+    model.train()
+
+    end = time.time()
+    for i, (input, target) in enumerate(train_loader):
+        # measure data loading time
+        data_time.update(time.time() - end)
+
+        target = target.cuda()
+        input_var = torch.autograd.Variable(input)
+        target_var = torch.autograd.Variable(target)
+
+        # compute output
+        output = model(input_var)
+        loss = criterion(output, target_var)
+
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1.item(), input.size(0))
+        top5.update(prec5.item(), input.size(0))
+
+        # compute gradient and do SGD step
+        loss.backward()
+
+        if args.clip_gradient is not None:
+            total_norm = clip_grad_norm_(model.parameters(), args.clip_gradient)
+
+        optimizer.step()
+        optimizer.zero_grad()
+
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
+
+    '''
+        if i % args.print_freq == 0:
+            output = ('Epoch: [{0}][{1}/{2}], lr: {lr:.5f}\t'
+                      'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                      'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                      'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                epoch, i, len(train_loader), batch_time=batch_time,
+                data_time=data_time, loss=losses, top1=top1, top5=top5, lr=optimizer.param_groups[-1]['lr'] * 0.1))  # TODO
+            print(output)
+            log.write(output + '\n')
+            log.flush()
+
+    tf_writer.add_scalar('loss/train', losses.avg, epoch)
+    tf_writer.add_scalar('acc/train_top1', top1.avg, epoch)
+    tf_writer.add_scalar('acc/train_top5', top5.avg, epoch)
+    tf_writer.add_scalar('lr', optimizer.param_groups[-1]['lr'], epoch)
+    '''
+
+
+'''
+def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
+    batch_time = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
+
+    # switch to evaluate mode
+    model.eval()
+
+    end = time.time()
+    with torch.no_grad():
+        for i, (input, target) in enumerate(val_loader):
+            target = target.cuda()
+
+            # compute output
+            output = model(input)
+            loss = criterion(output, target)
+
+            # measure accuracy and record loss
+            prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
+
+            losses.update(loss.item(), input.size(0))
+            top1.update(prec1.item(), input.size(0))
+            top5.update(prec5.item(), input.size(0))
+
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            if i % args.print_freq == 0:
+                output = ('Test: [{0}/{1}]\t'
+                          'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                          'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                          'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                          'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                    i, len(val_loader), batch_time=batch_time, loss=losses,
+                    top1=top1, top5=top5))
+                print(output)
+                if log is not None:
+                    log.write(output + '\n')
+                    log.flush()
+
+    output = ('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
+              .format(top1=top1, top5=top5, loss=losses))
+    print(output)
+    if log is not None:
+        log.write(output + '\n')
+        log.flush()
+
+    if tf_writer is not None:
+        tf_writer.add_scalar('loss/test', losses.avg, epoch)
+        tf_writer.add_scalar('acc/test_top1', top1.avg, epoch)
+        tf_writer.add_scalar('acc/test_top5', top5.avg, epoch)
+
+    return top1.avg
+'''
