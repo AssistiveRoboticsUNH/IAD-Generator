@@ -326,7 +326,9 @@ def get_train_loader(model):
         arch = 'resnet50'
 
         prefix = '{:05d}.jpg'
-        train_augmentation = model.get_augmentation(flip=False)
+
+        print('#' * 20, 'NO FLIP!!!')
+        train_augmentation = torchvision.transforms.Compose([GroupMultiScaleCrop(model.input_size, [1, .875, .75, .66])])
 
         return torch.utils.data.DataLoader(
             TSNDataSet(root_path, train_list, num_segments=num_segments,
