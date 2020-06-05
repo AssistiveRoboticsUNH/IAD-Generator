@@ -374,10 +374,10 @@ def train(model, epoch):#, log, tf_writer):
     # switch to train mode
     #model.train()
 
-    end = time.time()
+    #end = time.time()
     for i, (input, target) in enumerate(train_loader):
         # measure data loading time
-        data_time.update(time.time() - end)
+        #data_time.update(time.time() - end)
 
         target = target.cuda()
         input_var = torch.autograd.Variable(input)
@@ -404,8 +404,8 @@ def train(model, epoch):#, log, tf_writer):
         optimizer.zero_grad()
 
         # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
+        #batch_time.update(time.time() - end)
+        #end = time.time()
 
     '''
         if i % args.print_freq == 0:
