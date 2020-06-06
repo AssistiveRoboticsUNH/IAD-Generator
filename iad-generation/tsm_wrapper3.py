@@ -322,7 +322,7 @@ def get_train_loader(model):
         num_segments = 8
         modality = 'RGB'
         dense_sample = False
-        batch_size = 64
+        batch_size = 8#64
         workers = 2
         arch = 'resnet50'
 
