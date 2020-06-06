@@ -323,7 +323,7 @@ def get_train_loader(model):
         modality = 'RGB'
         dense_sample = False
         batch_size = 8#64
-        workers = 2
+        workers = 16
         arch = 'resnet50'
 
         prefix = '{:06d}.jpg'
