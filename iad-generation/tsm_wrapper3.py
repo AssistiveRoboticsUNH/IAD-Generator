@@ -249,6 +249,7 @@ class TSMBackBone(BackBone):
 
         #net.base_model.fc = nn.Identity()
 
+        print(net)
         net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
             nn.ReLU(),
