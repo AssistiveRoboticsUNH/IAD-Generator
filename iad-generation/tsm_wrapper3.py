@@ -249,14 +249,14 @@ class TSMBackBone(BackBone):
 
         #net.base_model.fc = nn.Identity()
 
-        print(net)
-        '''
+        print("net.avgpool:", net.avgpool.shape)
+        
         net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
             nn.ReLU(inplace=True),
             nn.Linear(128, 174)
-            )# nn.Identity()
-        '''
+        )
+        
         print("TSM wrapper")
         print(net)
 
