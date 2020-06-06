@@ -384,7 +384,7 @@ def train(model, epoch):#, log, tf_writer):
         target_var = torch.autograd.Variable(target)
 
         # compute output
-        output = model(input_var)
+        output = model.net(input_var)
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
