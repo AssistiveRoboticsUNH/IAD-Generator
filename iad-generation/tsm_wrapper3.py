@@ -379,6 +379,9 @@ def train(model, epoch):#, log, tf_writer):
         # measure data loading time
         #data_time.update(time.time() - end)
 
+        print("input:", input.shape)
+        print("target:", target.shape)
+
         target = target.cuda()
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
