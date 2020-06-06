@@ -250,17 +250,24 @@ class TSMBackBone(BackBone):
         #net.base_model.fc = nn.Identity()
 
         print(net)
+        '''
         net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
             nn.Linear(128, 174)
             )# nn.Identity()
+        '''
         print("TSM wrapper")
         print(net)
 
         # Will always need the activations (whether for out or for ranking)
 
         # add bottllneck
+
+
+
+
+
 
         #net.base_model.layer4.register_forward_hook(activation_hook(3))
 
