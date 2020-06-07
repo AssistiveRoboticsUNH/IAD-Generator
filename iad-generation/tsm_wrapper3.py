@@ -250,6 +250,7 @@ class TSMBackBone(BackBone):
         #net.base_model.fc = nn.Identity()
 
         #print("avgpool", net.summary())
+        print("net.base_model.layer4:", net.base_model.layer4)
         print("net.base_model.avgpool:", net.base_model.avgpool)
         
         net.new_fc = nn.Sequential(
@@ -258,8 +259,8 @@ class TSMBackBone(BackBone):
             nn.Linear(128, 174)
         )
         
-        print("TSM wrapper")
-        print(net)
+        #print("TSM wrapper")
+        #print(net)
 
         # Will always need the activations (whether for out or for ranking)
 
