@@ -247,6 +247,7 @@ class TSMBackBone(BackBone):
 
             return hook
 
+        net.base_model.avgpool = nn.Identity()
         net.base_model.fc = nn.Identity()
 
         #print("avgpool", net.summary())
