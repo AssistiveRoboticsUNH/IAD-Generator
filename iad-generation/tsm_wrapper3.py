@@ -247,9 +247,21 @@ class TSMBackBone(BackBone):
 
             return hook
 
-        net.base_model.avgpool = nn.Identity()
-        net.base_model.fc = nn.Identity()
-        net.new_fc = nn.Identity()
+        '''
+        net.base_model.avgpool = nn.Sequential(
+            nn.Conv2d(2048, 128, (1,1)),
+            nn.ReLU(inplace=True),
+            nn.Avg(128, 174)
+        )
+
+        #net.base_model.avgpool = nn.Identity()
+        #net.base_model.fc = nn.Identity()
+        net.base_model.avgpool = nn.Sequential(
+            nn.Conv2d(2048, 128, (1,1)),
+            nn.ReLU(inplace=True),
+            nn.Linear(128, 174)
+        )
+        '''
 
         #print("avgpool", net.summary())
         #print("net.base_model.layer4:", net.base_model.layer4)
@@ -375,8 +387,6 @@ def train(model, epoch):#, log, tf_writer):
     input_var = torch.autograd.Variable(input)
     output = model.net(input_var)
     print("output_shape:", output.shape)
-
-
     #'''
 
     criterion = torch.nn.CrossEntropyLoss().cuda()
