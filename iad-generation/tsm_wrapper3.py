@@ -247,18 +247,18 @@ class TSMBackBone(BackBone):
 
             return hook
 
-        #net.base_model.fc = nn.Identity()
+        net.base_model.fc = nn.Identity()
 
         #print("avgpool", net.summary())
-        print("net.base_model.layer4:", net.base_model.layer4)
-        print("net.base_model.avgpool:", net.base_model.avgpool)
-        
+        #print("net.base_model.layer4:", net.base_model.layer4)
+        #print("net.base_model.avgpool:", net.base_model.avgpool)
+        '''
         net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
             nn.ReLU(inplace=True),
             nn.Linear(128, 174)
         )
-        
+        '''
         #print("TSM wrapper")
         #print(net)
 
@@ -398,6 +398,9 @@ def train(model, epoch):#, log, tf_writer):
 
         # compute output
         output = model.net(input_var)
+
+        print("output_shape:", output.shape)
+
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
