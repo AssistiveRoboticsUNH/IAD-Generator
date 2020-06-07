@@ -301,7 +301,7 @@ class TSMBackBone(BackBone):
         replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
                         'base_model.classifier.bias': 'new_fc.bias',
                         }
-        print(base_dict)
+        print(base_dict.keys())
 
         for k, v in replace_dict.items():
             if k in base_dict:
