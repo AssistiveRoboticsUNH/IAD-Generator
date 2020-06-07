@@ -249,7 +249,7 @@ class TSMBackBone(BackBone):
 
         net.base_model.avgpool = nn.Identity()
         net.base_model.fc = nn.Identity()
-        net.base_model.new_fc = nn.Identity()
+        net.new_fc = nn.Identity()
 
         #print("avgpool", net.summary())
         #print("net.base_model.layer4:", net.base_model.layer4)
