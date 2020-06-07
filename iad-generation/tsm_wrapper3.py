@@ -366,8 +366,18 @@ def train(model, epoch):#, log, tf_writer):
     top1 = AverageMeter()
     top5 = AverageMeter()
     '''
+
     train_loader = get_train_loader(model)
     #model.module.partialBN(True)
+
+    #'''
+    (input, target) = train_loader.next()
+    torch.autograd.Variable(input)
+    output = model.net(input_var)
+    print("output_shape:", output.shape)
+
+
+    #'''
 
     criterion = torch.nn.CrossEntropyLoss().cuda()
 
@@ -400,7 +410,6 @@ def train(model, epoch):#, log, tf_writer):
 
         # compute output
         output = model.net(input_var)
-
         print("output_shape:", output.shape)
 
         loss = criterion(output, target_var)
