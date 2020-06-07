@@ -372,7 +372,7 @@ def train(model, epoch):#, log, tf_writer):
 
     #'''
     (input, target) = train_loader.dataset[0]
-    torch.autograd.Variable(input)
+    input_var = torch.autograd.Variable(input)
     output = model.net(input_var)
     print("output_shape:", output.shape)
 
