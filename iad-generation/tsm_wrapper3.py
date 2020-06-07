@@ -414,8 +414,8 @@ def train(model, epoch):#, log, tf_writer):
         # compute gradient and do SGD step
         loss.backward()
 
-        if args.clip_gradient is not None:
-            total_norm = clip_grad_norm_(model.parameters(), args.clip_gradient)
+        #clip_gradient = 20.0
+        #total_norm = clip_grad_norm_(model.parameters(), args.clip_gradient)
 
         optimizer.step()
         optimizer.zero_grad()
