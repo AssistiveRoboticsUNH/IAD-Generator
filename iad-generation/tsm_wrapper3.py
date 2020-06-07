@@ -249,7 +249,7 @@ class TSMBackBone(BackBone):
 
         #net.base_model.fc = nn.Identity()
 
-        print("net.avgpool:", net.avgpool.shape)
+        print("net.base_model.avgpool:", net.base_model.avgpool.shape)
         
         net.new_fc = nn.Sequential(
             nn.Conv2d(2048, 128, (1,1)),
