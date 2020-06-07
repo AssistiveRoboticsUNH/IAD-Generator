@@ -256,7 +256,7 @@ class TSMBackBone(BackBone):
 
         #net.base_model.avgpool = nn.Identity()
         #net.base_model.fc = nn.Identity()
-        net.base_model.new_fc = nn.Linear(128, 174)
+        net.new_fc = nn.Linear(128, 174)
         
         
 
