@@ -371,7 +371,7 @@ def train(model, epoch):#, log, tf_writer):
     #model.module.partialBN(True)
 
     #'''
-    (input, target) = train_loader.next()
+    (input, target) = train_loader.dataset[0]
     torch.autograd.Variable(input)
     output = model.net(input_var)
     print("output_shape:", output.shape)
