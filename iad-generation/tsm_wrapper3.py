@@ -261,7 +261,7 @@ class TSMBackBone(BackBone):
         )
         '''
         #print("TSM wrapper")
-        #print(net)
+        print(net)
 
         # Will always need the activations (whether for out or for ranking)
 
