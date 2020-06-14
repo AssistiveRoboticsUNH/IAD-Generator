@@ -409,13 +409,12 @@ def train(model, epoch):#, log, tf_writer):
     #model.train()
 
     #end = time.time()
-    print("len(train_loader):", len(train_loader))
+    #print("len(train_loader):", len(train_loader))
     for i, (input, target) in enumerate(train_loader):
+        print("iter: {:6d}/{:6d}".format(i, len(train_loader)))
+
         # measure data loading time
         #data_time.update(time.time() - end)
-
-        print("input:", input.shape)
-        print("target:", target.shape)
 
         target = target.cuda()
         input_var = torch.autograd.Variable(input)
@@ -423,8 +422,6 @@ def train(model, epoch):#, log, tf_writer):
 
         # compute output
         output = model.net(input_var)
-        print("output_shape:", output.shape)
-
         loss = criterion(output, target_var)
 
         # measure accuracy and record loss
