@@ -412,6 +412,7 @@ def train(model, epoch):#, log, tf_writer):
     #model.train()
 
     #end = time.time()
+    print("len(train_loader):", len(train_loader))
     for i, (input, target) in enumerate(train_loader):
         # measure data loading time
         #data_time.update(time.time() - end)
@@ -448,6 +449,7 @@ def train(model, epoch):#, log, tf_writer):
         # measure elapsed time
         #batch_time.update(time.time() - end)
         #end = time.time()
+    torch.save(model, "./saved_bottleneck_model.pt")
 
     '''
         if i % args.print_freq == 0:
