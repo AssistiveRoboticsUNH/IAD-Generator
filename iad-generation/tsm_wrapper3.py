@@ -13,6 +13,7 @@ from ops.utils import AverageMeter, accuracy
 
 import numpy as np
 from PIL import Image
+import time
 
 DEPTH_SIZE = 4
 CNN_FEATURE_COUNT = [256, 512, 1024, 2048]
@@ -495,12 +496,12 @@ def get_val_loader(model):
             drop_last=True)  # prevent something not % n_GPU
 
 def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
-    '''
+    
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-    '''
+    
 
     '''
     Make sure that the validation works so I can confirm that there is an improvement/loss in
@@ -512,7 +513,7 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
     # switch to evaluate mode
     model.eval()
 
-    #end = time.time()
+    end = time.time()
     with torch.no_grad():
         for i, (input, target) in enumerate(val_loader):
             target = target.cuda()
@@ -535,7 +536,7 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
 
             if i % args.print_freq == 0:
                 output = ('Test: [{0}/{1}]\t'
-                          'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                          #'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                           'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                           'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
@@ -559,4 +560,4 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
         tf_writer.add_scalar('acc/test_top5', top5.avg, epoch)
 
     return top1.avg
-'''
+
