@@ -410,7 +410,8 @@ def train(model, epoch):#, log, tf_writer):
     #end = time.time()
     #print("len(train_loader):", len(train_loader))
     for i, (input, target) in enumerate(train_loader):
-        print("iter: {:6d}/{:6d}".format(i, len(train_loader)))
+        if(i % 100 == 0):
+            print("iter: {:6d}/{:6d}".format(i, len(train_loader)))
 
         # measure data loading time
         #data_time.update(time.time() - end)
