@@ -8,6 +8,8 @@ from ops.dataset import TSNDataSet
 from ops.models import TSN
 from ops.transforms import *
 from ops import dataset_config
+from ops.transforms import *
+from ops.utils import AverageMeter, accuracy
 
 import numpy as np
 from PIL import Image
@@ -337,11 +339,6 @@ class TSMBackBone(BackBone):
             self.loss = torch.nn.CrossEntropyLoss().cuda()
 
 
-
-
-
-
-
 def get_train_loader(model):
         root_path = '/home/mbc2004/datasets/Something-Something/frames/'
         train_list = '/home/mbc2004/datasets/Something-Something/annotations/train_videofolder.txt'
@@ -466,17 +463,56 @@ def train(model, epoch):#, log, tf_writer):
     '''
 
 
-'''
+
+def get_val_loader(model):
+        root_path = '/home/mbc2004/datasets/Something-Something/frames/'
+        train_list = '/home/mbc2004/datasets/Something-Something/annotations/val_videofolder.txt'
+        num_segments = 8
+        modality = 'RGB'
+        dense_sample = False
+        batch_size = 8#64
+        workers = 16
+        arch = 'resnet50'
+
+        prefix = '{:06d}.jpg'
+
+        print('#' * 20, 'NO FLIP!!!')
+        train_augmentation = torchvision.transforms.Compose([GroupMultiScaleCrop(224, [1, .875, .75, .66])])
+
+        return torch.utils.data.DataLoader(
+            TSNDataSet(root_path, train_list, num_segments=num_segments,
+                   new_length=1,
+                   modality=modality,
+                   image_tmpl=prefix,
+                   transform=torchvision.transforms.Compose([
+                       train_augmentation,
+                       Stack(roll=(arch in ['BNInception', 'InceptionV3'])),
+                       ToTorchFormatTensor(div=(arch not in ['BNInception', 'InceptionV3'])),
+                       IdentityTransform(),
+                   ]), dense_sample=dense_sample),
+            batch_size=batch_size, shuffle=True,
+            num_workers=workers, pin_memory=True,
+            drop_last=True)  # prevent something not % n_GPU
+
 def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
+    '''
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
+    '''
+
+    '''
+    Make sure that the validation works so I can confirm that there is an improvement/loss in
+    accuracy when running this model.
+
+    Run model
+    '''
 
     # switch to evaluate mode
     model.eval()
 
-    end = time.time()
+    #end = time.time()
     with torch.no_grad():
         for i, (input, target) in enumerate(val_loader):
             target = target.cuda()
@@ -488,10 +524,11 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
             # measure accuracy and record loss
             prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
 
+            
             losses.update(loss.item(), input.size(0))
             top1.update(prec1.item(), input.size(0))
             top5.update(prec5.item(), input.size(0))
-
+            
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
