@@ -546,9 +546,11 @@ def validate(model, epoch):
                     i, len(val_loader), batch_time=batch_time, loss=losses,
                     top1=top1, top5=top5))
                 print(output)
+                '''
                 if log is not None:
                     log.write(output + '\n')
                     log.flush()
+                '''
 
     output = ('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
               .format(top1=top1, top5=top5, loss=losses))
