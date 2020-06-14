@@ -304,6 +304,8 @@ class TSMBackBone(BackBone):
                         'base_model.classifier.bias': 'new_fc.bias',
                         }
         for k, v in replace_dict.items():
+            if v in base_dict:
+                base_dict.pop(v)
             if k in base_dict:
                 base_dict.pop(k)
                 #base_dict[v] = base_dict.pop(k)
