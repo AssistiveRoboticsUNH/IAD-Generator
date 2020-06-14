@@ -379,15 +379,16 @@ def train(model, epoch):#, log, tf_writer):
     top5 = AverageMeter()
     '''
 
+
     train_loader = get_train_loader(model)
     #model.module.partialBN(True)
 
-    #'''
+    '''
     (input, target) = train_loader.dataset[0]
     input_var = torch.autograd.Variable(input)
     output = model.net(input_var)
     print("output_shape:", output.shape)
-    #'''
+    '''
 
     criterion = torch.nn.CrossEntropyLoss().cuda()
 
@@ -495,7 +496,7 @@ def get_val_loader(model):
             num_workers=workers, pin_memory=True,
             drop_last=True)  # prevent something not % n_GPU
 
-def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
+def validate(model, epoch):
     
     batch_time = AverageMeter()
     losses = AverageMeter()
@@ -509,6 +510,8 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
 
     Run model
     '''
+    val_loader = get_val_loader(model)
+    criterion = torch.nn.CrossEntropyLoss().cuda()
 
     # switch to evaluate mode
     model.eval()
@@ -519,7 +522,7 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
             target = target.cuda()
 
             # compute output
-            output = model(input)
+            output = model.net(input)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -550,6 +553,7 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
     output = ('Testing Results: Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.avg:.5f}'
               .format(top1=top1, top5=top5, loss=losses))
     print(output)
+    '''
     if log is not None:
         log.write(output + '\n')
         log.flush()
@@ -558,6 +562,6 @@ def validate(val_loader, model, criterion, epoch, log=None, tf_writer=None):
         tf_writer.add_scalar('loss/test', losses.avg, epoch)
         tf_writer.add_scalar('acc/test_top1', top1.avg, epoch)
         tf_writer.add_scalar('acc/test_top5', top5.avg, epoch)
-
+    '''
     return top1.avg
 
