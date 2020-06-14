@@ -28,9 +28,10 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 	#model.train_model(csv_contents, dataset_id, iad_data_path)
 	#model.train_model(csv_contents)
 	import tsm_wrapper3 as tw3 
-	epoch = 1
-	#tw3.train(model, epoch)#, log, tf_writer)
-	tw3.validate(model, epoch)
+	for i in range(4):
+		tw3.validate(model, epoch=1)
+		tw3.train(model, epoch=1)#, log, tf_writer)
+	tw3.validate(model, epoch=1)
 
 
 
