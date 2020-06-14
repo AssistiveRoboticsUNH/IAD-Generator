@@ -310,9 +310,6 @@ class TSMBackBone(BackBone):
                 base_dict.pop(k)
                 #base_dict[v] = base_dict.pop(k)
 
-        for k in base_dict.keys():
-            print(k)
-
         net.load_state_dict(base_dict, strict=False)
         
         # define image modifications
