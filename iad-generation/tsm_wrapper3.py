@@ -301,11 +301,15 @@ class TSMBackBone(BackBone):
         replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
                         'base_model.classifier.bias': 'new_fc.bias',
                         }
-        print(base_dict.keys())
+        
+
 
         for k, v in replace_dict.items():
             if k in base_dict:
                 base_dict[v] = base_dict.pop(k)
+
+        for k in base_dict.keys():
+            print(k)
 
         net.load_state_dict(base_dict, strict=False)
         
