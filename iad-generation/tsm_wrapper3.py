@@ -514,7 +514,7 @@ def validate(model, epoch):
     criterion = torch.nn.CrossEntropyLoss().cuda()
 
     # switch to evaluate mode
-    model.eval()
+    #model.eval()
 
     end = time.time()
     with torch.no_grad():
