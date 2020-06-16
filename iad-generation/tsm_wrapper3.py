@@ -252,14 +252,14 @@ class TSMBackBone(BackBone):
 
         
         net.base_model.avgpool = nn.Sequential(
-            nn.Conv2d(2048, 128, (1,1)),
+            nn.Conv2d(2048, 200, (1,1)),
             nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool2d(output_size=1)
         )
 
         #net.base_model.avgpool = nn.Identity()
         #net.base_model.fc = nn.Identity()
-        net.new_fc = nn.Linear(128, 174)
+        net.new_fc = nn.Linear(200, 174)
         
         
 
@@ -443,7 +443,7 @@ def train(model, epoch):#, log, tf_writer):
         # measure elapsed time
         #batch_time.update(time.time() - end)
         #end = time.time()
-    torch.save(model, "./saved_bottleneck_model.pt")
+    torch.save(model, "./saved_bottleneck_model_200.pt")
 
     '''
         if i % args.print_freq == 0:
