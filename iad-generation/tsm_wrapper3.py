@@ -110,7 +110,7 @@ class TSMBackBone(BackBone):
         self.is_shift, shift_div, shift_place = True, 8, 'blockres'
 
         
-        self.arch = checkpoint_file.split('TSM_')[1].split('_')[2]
+        self.arch = 'resnet101'
         modality = 'RGB'
         
 
