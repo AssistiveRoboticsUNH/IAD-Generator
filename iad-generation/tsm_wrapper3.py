@@ -90,7 +90,32 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
             return self.net(data_in)
 
-    def __init__(self, checkpoint_file, num_classes, max_length=8, feature_idx=None):
+    def process(self, csv_input):
+
+        data_in = self.open_file(csv_input)
+        length_ratio = csv_input['length']/float(self.max_length)
+
+        # data has shape (batch size, segment length, num_ch, height, width)
+        # (6,8,3,256,256)
+
+        print("data_in:", data_in.shape)
+        
+        # pass data through network to obtain activation maps
+        # rst is not used and not need to store grads
+        with torch.no_grad():
+
+            rst = self.net(data_in)
+        
+            # convert actvitaion from PyTorch to Numpy
+            rst = rst.cpu().numpy()
+
+            # compress spatial dimensions
+            rst = np.max(rst, axis=(2,3))
+            rst = rst.T
+
+        return rst, length_ratio
+
+    def __init__(self, checkpoint_file, num_classes, max_length=8, trim_net=False):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -165,30 +190,15 @@ class TSMBackBone(BackBone):
             nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool2d(output_size=1)
         )
-        net.new_fc = nn.Linear(200, 174)
-        
-        print(net)   
 
-
-        print('-----------')
-
-        '''
-        Make sure that by settign net.base_model.fc to Identity() that I am not breaking something 
-        otherwise I will need to retrain these layers
-        '''
-
-
-        if(self.feature_idx == None):
-            # Need to get rank information
-            net.base_model.fc = nn.Identity()
-            
+        if(not trim_net):
+            net.new_fc = nn.Linear(200, 174)
         else:
-            # Need to shorten network so that base_model doesn't get to FC layers
-            net.base_model.fc = nn.Identity()
-
-        print(net)
-        assert False, "I need to check to make sure that I am not doing something wrong here"
-
+            net.new_fc = nn.Identity()
+        
+        net.base_model.fc = nn.Identity() # sets the dropout value to None
+        print(net) 
+        
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
