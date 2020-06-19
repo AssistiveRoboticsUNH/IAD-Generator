@@ -121,7 +121,7 @@ class TSMBackBone(BackBone):
         self.arch = None
         self.num_classes = num_classes
         self.max_length = max_length
-        self.feature_idx = feature_idx
+        #self.feature_idx = feature_idx
 
         self.transform = None
 
@@ -240,7 +240,7 @@ class TSMBackBone(BackBone):
         self.net = net
 
         # loss variable (used for generating gradients when ranking)
-        if(self.feature_idx == None):
+        if(not trim_net):
             self.loss = torch.nn.CrossEntropyLoss().cuda()
 
 
