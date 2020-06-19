@@ -51,7 +51,8 @@ def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 			raise WorkerStopException()
 
 def convert_csv_chunk(inputs):
-	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
+	#csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length, feature_idx = inputs
+	csv_contents, model_type, model_filename, iad_data_path, num_classes, max_length = inputs
 	#print([ex['example_id'] for ex in csv_contents])
 
 
@@ -63,8 +64,8 @@ def convert_csv_chunk(inputs):
 	if(model_type == 'trn'):
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
-		from tsm_wrapper import TSMBackBone as bb
-	model = bb(model_filename, num_classes, max_length=max_length, feature_idx=feature_idx)
+		from tsm_wrapper3 import TSMBackBone as bb
+	model = bb(model_filename, num_classes, max_length=max_length)#, feature_idx=feature_idx)
 	
 	#generate IADs
 	return convert_dataset_to_iad(csv_contents, model, iad_data_path)
@@ -72,7 +73,8 @@ def convert_csv_chunk(inputs):
 def main(
 	model_type, model_filename, 
 	dataset_dir, csv_filename, num_classes, dataset_id, 
-	feature_rank_file, max_length, 
+	#feature_rank_file, 
+	max_length, 
 	num_features=128, dtype="frames", gpu=0, num_procs=1, single=""
 	):
 
@@ -104,7 +106,7 @@ def main(
 	if(not os.path.exists(iad_data_path)):
 		os.makedirs(iad_data_path)
 
-	feature_idx = get_top_n_feature_indexes(feature_rank_file, num_features)
+	#feature_idx = get_top_n_feature_indexes(feature_rank_file, num_features)
 
 
 	p = Pool(num_procs)
@@ -122,7 +124,7 @@ def main(
 			iad_data_path,
 			num_classes, 
 			max_length, 
-			feature_idx,
+			#feature_idx,
 			)
 		)
 		last += chunk_size
@@ -157,7 +159,7 @@ if __name__ == '__main__':
 	parser.add_argument('dataset_id', type=int, help='a csv file denoting the files in the dataset')
 
 	# IAD gen command line args
-	parser.add_argument('feature_rank_file', help='a .npz file containing min and max values to normalize by')
+	#parser.add_argument('feature_rank_file', help='a .npz file containing min and max values to normalize by')
 	parser.add_argument('max_length', type=int, help='the maximum length video to convert into an IAD')
 
 	# optional command line args
@@ -179,7 +181,7 @@ if __name__ == '__main__':
 		FLAGS.num_classes,
 		FLAGS.dataset_id,
 
-		FLAGS.feature_rank_file,
+		#FLAGS.feature_rank_file,
 		FLAGS.max_length,
 
 		FLAGS.num_features, 

@@ -167,7 +167,17 @@ class TSMBackBone(BackBone):
         )
         net.new_fc = nn.Linear(200, 174)
         
-        print(net)
+        print(net)   
+
+
+
+
+        assert False, "I need to check to make sure that I am not doing something wrong here"
+        '''
+        Make sure that by settign net.base_model.fc to Identity() that I am not breaking something 
+        otherwise I will need to retrain these layers
+        '''
+
 
         if(self.feature_idx == None):
             # Need to get rank information
@@ -176,6 +186,8 @@ class TSMBackBone(BackBone):
         else:
             # Need to shorten network so that base_model doesn't get to FC layers
             net.base_model.fc = nn.Identity()
+
+        print(net2)
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
