@@ -186,7 +186,7 @@ class TSMBackBone(BackBone):
             # Need to shorten network so that base_model doesn't get to FC layers
             net.base_model.fc = nn.Identity()
 
-        print(net2)
+        print(net)
         assert False, "I need to check to make sure that I am not doing something wrong here"
 
         
