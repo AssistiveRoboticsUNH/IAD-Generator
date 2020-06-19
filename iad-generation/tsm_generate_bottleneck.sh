@@ -1,6 +1,6 @@
 # develop IADs for dataset
 
-python iad_generator_flex.py \
+python3 iad_generator_flex.py \
 	tsm \
 	~/models/saved_bottleneck_model_128.pt \
 	~/datasets/Something-Something/ \
