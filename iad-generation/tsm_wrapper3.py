@@ -106,15 +106,20 @@ class TSMBackBone(BackBone):
 
             rst = self.net(data_in)
 
+            '''
             for i in range(len(self.activations)):
                 act = self.activations[i].cpu().numpy()
 
                 print("act", i, act.shape)
-        
+            '''
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
 
             print("rst1:", rst.shape)
+            rst = np.reshape(-1, 128, 8,8)
+            print("rst1.5:", rst.shape)
+
+
             # compress spatial dimensions
             rst = np.max(rst, axis=(2,3))
             print("rst2:", rst.shape)
