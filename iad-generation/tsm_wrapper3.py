@@ -219,8 +219,6 @@ class TSMBackBone(BackBone):
 
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
-
-
         else:
             checkpoint = checkpoint['state_dict']
 
@@ -247,6 +245,7 @@ class TSMBackBone(BackBone):
 
         # network variable
         self.net = net
+        print(net)
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
