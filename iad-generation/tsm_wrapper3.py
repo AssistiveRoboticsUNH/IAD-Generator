@@ -121,6 +121,7 @@ class TSMBackBone(BackBone):
         self.arch = None
         self.num_classes = num_classes
         self.max_length = max_length
+        self.bottleneck_size = bottleneck_size
         #self.feature_idx = feature_idx
 
         self.transform = None
@@ -219,7 +220,7 @@ class TSMBackBone(BackBone):
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
 
-            
+
         else:
             checkpoint = checkpoint['state_dict']
 
