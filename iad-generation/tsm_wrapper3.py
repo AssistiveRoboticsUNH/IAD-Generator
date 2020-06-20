@@ -105,6 +105,11 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
 
             rst = self.net(data_in)
+
+            for i in range(len(self.activations)):
+                act = self.activations[i].cpu().numpy()
+
+                print("act", i, act.shape)
         
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
@@ -199,6 +204,7 @@ class TSMBackBone(BackBone):
             return hook
 
         
+        
         net.base_model.avgpool = nn.Sequential(
             nn.Conv2d(2048, self.bottleneck_size, (1,1)),
             nn.ReLU(inplace=True),
@@ -215,6 +221,9 @@ class TSMBackBone(BackBone):
             net.consensus = nn.Identity()
             #net.base_model.avgpool = nn.Identity()
             net.new_fc = nn.Identity()
+
+        net.base_model.layer4.register_forward_hook(activation_hook(0))
+        net.base_model.avgpool.register_forward_hook(activation_hook(1))
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
         print(net) 
