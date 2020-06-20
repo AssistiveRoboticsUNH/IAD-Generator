@@ -212,7 +212,7 @@ class TSMBackBone(BackBone):
         else:
             print("trim")
             net.consensus = nn.Identity()
-            net.base_model.avgpool = nn.Identity()
+            #net.base_model.avgpool = nn.Identity()
             net.new_fc = nn.Identity()
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
