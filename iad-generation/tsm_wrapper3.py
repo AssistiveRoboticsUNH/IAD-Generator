@@ -207,9 +207,11 @@ class TSMBackBone(BackBone):
 
         if(not trim_net):
             print("no trim")
+
             net.new_fc = nn.Linear(self.bottleneck_size, 174)
         else:
             print("trim")
+            net.base_model.avgpool = nn.Identity()
             net.new_fc = nn.Identity()
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
