@@ -238,14 +238,9 @@ class TSMBackBone(BackBone):
 
         net.load_state_dict(base_dict, strict=False)
 
-        # place net onto GPU and finalize network
-        self.model = net
-        net = torch.nn.DataParallel(net.cuda())
-        net.eval()
+        
 
-        # network variable
-        self.net = net
-        print(net)
+
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
@@ -259,7 +254,15 @@ class TSMBackBone(BackBone):
                            GroupNormalize(net.input_mean, net.input_std),
                            ])
 
-       
+        # place net onto GPU and finalize network
+        self.model = net
+        net = torch.nn.DataParallel(net.cuda())
+        net.eval()
+
+
+        # network variable
+        self.net = net
+        print(net)
 
         
 
