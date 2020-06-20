@@ -115,16 +115,12 @@ class TSMBackBone(BackBone):
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
 
-            print("rst1:", rst.shape)
             rst = rst.reshape((-1, 128, 8,8))
-            print("rst1.5:", rst.shape)
 
 
             # compress spatial dimensions
             rst = np.max(rst, axis=(2,3))
-            print("rst2:", rst.shape)
             rst = rst.T
-            print("rst3:", rst.shape)
 
         return rst, length_ratio
 
@@ -227,8 +223,8 @@ class TSMBackBone(BackBone):
             #net.base_model.avgpool = nn.Identity()
             net.new_fc = nn.Identity()
 
-        net.base_model.layer4.register_forward_hook(activation_hook(0))
-        net.base_model.avgpool.register_forward_hook(activation_hook(1))
+        #net.base_model.layer4.register_forward_hook(activation_hook(0))
+        #net.base_model.avgpool.register_forward_hook(activation_hook(1))
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
         print(net) 
@@ -285,8 +281,6 @@ class TSMBackBone(BackBone):
 
         # network variable
         self.net = net
-        print("net2-----------------------")
-        print(net)
 
         
 
