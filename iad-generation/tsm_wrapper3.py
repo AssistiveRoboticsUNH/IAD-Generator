@@ -265,6 +265,7 @@ class TSMBackBone(BackBone):
 
         # network variable
         self.net = net
+        print("net2-----------------------")
         print(net)
 
         
