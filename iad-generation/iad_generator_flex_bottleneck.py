@@ -20,18 +20,15 @@ class WorkerStopException(Exception):
 
 def convert_to_iad(data, csv_input, length_ratio, iad_data_path):
 	#save to disk
-	for layer in range(len(data)):
-		label_path = os.path.join(iad_data_path, csv_input['label_name'])
-		if(not os.path.exists(label_path)):
-			os.makedirs(label_path)
-		csv_input['iad_path_'+str(layer)] = os.path.join(label_path, csv_input['example_id'])+"_"+str(layer)+".npz"
+	#for layer in range(len(data)):
+	label_path = os.path.join(iad_data_path, csv_input['label_name'])
+	if(not os.path.exists(label_path)):
+		os.makedirs(label_path)
+	csv_input['iad_path'] = os.path.join(label_path, csv_input['example_id'])+".npz"
 
-		print("len:", int(data[layer].shape))
+	data = data[:, :int(data.shape[1]*length_ratio)]
 
-		print("len:", int(data[layer].shape[1]*length_ratio))
-		data[layer] = data[layer][:, :int(data[layer].shape[1]*length_ratio)]
-
-		np.savez_compressed(csv_input['iad_path_'+str(layer)], data=data[layer], label=csv_input['label'], length=data[layer].shape[1])
+	np.savez_compressed(csv_input['iad_path'], data=data, label=csv_input['label'], length=data.shape[1])
 
 def convert_dataset_to_iad(csv_contents, model, iad_data_path):
 	
