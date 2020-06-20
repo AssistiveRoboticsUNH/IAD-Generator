@@ -202,7 +202,7 @@ class TSMBackBone(BackBone):
         net.base_model.avgpool = nn.Sequential(
             nn.Conv2d(2048, self.bottleneck_size, (1,1)),
             nn.ReLU(inplace=True),
-            nn.AdaptiveAvgPool2d(output_size=1)
+            #nn.AdaptiveAvgPool2d(output_size=1)
         )
 
         if(not trim_net):
