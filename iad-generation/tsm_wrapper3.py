@@ -109,9 +109,12 @@ class TSMBackBone(BackBone):
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
 
+            print("rst1:", rst.shape)
             # compress spatial dimensions
             rst = np.max(rst, axis=(2,3))
+            print("rst2:", rst.shape)
             rst = rst.T
+            print("rst3:", rst.shape)
 
         return rst, length_ratio
 
