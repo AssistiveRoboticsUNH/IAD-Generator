@@ -65,7 +65,7 @@ def convert_csv_chunk(inputs):
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper3 import TSMBackBone as bb
-	model = bb(model_filename, num_classes, max_length=max_length, trim_net = True, checkpoint_is_model=True)#, feature_idx=feature_idx)
+	model = bb(model_filename, num_classes, max_length=max_length, trim_net = True, checkpoint_is_model=True, bottleneck_size=128)#, feature_idx=feature_idx)
 	
 	#generate IADs
 	return convert_dataset_to_iad(csv_contents, model, iad_data_path)

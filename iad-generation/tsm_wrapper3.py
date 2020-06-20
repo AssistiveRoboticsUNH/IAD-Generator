@@ -115,7 +115,7 @@ class TSMBackBone(BackBone):
 
         return rst, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes, max_length=8, trim_net=False, checkpoint_is_model=False):
+    def __init__(self, checkpoint_file, num_classes, max_length=8, trim_net=False, checkpoint_is_model=False, bottleneck_size=128):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -196,13 +196,13 @@ class TSMBackBone(BackBone):
 
         
         net.base_model.avgpool = nn.Sequential(
-            nn.Conv2d(2048, 200, (1,1)),
+            nn.Conv2d(2048, self.bottleneck_size, (1,1)),
             nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool2d(output_size=1)
         )
 
         if(not trim_net):
-            net.new_fc = nn.Linear(200, 174)
+            net.new_fc = nn.Linear(self.bottleneck_size, 174)
         else:
             net.new_fc = nn.Identity()
         
@@ -218,6 +218,8 @@ class TSMBackBone(BackBone):
 
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
+
+            
         else:
             checkpoint = checkpoint['state_dict']
 
@@ -332,7 +334,7 @@ def train(model, epoch):
         optimizer.zero_grad()
 
         
-    torch.save(model, "./saved_bottleneck_model_200.pt")
+    torch.save(model, "./saved_bottleneck_model_"+str(model.bottleneck_size)+".pt")
 
 
 
