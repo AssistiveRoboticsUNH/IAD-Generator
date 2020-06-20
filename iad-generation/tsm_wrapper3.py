@@ -116,7 +116,7 @@ class TSMBackBone(BackBone):
             rst = rst.cpu().numpy()
 
             print("rst1:", rst.shape)
-            rst = np.reshape(-1, 128, 8,8)
+            rst = np.reshape((-1, 128, 8,8))
             print("rst1.5:", rst.shape)
 
 
