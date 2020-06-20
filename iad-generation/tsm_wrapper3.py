@@ -211,6 +211,7 @@ class TSMBackBone(BackBone):
             net.new_fc = nn.Linear(self.bottleneck_size, 174)
         else:
             print("trim")
+            net.consensus = nn.Identity()
             net.base_model.avgpool = nn.Identity()
             net.new_fc = nn.Identity()
         
