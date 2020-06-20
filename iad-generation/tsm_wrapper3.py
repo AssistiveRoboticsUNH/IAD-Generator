@@ -143,104 +143,107 @@ class TSMBackBone(BackBone):
         num_class, train_list, val_list, root_path, prefix = dataset_config.return_dataset('somethingv2', modality)
         print('=> shift: {}, shift_div: {}, shift_place: {}'.format(self.is_shift, shift_div, shift_place))
 
-        if (checkpoint_is_model):
-            self.net = torch.load(checkpoint_file).net
+    
+
+        # define model
+        net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
+                  base_model=self.arch,
+                  consensus_type='avg',
+                  img_feature_dim=256,
+                  pretrain='imagenet',
+                  is_shift=self.is_shift, shift_div=shift_div, shift_place=shift_place,
+                  non_local='_nl' in checkpoint_file,
+                  )
+
+        '''
+        The checkpoint file appears to be an entire TSMBackBone Object. this needs to be
+        handled acordingly. Either find a way to convert it back to a weights file or maniuplate it 
+        to work with the system.
+        '''
+
+
+        # load checkpoint file
+        checkpoint = torch.load(checkpoint_file)
+
+
+        # add activation and ranking hooks
+        self.activations = [None]*4
+        self.ranks = [None]*4
+        def activation_hook(idx):
+            def hook(model, input, output):
+                #prune features and only get those we are investigating 
+                activation = output.detach()
+                
+                self.activations[idx] = activation
+ 
+            return hook
+
+        def taylor_expansion_hook(idx):
+            def hook(model, input, output):
+                # perform taylor expansion
+                grad = input[0].detach()
+                activation = self.activations[idx]
+                
+                # sum values together
+                values = torch.sum((activation * grad), dim = (0,2,3)).data
+
+                # Normalize the rank by the filter dimensions
+                values = values / (activation.size(0) * activation.size(2) * activation.size(3))
+
+                self.ranks[idx] = values.cpu().numpy()
+
+            return hook
+
+        
+        net.base_model.avgpool = nn.Sequential(
+            nn.Conv2d(2048, 200, (1,1)),
+            nn.ReLU(inplace=True),
+            nn.AdaptiveAvgPool2d(output_size=1)
+        )
+
+        if(not trim_net):
+            net.new_fc = nn.Linear(200, 174)
         else:
+            net.new_fc = nn.Identity()
+        
+        net.base_model.fc = nn.Identity() # sets the dropout value to None
+        print(net) 
+        
+        
+        # Combine network together so that the it can have parameters set correctly
+        # I think, I'm not 100% what this code section actually does and I don't have 
+        # the time to figure it out right now
+        print("checkpoint------------------------")
+        print(checkpoint)
 
-            # define model
-            net = TSN(num_class, this_test_segments if self.is_shift else 1, modality,
-                      base_model=self.arch,
-                      consensus_type='avg',
-                      img_feature_dim=256,
-                      pretrain='imagenet',
-                      is_shift=self.is_shift, shift_div=shift_div, shift_place=shift_place,
-                      non_local='_nl' in checkpoint_file,
-                      )
-
-            '''
-            The checkpoint file appears to be an entire TSMBackBone Object. this needs to be
-            handled acordingly. Either find a way to convert it back to a weights file or maniuplate it 
-            to work with the system.
-            '''
-
-
-            # load checkpoint file
-            checkpoint = torch.load(checkpoint_file)
-
-
-            # add activation and ranking hooks
-            self.activations = [None]*4
-            self.ranks = [None]*4
-            def activation_hook(idx):
-                def hook(model, input, output):
-                    #prune features and only get those we are investigating 
-                    activation = output.detach()
-                    
-                    self.activations[idx] = activation
-     
-                return hook
-
-            def taylor_expansion_hook(idx):
-                def hook(model, input, output):
-                    # perform taylor expansion
-                    grad = input[0].detach()
-                    activation = self.activations[idx]
-                    
-                    # sum values together
-                    values = torch.sum((activation * grad), dim = (0,2,3)).data
-
-                    # Normalize the rank by the filter dimensions
-                    values = values / (activation.size(0) * activation.size(2) * activation.size(3))
-
-                    self.ranks[idx] = values.cpu().numpy()
-
-                return hook
-
-            
-            net.base_model.avgpool = nn.Sequential(
-                nn.Conv2d(2048, 200, (1,1)),
-                nn.ReLU(inplace=True),
-                nn.AdaptiveAvgPool2d(output_size=1)
-            )
-
-            if(not trim_net):
-                net.new_fc = nn.Linear(200, 174)
-            else:
-                net.new_fc = nn.Identity()
-            
-            net.base_model.fc = nn.Identity() # sets the dropout value to None
-            print(net) 
-            
-            
-            # Combine network together so that the it can have parameters set correctly
-            # I think, I'm not 100% what this code section actually does and I don't have 
-            # the time to figure it out right now
-            print("checkpoint------------------------")
-            print(checkpoint)
-
+        if (checkpoint_is_model):
+            checkpoint = checkpoint.net.state_dict()
+        else:
             checkpoint = checkpoint['state_dict']
-            base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint.items())}
-            
-            
-            replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
-                            'base_model.classifier.bias': 'new_fc.bias',
-                            }
-            for k, v in replace_dict.items():
-                if v in base_dict:
-                    base_dict.pop(v)
-                if k in base_dict:
-                    base_dict.pop(k)
-                    #base_dict[v] = base_dict.pop(k)
 
-            net.load_state_dict(base_dict, strict=False)
+        
+        base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint.items())}
+        
+        
+        replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
+                        'base_model.classifier.bias': 'new_fc.bias',
+                        }
+        for k, v in replace_dict.items():
+            if v in base_dict:
+                base_dict.pop(v)
+            if k in base_dict:
+                base_dict.pop(k)
+                #base_dict[v] = base_dict.pop(k)
 
-            # place net onto GPU and finalize network
-            self.model = net
-            net = torch.nn.DataParallel(net.cuda())
-            net.eval()
+        net.load_state_dict(base_dict, strict=False)
 
-            # network variable
-            self.net = net
+        # place net onto GPU and finalize network
+        self.model = net
+        net = torch.nn.DataParallel(net.cuda())
+        net.eval()
+
+        # network variable
+        self.net = net
         
         # define image modifications
         self.transform = torchvision.transforms.Compose([
