@@ -91,7 +91,7 @@ if __name__ == '__main__':
 	# model command line args
 	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'trn', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
-	parser.add_argument('bottleneck_size', help='the checkpoint file to use with the model')
+	parser.add_argument('bottleneck_size', type=int, help='the checkpoint file to use with the model')
 
 
 	# dataset command line args
