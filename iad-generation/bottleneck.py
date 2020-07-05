@@ -77,7 +77,7 @@ def main(
 		model_filename, 
 		num_classes, 
 		dataset_id, 
-		iad_data_path
+		iad_data_path,
 		bottleneck_size)
 
 
