@@ -105,18 +105,11 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
 
             rst = self.net(data_in)
-
-            '''
-            for i in range(len(self.activations)):
-                act = self.activations[i].cpu().numpy()
-
-                print("act", i, act.shape)
-            '''
+            print("rst:", rst.shape)
+           
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
-
             rst = rst.reshape((-1, 128, 8,8))
-
 
             # compress spatial dimensions
             rst = np.max(rst, axis=(2,3))
@@ -174,37 +167,6 @@ class TSMBackBone(BackBone):
 
         # load checkpoint file
         checkpoint = torch.load(checkpoint_file)
-
-
-        # add activation and ranking hooks
-        self.activations = [None]*4
-        self.ranks = [None]*4
-        def activation_hook(idx):
-            def hook(model, input, output):
-                #prune features and only get those we are investigating 
-                activation = output.detach()
-                
-                self.activations[idx] = activation
- 
-            return hook
-
-        def taylor_expansion_hook(idx):
-            def hook(model, input, output):
-                # perform taylor expansion
-                grad = input[0].detach()
-                activation = self.activations[idx]
-                
-                # sum values together
-                values = torch.sum((activation * grad), dim = (0,2,3)).data
-
-                # Normalize the rank by the filter dimensions
-                values = values / (activation.size(0) * activation.size(2) * activation.size(3))
-
-                self.ranks[idx] = values.cpu().numpy()
-
-            return hook
-
-        
         
         net.base_model.avgpool = nn.Sequential(
             nn.Conv2d(2048, self.bottleneck_size, (1,1)),
@@ -214,21 +176,14 @@ class TSMBackBone(BackBone):
 
         if(not trim_net):
             print("no trim")
-
             net.new_fc = nn.Linear(self.bottleneck_size, 174)
         else:
             print("trim")
-            #net.base_model.avgpool = nn.Identity()
             net.consensus = nn.Identity()
-            #net.base_model.avgpool = nn.Identity()
             net.new_fc = nn.Identity()
 
-        #net.base_model.layer4.register_forward_hook(activation_hook(0))
-        #net.base_model.avgpool.register_forward_hook(activation_hook(1))
-        
         net.base_model.fc = nn.Identity() # sets the dropout value to None
         print(net) 
-        
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 

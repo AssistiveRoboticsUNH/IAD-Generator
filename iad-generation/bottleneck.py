@@ -10,7 +10,7 @@ import os, sys, random
 import numpy as np
 
 
-def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad_data_path):
+def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad_data_path, bottleneck_size):
 
 	#csv_contents, model_type, model_filename, num_classes, dataset_id, iad_data_path = inp
 
@@ -21,7 +21,7 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper3 import TSMBackBone as bb
-	model = bb(model_filename, num_classes)
+	model = bb(model_filename, num_classes, bottleneck_size=bottleneck_size)
 
 
 	# wrapper should take care of the bottlenecking steps
@@ -35,8 +35,10 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 
 def main(
 	model_type, model_filename, 
+	bottleneck_size,
 	dataset_dir, csv_filename, num_classes, dataset_id, 
-	dataset_size, dtype, gpu, num_procs
+	dataset_size, dtype, gpu, num_procs,
+	
 	):
 
 	os.environ["CUDA_VISIBLE_DEVICES"] = gpu
@@ -73,6 +75,7 @@ def main(
 		csv_contents, 
 		model_type, 
 		model_filename, 
+		bottleneck_size,
 		num_classes, 
 		dataset_id, 
 		iad_data_path)
@@ -88,6 +91,8 @@ if __name__ == '__main__':
 	# model command line args
 	parser.add_argument('model_type', help='the type of model to use', choices=['i3d', 'trn', 'tsm'])
 	parser.add_argument('model_filename', help='the checkpoint file to use with the model')
+	parser.add_argument('bottleneck_size', help='the checkpoint file to use with the model')
+
 
 	# dataset command line args
 	parser.add_argument('dataset_dir', help='the directory whee the dataset is located')
@@ -107,6 +112,7 @@ if __name__ == '__main__':
 	main(
 		FLAGS.model_type, 
 		FLAGS.model_filename, 
+		FLAGS.bottleneck_size,
 
 		FLAGS.dataset_dir, 
 		FLAGS.csv_filename, 
