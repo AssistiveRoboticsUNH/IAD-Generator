@@ -189,8 +189,8 @@ class TSMBackBone(BackBone):
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
         # the time to figure it out right now
-        print("checkpoint------------------------")
-        print(checkpoint)
+        #print("checkpoint------------------------")
+        #print(checkpoint)
 
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
