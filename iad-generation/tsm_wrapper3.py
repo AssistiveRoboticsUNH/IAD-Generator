@@ -168,6 +168,7 @@ class TSMBackBone(BackBone):
         # load checkpoint file
         checkpoint = torch.load(checkpoint_file)
         
+        print("self.bottleneck_size:", self.bottleneck_size, type(self.bottleneck_size))
         net.base_model.avgpool = nn.Sequential(
             nn.Conv2d(2048, self.bottleneck_size, (1,1)),
             nn.ReLU(inplace=True),
