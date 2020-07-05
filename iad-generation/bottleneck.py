@@ -69,7 +69,7 @@ def main(
 		os.makedirs(iad_data_path)
 
 
-
+	print("bottleneck_size:", bottleneck_size, type(bottleneck_size))
 	
 	train(
 		csv_contents, 
