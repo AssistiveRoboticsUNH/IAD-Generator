@@ -23,7 +23,7 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 		from tsm_wrapper3 import TSMBackBone as bb
 	model = bb(model_filename, num_classes, bottleneck_size=bottleneck_size, trim_net=True)
 
-	assert False
+	#assert False
 	# wrapper should take care of the bottlenecking steps
 	#model.train_model(csv_contents, dataset_id, iad_data_path)
 	#model.train_model(csv_contents)
