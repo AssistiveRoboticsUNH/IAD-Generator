@@ -75,10 +75,10 @@ def main(
 		csv_contents, 
 		model_type, 
 		model_filename, 
-		bottleneck_size,
 		num_classes, 
 		dataset_id, 
-		iad_data_path)
+		iad_data_path
+		bottleneck_size)
 
 
 	# save model
