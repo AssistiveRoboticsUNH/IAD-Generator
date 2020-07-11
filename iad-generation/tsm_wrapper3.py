@@ -167,11 +167,12 @@ class TSMBackBone(BackBone):
 
         # load checkpoint file
         checkpoint = torch.load(checkpoint_file)
-        '''
+        
         #include
         print("self.bottleneck_size:", self.bottleneck_size, type(self.bottleneck_size))
         net.base_model.avgpool = nn.Sequential(
             nn.Conv2d(2048, self.bottleneck_size, (1,1)),
+            nn.MaxPool2d(8, stride=1),
             nn.ReLU(inplace=True),
             #nn.AdaptiveAvgPool2d(output_size=1)
         )
@@ -192,7 +193,7 @@ class TSMBackBone(BackBone):
         # the time to figure it out right now
         #print("checkpoint------------------------")
         #print(checkpoint)
-		'''
+		
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
         else:
@@ -201,7 +202,7 @@ class TSMBackBone(BackBone):
         
         base_dict = {'.'.join(k.split('.')[1:]): v for k, v in list(checkpoint.items())}
         
-        '''
+        
         #include
         replace_dict = {'base_model.classifier.weight': 'new_fc.weight',
                         'base_model.classifier.bias': 'new_fc.bias',
@@ -212,7 +213,7 @@ class TSMBackBone(BackBone):
             if k in base_dict:
                 base_dict.pop(k)
                 #base_dict[v] = base_dict.pop(k)
-		'''
+		
         net.load_state_dict(base_dict, strict=False)
 
         
