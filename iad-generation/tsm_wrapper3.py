@@ -319,6 +319,7 @@ def train(model, epoch):
         target_var = torch.autograd.Variable(target)
 
         # compute output
+        print("input.shape:", input_var.shape)
         output = model.net(input_var)
         print("output.shape:", output.shape)
 
