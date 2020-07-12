@@ -175,7 +175,7 @@ class TSMBackBone(BackBone):
             #nn.MaxPool2d()
 
             #BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-            nn.ReLU(inplace=True),
+            nn.ReLU(inplace=True)
             #nn.AdaptiveAvgPool2d(output_size=1)
         )
 
