@@ -167,7 +167,7 @@ class TSMBackBone(BackBone):
 
         # load checkpoint file
         checkpoint = torch.load(checkpoint_file)
-        '''
+        
         #include
         print("self.bottleneck_size:", self.bottleneck_size, type(self.bottleneck_size))
         net.base_model.avgpool = nn.Sequential(
@@ -192,7 +192,7 @@ class TSMBackBone(BackBone):
         # the time to figure it out right now
         #print("checkpoint------------------------")
         #print(checkpoint)
-		'''
+		
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
         else:
