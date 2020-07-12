@@ -198,7 +198,7 @@ class TSMBackBone(BackBone):
             net.consensus = nn.Identity()
             net.new_fc = nn.Identity()
 
-        net.base_model.fc = nn.Identity() # sets the dropout value to None
+        #net.base_model.fc = nn.Identity() # sets the dropout value to None
        # print(net) 
         
         # Combine network together so that the it can have parameters set correctly

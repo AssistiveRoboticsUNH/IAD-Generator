@@ -21,7 +21,7 @@ def train(csv_contents, model_type, model_filename, num_classes, dataset_id, iad
 		from trn_wrapper import TRNBackBone as bb
 	if(model_type == 'tsm'):
 		from tsm_wrapper3 import TSMBackBone as bb
-	model = bb(model_filename, num_classes, bottleneck_size=bottleneck_size, trim_net=True)
+	model = bb(model_filename, num_classes, bottleneck_size=bottleneck_size, trim_net=False)
 
 	#assert False
 	# wrapper should take care of the bottlenecking steps
