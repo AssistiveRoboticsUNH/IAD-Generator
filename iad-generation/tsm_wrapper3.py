@@ -109,7 +109,8 @@ class TSMBackBone(BackBone):
            
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
-            rst = rst.reshape((-1, 128, 8,8))
+            #rst = rst.reshape((-1, 128, 8,8))
+            rst = rst.reshape((-1, self.bottleneck_size))
 
             print("rst2:", rst.shape)
             assert False
