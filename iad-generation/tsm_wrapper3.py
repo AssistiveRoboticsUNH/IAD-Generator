@@ -106,6 +106,7 @@ class TSMBackBone(BackBone):
 
             rst = self.net(data_in)
             print("rst:", rst.shape)
+            assert False
            
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
@@ -186,7 +187,7 @@ class TSMBackBone(BackBone):
         else:
             print("trim")
             net.consensus = nn.Identity()
-        	net.new_fc = nn.Identity()
+            net.new_fc = nn.Identity()
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
         print(net) 
@@ -196,7 +197,7 @@ class TSMBackBone(BackBone):
         # the time to figure it out right now
         #print("checkpoint------------------------")
         #print(checkpoint)
-		
+        
         if (checkpoint_is_model):
             checkpoint = checkpoint.net.state_dict()
         else:
@@ -216,7 +217,7 @@ class TSMBackBone(BackBone):
             if k in base_dict:
                 base_dict.pop(k)
                 #base_dict[v] = base_dict.pop(k)
-		
+        
         net.load_state_dict(base_dict, strict=False)
 
         
@@ -310,7 +311,6 @@ def train(model, epoch):
         output = model.net(input_var)
         print("output.shape:", output.shape)
 
-        assert False
         loss = criterion(output, target_var)
 
         # compute gradient and do SGD step
