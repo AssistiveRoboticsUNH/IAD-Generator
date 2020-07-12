@@ -192,7 +192,7 @@ class TSMBackBone(BackBone):
         
         if(not trim_net):
             print("no trim")
-            #net.new_fc = nn.Linear(self.bottleneck_size, 174)
+            net.new_fc = nn.Linear(self.bottleneck_size, 174)
         else:
             print("trim")
             net.consensus = nn.Identity()
