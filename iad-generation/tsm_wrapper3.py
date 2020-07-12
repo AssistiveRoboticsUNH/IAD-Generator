@@ -117,7 +117,7 @@ class TSMBackBone(BackBone):
 
         return rst, length_ratio
 
-    def __init__(self, checkpoint_file, num_classes, max_length=8, trim_net=False, checkpoint_is_model=False, bottleneck_size=128):
+    def __init__(self, checkpoint_file, num_classes, max_length=8, trim_net=True, checkpoint_is_model=False, bottleneck_size=128):
         self.is_shift = None
         self.net = None
         self.arch = None
@@ -172,6 +172,9 @@ class TSMBackBone(BackBone):
         print("self.bottleneck_size:", self.bottleneck_size, type(self.bottleneck_size))
         net.base_model.avgpool = nn.Sequential(
             nn.Conv2d(2048, self.bottleneck_size, (1,1)),
+            #nn.MaxPool2d()
+
+            #BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
             nn.ReLU(inplace=True),
             #nn.AdaptiveAvgPool2d(output_size=1)
         )
@@ -304,6 +307,9 @@ def train(model, epoch):
 
         # compute output
         output = model.net(input_var)
+        print("output.shape:", output.shape)
+
+        assert False
         loss = criterion(output, target_var)
 
         # compute gradient and do SGD step
