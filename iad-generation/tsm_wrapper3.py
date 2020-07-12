@@ -182,7 +182,7 @@ class TSMBackBone(BackBone):
             #nn.MaxPool2d((8,8)),
             nn.AdaptiveAvgPool2d(output_size=1),
             #nn.Linear(2048, self.bottleneck_size)
-            nn.Linear(2048, self.bottleneck_size),
+            #nn.Linear(2048, self.bottleneck_size),
 
         )
 
