@@ -179,16 +179,15 @@ class TSMBackBone(BackBone):
             #nn.AdaptiveAvgPool2d(output_size=1)
         )
 
-        '''
+        
         if(not trim_net):
             print("no trim")
             net.new_fc = nn.Linear(self.bottleneck_size, 174)
         else:
             print("trim")
-        '''
-        net.consensus = nn.Identity()
-        net.new_fc = nn.Identity()
-
+            net.consensus = nn.Identity()
+        	net.new_fc = nn.Identity()
+        
         net.base_model.fc = nn.Identity() # sets the dropout value to None
         print(net) 
         
