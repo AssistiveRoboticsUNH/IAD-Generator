@@ -174,7 +174,7 @@ class TSMBackBone(BackBone):
         #include
         print("self.bottleneck_size:", self.bottleneck_size, type(self.bottleneck_size))
         net.base_model.avgpool = nn.Sequential(
-            nn.Conv2d(2048, self.bottleneck_size, (1,1)),
+            #nn.Conv2d(2048, self.bottleneck_size, (1,1)),
             #nn.MaxPool2d()
 
             #BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
