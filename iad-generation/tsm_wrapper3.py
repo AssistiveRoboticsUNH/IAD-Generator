@@ -180,7 +180,7 @@ class TSMBackBone(BackBone):
             #BatchNorm1d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
             #nn.ReLU(inplace=True)
             nn.AdaptiveAvgPool2d(output_size=1),
-            nn.Linear(2048, self.bottleneck_size)
+            #nn.Linear(2048, self.bottleneck_size)
 
         )
 
@@ -192,6 +192,7 @@ class TSMBackBone(BackBone):
             print("trim")
             net.consensus = nn.Identity()
             net.new_fc = nn.Identity()
+        net.new_fc = nn.Linear(2048, self.bottleneck_size)
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
        # print(net) 
