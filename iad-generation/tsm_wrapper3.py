@@ -170,7 +170,7 @@ class TSMBackBone(BackBone):
 
         # load checkpoint file
         checkpoint = torch.load(checkpoint_file)
-        
+        print(net)
         #include
         print("self.bottleneck_size:", self.bottleneck_size, type(self.bottleneck_size))
         net.base_model.avgpool = nn.Sequential(
@@ -192,7 +192,7 @@ class TSMBackBone(BackBone):
             net.new_fc = nn.Identity()
         
         net.base_model.fc = nn.Identity() # sets the dropout value to None
-        print(net) 
+       # print(net) 
         
         # Combine network together so that the it can have parameters set correctly
         # I think, I'm not 100% what this code section actually does and I don't have 
