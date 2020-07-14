@@ -105,18 +105,18 @@ class TSMBackBone(BackBone):
         with torch.no_grad():
 
             rst = self.net(data_in)
-            print("rst1:", rst.shape)
+            #print("rst1:", rst.shape)
            
             # convert actvitaion from PyTorch to Numpy
             rst = rst.cpu().numpy()
             #rst = rst.reshape((-1, 128, 8,8))
             rst = rst.reshape((-1, self.bottleneck_size))
 
-            print("rst2:", rst.shape)
-            assert False
+            #print("rst2:", rst.shape)
+            #assert False
 
             # compress spatial dimensions
-            rst = np.max(rst, axis=(2,3))
+            #rst = np.max(rst, axis=(2,3))
             rst = rst.T
 
         return rst, length_ratio
